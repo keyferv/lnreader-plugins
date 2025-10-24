@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 
-import { BookOpen, Search, Settings, Zap } from 'lucide-react';
+import { BookOpen, Clock, Search, Settings, Zap } from 'lucide-react';
 import PluginHeader from '../components/plugin-header';
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 
 import plugins from '@plugins/index';
 import { useAppStore } from '@/store';
-import PopularNovelsSection from '@/components/popular-novels';
+import NovelsList from '@/components/novels-list';
 import SearchNovelsSection from '@/components/search-novels';
 import ParseNovelSection from '@/components/parse-novel';
 import SettingsSection from '@/components/settings';
@@ -18,7 +18,7 @@ function Home() {
   const { plugin, selectPlugin } = useAppStore(state => state);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const [activeTab, setActiveTab] = useState('popular');
+  const [activeTab, setActiveTab] = useState('recent');
 
   const filteredPlugins = useMemo(
     () =>
@@ -89,7 +89,11 @@ function Home() {
               onValueChange={setActiveTab}
               className="w-full"
             >
-              <TabsList className="grid w-full grid-cols-5 mb-8">
+              <TabsList className="grid w-full grid-cols-6 mb-8">
+                <TabsTrigger value="recent" className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  <span className="hidden sm:inline">Recent</span>
+                </TabsTrigger>
                 <TabsTrigger
                   value="popular"
                   className="flex items-center gap-2"
@@ -124,8 +128,16 @@ function Home() {
                 </TabsTrigger>
               </TabsList>
 
+              <TabsContent value="recent" className="space-y-6">
+                <NovelsList
+                  mode="latest"
+                  onNavigateToParseNovel={() => setActiveTab('parse-novel')}
+                />
+              </TabsContent>
+
               <TabsContent value="popular" className="space-y-6">
-                <PopularNovelsSection
+                <NovelsList
+                  mode="popular"
                   onNavigateToParseNovel={() => setActiveTab('parse-novel')}
                 />
               </TabsContent>

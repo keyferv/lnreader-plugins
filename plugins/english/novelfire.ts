@@ -29,10 +29,14 @@ class NovelFire implements Plugin.PluginBase {
       filters,
     }: Plugin.PopularNovelsOptions<typeof this.filters>,
   ): Promise<Plugin.NovelItem[]> {
-    let url = this.site + 'search-adv';
+    let url = '';
+
+    // Usar el endpoint específico de "latest-release-novels" para recientes
     if (showLatestNovels) {
-      url += `?ctgcon=and&totalchapter=0&ratcon=min&rating=0&status=-1&sort=date&tagcon=and&page=${pageNo}`;
+      url = `${this.site}latest-release-novels?page=${pageNo}`;
     } else if (filters) {
+      url = this.site + 'search-adv';
+
       const params = new URLSearchParams();
       for (const language of filters.language.value) {
         params.append('country_id[]', language);
@@ -49,22 +53,34 @@ class NovelFire implements Plugin.PluginBase {
       params.append('page', pageNo.toString());
       url += `?${params.toString()}`;
     } else {
-      url += `?ctgcon=and&totalchapter=0&ratcon=min&rating=0&status=-1&sort=rank-top&page=${pageNo}`;
+      // Endpoint por defecto para "popular" (sin filtros)
+      url = `${this.site}search-adv?ctgcon=and&totalchapter=0&ratcon=min&rating=0&status=-1&sort=rank-top&page=${pageNo}`;
     }
 
     const loadedCheerio = await this.getCheerio(url, false);
 
-    return loadedCheerio('.novel-item')
+    // Selector diferente para latest-release-novels vs search-adv
+    const novelSelector = showLatestNovels
+      ? '.novel-list.latest .novel-item' // Selector para latest-release-novels
+      : '.novel-item'; // Selector para search-adv y popular
+
+    return loadedCheerio(novelSelector)
       .map((index, ele) => {
         const novelName =
           loadedCheerio(ele).find('.novel-title > a').attr('title') ||
+          loadedCheerio(ele).find('a').attr('title') ||
           'No Title Found';
-        const novelCover = loadedCheerio(ele)
-          .find('.novel-cover > img')
-          .attr('data-src');
-        const novelPath = loadedCheerio(ele)
-          .find('.novel-title > a')
-          .attr('href');
+
+        // Probar diferentes atributos para la portada
+        const novelCover =
+          loadedCheerio(ele).find('.novel-cover > img').attr('data-src') ||
+          loadedCheerio(ele).find('.novel-cover > img').attr('src') ||
+          loadedCheerio(ele).find('img').attr('data-src') ||
+          loadedCheerio(ele).find('img').attr('src');
+
+        const novelPath =
+          loadedCheerio(ele).find('.novel-title > a').attr('href') ||
+          loadedCheerio(ele).find('a').attr('href');
 
         if (!novelPath) return null;
 
