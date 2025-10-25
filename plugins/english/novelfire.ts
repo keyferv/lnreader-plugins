@@ -7,7 +7,7 @@ import { Filters, FilterTypes } from '@libs/filterInputs';
 class NovelFire implements Plugin.PluginBase {
   id = 'novelfire';
   name = 'Novel Fire';
-  version = '1.0.4';
+  version = '1.0.5';
   icon = 'src/en/novelfire/icon.png';
   site = 'https://novelfire.net/';
 
@@ -61,15 +61,20 @@ class NovelFire implements Plugin.PluginBase {
 
     // Selector diferente para latest-release-novels vs search-adv
     const novelSelector = showLatestNovels
-      ? '.novel-list.latest .novel-item' // Selector para latest-release-novels
+      ? '.novel-list.horizontal .novel-item' // Selector para latest-release-novels
       : '.novel-item'; // Selector para search-adv y popular
 
     return loadedCheerio(novelSelector)
       .map((index, ele) => {
-        const novelName =
-          loadedCheerio(ele).find('.novel-title > a').attr('title') ||
-          loadedCheerio(ele).find('a').attr('title') ||
-          'No Title Found';
+        // Para latest-release-novels, el título está en .novel-title (texto directo)
+        // Para search-adv, está en el atributo 'title' del <a>
+        const novelName = showLatestNovels
+          ? loadedCheerio(ele).find('.novel-title').text().trim() ||
+            loadedCheerio(ele).find('.novel-title > a').attr('title') ||
+            'No Title Found'
+          : loadedCheerio(ele).find('.novel-title > a').attr('title') ||
+            loadedCheerio(ele).find('a').attr('title') ||
+            'No Title Found';
 
         // Probar diferentes atributos para la portada
         const novelCover =
@@ -80,6 +85,7 @@ class NovelFire implements Plugin.PluginBase {
 
         const novelPath =
           loadedCheerio(ele).find('.novel-title > a').attr('href') ||
+          loadedCheerio(ele).find('.cover-wrap > a').attr('href') ||
           loadedCheerio(ele).find('a').attr('href');
 
         if (!novelPath) return null;
