@@ -7,7 +7,7 @@ import { Filters, FilterTypes } from '@libs/filterInputs';
 class NovelFire implements Plugin.PluginBase {
   id = 'novelfire';
   name = 'Novel Fire';
-  version = '1.0.6';
+  version = '1.0.7';
   icon = 'src/en/novelfire/icon.png';
   site = 'https://novelfire.net/';
 
@@ -73,7 +73,10 @@ class NovelFire implements Plugin.PluginBase {
             loadedCheerio(ele).find('.novel-title > a').attr('title') ||
             'No Title Found'
           : loadedCheerio(ele).find('.novel-title > a').attr('title') ||
+            loadedCheerio(ele).find('.novel-title > a').text().trim() ||
             loadedCheerio(ele).find('.title > a').attr('title') ||
+            loadedCheerio(ele).find('.title > a').text().trim() ||
+            loadedCheerio(ele).find('h2.title a').text().trim() ||
             loadedCheerio(ele).find('a').attr('title') ||
             'No Title Found';
 
