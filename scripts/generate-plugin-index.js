@@ -5,12 +5,18 @@ let content = `import { Plugin } from '@/types/plugin';\n`;
 let pluginCounter = 0;
 const PLUGIN_DIR = 'plugins';
 
-fs.readdirSync(PLUGIN_DIR)
+fs.readdirSync(PLUGIN_DIR, { withFileTypes: true })
+  .filter(entry => entry.isDirectory())
+  .map(entry => entry.name)
   .filter(f => !f.includes('index') && f !== 'multisrc')
+  .sort((a, b) => a.localeCompare(b))
   .forEach(langName => {
     const LANG_DIR = PLUGIN_DIR + '/' + langName;
-    fs.readdirSync(LANG_DIR)
+    fs.readdirSync(LANG_DIR, { withFileTypes: true })
+      .filter(entry => entry.isFile())
+      .map(entry => entry.name)
       .filter(f => !f.includes('broken') && !f.startsWith('.'))
+      .sort((a, b) => a.localeCompare(b))
       .forEach(pluginName => {
         content += `import p_${pluginCounter} from '@plugins/${langName}/${pluginName.replace(/\.ts$/, '')}';\n`;
         pluginCounter += 1;
