@@ -19,6 +19,7 @@
     "publish:plugins:windows": "powershell ./scripts/publish-plugins.ps1",
     "serve:dev": "npm run build:compile && npm run build:manifest:dev && serve",
     "validate:plugins": "node ./scripts/validate-plugin-layout.js",
+    "audit:plugins": "node ./scripts/audit-plugin-sites.js",
     "lint": "npx eslint .",
     "lint:fix": "npx eslint . --fix",
     "format": "prettier --write \"./**/*.{js,ts}\"",
