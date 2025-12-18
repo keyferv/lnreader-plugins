@@ -8,12 +8,99 @@ import { localStorage, storage } from '@libs/storage';
 class NovelFire implements Plugin.PluginBase {
   id = 'novelfire';
   name = 'Novel Fire';
-  version = '1.0.12';
+  version = '1.0.13';
   icon = 'src/en/novelfire/icon.png';
   site = 'https://novelfire.net/';
 
   // Enables access to host-provided LocalStorage/SessionStorage (if available)
   webStorageUtilized = true;
+
+  private cookieJarKey = `${this.id}.cookieJar`;
+
+  private loadCookieJar(): Record<string, string> {
+    const fromStorage = storage.get(this.cookieJarKey) as
+      | Record<string, string>
+      | string
+      | undefined;
+    const ls = localStorage.get?.();
+    const fromLocalStorage = ls?.[this.cookieJarKey] as
+      | Record<string, string>
+      | string
+      | undefined;
+
+    const raw = fromStorage ?? fromLocalStorage;
+    if (!raw) return {};
+    if (typeof raw === 'object') return raw as Record<string, string>;
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') return parsed;
+    } catch {
+      // ignore
+    }
+    return {};
+  }
+
+  private saveCookieJar(jar: Record<string, string>) {
+    try {
+      const json = JSON.stringify(jar);
+      storage.set?.(this.cookieJarKey, json);
+      localStorage.set?.({ [this.cookieJarKey]: json });
+    } catch {
+      // ignore
+    }
+  }
+
+  private parseCookieHeader(cookieHeader: string): Record<string, string> {
+    const jar: Record<string, string> = {};
+    const parts = (cookieHeader || '')
+      .split(';')
+      .map(s => s.trim())
+      .filter(Boolean);
+    for (const p of parts) {
+      const eq = p.indexOf('=');
+      if (eq <= 0) continue;
+      const name = p.slice(0, eq).trim();
+      const value = p.slice(eq + 1).trim();
+      if (!name) continue;
+      jar[name] = value;
+    }
+    return jar;
+  }
+
+  private mergeSetCookieIntoJar(
+    setCookieHeader: string,
+    jar: Record<string, string>,
+  ) {
+    // Best-effort parsing. Some runtimes concatenate multiple Set-Cookie headers.
+    // We split on commas that look like cookie delimiters (comma followed by token=).
+    const parts = (setCookieHeader || '')
+      .split(/,(?=[^;,\s]+=)/)
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    for (const part of parts) {
+      const first = part.split(';')[0]?.trim();
+      if (!first) continue;
+      const eq = first.indexOf('=');
+      if (eq <= 0) continue;
+      const name = first.slice(0, eq).trim();
+      const value = first.slice(eq + 1).trim();
+      if (!name) continue;
+      jar[name] = value;
+    }
+  }
+
+  private captureSetCookie(response: Response) {
+    // In many browser-like environments Set-Cookie is not readable.
+    // When it is available (node/native), we persist it as a lightweight cookie jar.
+    const sc =
+      response.headers.get('set-cookie') || response.headers.get('Set-Cookie');
+    if (!sc) return;
+
+    const jar = this.loadCookieJar();
+    this.mergeSetCookieIntoJar(sc, jar);
+    this.saveCookieJar(jar);
+  }
 
   private getCookieHeader(): string | undefined {
     const fromStorage =
@@ -28,8 +115,25 @@ class NovelFire implements Plugin.PluginBase {
       (ls?.[`${this.id}.cookies`] as string | undefined);
 
     const candidate = fromStorage ?? fromLocalStorage;
-    const cookie = typeof candidate === 'string' ? candidate.trim() : '';
-    return cookie.length ? cookie : undefined;
+    const baseCookie = typeof candidate === 'string' ? candidate.trim() : '';
+
+    const jar = this.loadCookieJar();
+    const jarCookie = Object.entries(jar)
+      .map(([k, v]) => `${k}=${v}`)
+      .join('; ');
+
+    // Merge base cookie (user-provided) + jar (server-issued). Jar wins on conflicts.
+    const merged: Record<string, string> = {
+      ...(baseCookie ? this.parseCookieHeader(baseCookie) : {}),
+      ...(jarCookie ? this.parseCookieHeader(jarCookie) : {}),
+    };
+
+    const mergedHeader = Object.entries(merged)
+      .map(([k, v]) => `${k}=${v}`)
+      .join('; ')
+      .trim();
+
+    return mergedHeader.length ? mergedHeader : undefined;
   }
 
   private requestHeaders(referer?: string): Record<string, string> {
@@ -54,11 +158,15 @@ class NovelFire implements Plugin.PluginBase {
   }
 
   private async fetchWithHeaders(url: string, referer?: string) {
-    return fetchApi(url, { headers: this.requestHeaders(referer) });
+    const r = await fetchApi(url, { headers: this.requestHeaders(referer) });
+    this.captureSetCookie(r);
+    return r;
   }
 
   private async fetchAjax(url: string, referer: string) {
-    return fetchApi(url, { headers: this.ajaxHeaders(referer) });
+    const r = await fetchApi(url, { headers: this.ajaxHeaders(referer) });
+    this.captureSetCookie(r);
+    return r;
   }
 
   private detectBlockReason(html: string): string | undefined {
@@ -217,7 +325,7 @@ class NovelFire implements Plugin.PluginBase {
     const blockReason = this.detectBlockReason(html);
     if (blockReason && search != true)
       throw new Error(
-        `${blockReason}. Open in webview or provide cookies (cf_clearance + novelfirenet_session + XSRF-TOKEN).`,
+        `${blockReason}. Provide at least cf_clearance. If your runtime can't persist cookies automatically, also include novelfirenet_session/XSRF-TOKEN when available.`,
       );
 
     const $ = load(html);
@@ -330,7 +438,7 @@ class NovelFire implements Plugin.PluginBase {
       const blockReason = this.detectBlockReason(chaptersHtml);
       if (blockReason) {
         throw new Error(
-          `${blockReason}. Open in webview or provide cookies (cf_clearance + novelfirenet_session + XSRF-TOKEN).`,
+          `${blockReason}. Provide at least cf_clearance. If your runtime can't persist cookies automatically, also include novelfirenet_session/XSRF-TOKEN when available.`,
         );
       }
 
@@ -401,7 +509,7 @@ class NovelFire implements Plugin.PluginBase {
             const ajaxBlockReason = this.detectBlockReason(text);
             if (ajaxBlockReason) {
               throw new Error(
-                `${ajaxBlockReason}. Open in webview or provide cookies (cf_clearance + novelfirenet_session + XSRF-TOKEN).`,
+                `${ajaxBlockReason}. Provide at least cf_clearance. If your runtime can't persist cookies automatically, also include novelfirenet_session/XSRF-TOKEN when available.`,
               );
             }
             payload = null;
@@ -549,7 +657,7 @@ class NovelFire implements Plugin.PluginBase {
 
     if (allChapters.length === 0) {
       throw new Error(
-        'Could not parse chapters page. If Cloudflare blocks you, provide cookies (cf_clearance + novelfirenet_session + XSRF-TOKEN) and ensure Cookie is a single-line “k=v; k2=v2” string.',
+        'Could not parse chapters page. If Cloudflare blocks you, provide at least cf_clearance and ensure Cookie is a single-line “k=v; k2=v2” string. If your runtime does not persist cookies, you may also need novelfirenet_session/XSRF-TOKEN after the first successful webview/open.',
       );
     }
 
@@ -643,7 +751,7 @@ class NovelFire implements Plugin.PluginBase {
     const blockReason = this.detectBlockReason(body);
     if (blockReason) {
       throw new Error(
-        `${blockReason}. Provide cookies (cf_clearance + novelfirenet_session + XSRF-TOKEN) and use the novel /chapters page as referer.`,
+        `${blockReason}. Provide at least cf_clearance and use the novel /chapters page as referer. If your runtime can't persist cookies, also include novelfirenet_session/XSRF-TOKEN when available.`,
       );
     }
 
