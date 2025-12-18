@@ -8,7 +8,7 @@ import { localStorage, storage } from '@libs/storage';
 class NovelFire implements Plugin.PluginBase {
   id = 'novelfire';
   name = 'Novel Fire';
-  version = '1.0.11';
+  version = '1.0.12';
   icon = 'src/en/novelfire/icon.png';
   site = 'https://novelfire.net/';
 
@@ -59,6 +59,34 @@ class NovelFire implements Plugin.PluginBase {
 
   private async fetchAjax(url: string, referer: string) {
     return fetchApi(url, { headers: this.ajaxHeaders(referer) });
+  }
+
+  private detectBlockReason(html: string): string | undefined {
+    const text = (html || '').toLowerCase();
+    if (!text) return undefined;
+
+    if (
+      text.includes('cf-challenge') ||
+      text.includes('challenge-platform') ||
+      text.includes('just a moment') ||
+      text.includes('checking your browser') ||
+      text.includes('cloudflare')
+    ) {
+      return 'Cloudflare/anti-bot challenge detected';
+    }
+
+    if (text.includes('you are being rate limited')) {
+      return 'Rate limited by NovelFire';
+    }
+
+    if (
+      text.includes('access denied') ||
+      text.includes('you have been blocked')
+    ) {
+      return 'Access blocked';
+    }
+
+    return undefined;
   }
 
   private inferChaptersRefererFromPath(pathOrUrl: string): string | undefined {
@@ -184,7 +212,15 @@ class NovelFire implements Plugin.PluginBase {
           r.status +
           '). If Cloudflare blocks you, open in webview or provide cookies (cf_clearance).',
       );
-    const $ = load(await r.text());
+    const html = await r.text();
+
+    const blockReason = this.detectBlockReason(html);
+    if (blockReason && search != true)
+      throw new Error(
+        `${blockReason}. Open in webview or provide cookies (cf_clearance + novelfirenet_session + XSRF-TOKEN).`,
+      );
+
+    const $ = load(html);
 
     return $;
   }
@@ -290,6 +326,14 @@ class NovelFire implements Plugin.PluginBase {
     try {
       const chaptersPageRes = await this.fetchWithHeaders(base, referer);
       const chaptersHtml = await chaptersPageRes.text();
+
+      const blockReason = this.detectBlockReason(chaptersHtml);
+      if (blockReason) {
+        throw new Error(
+          `${blockReason}. Open in webview or provide cookies (cf_clearance + novelfirenet_session + XSRF-TOKEN).`,
+        );
+      }
+
       const postId = this.extractPostIdFromChaptersHtml(chaptersHtml);
 
       if (postId) {
@@ -298,7 +342,8 @@ class NovelFire implements Plugin.PluginBase {
         );
         let draw = 1;
         let start = 0;
-        const length = 100;
+        // Match captured request defaults more closely.
+        const length = 20;
 
         const all: Plugin.ChapterItem[] = [];
         const seenAll = new Set<string>();
@@ -313,19 +358,54 @@ class NovelFire implements Plugin.PluginBase {
           ajaxUrl.searchParams.set('length', String(length));
           ajaxUrl.searchParams.set('order[0][column]', '2');
           ajaxUrl.searchParams.set('order[0][dir]', 'asc');
+
+          // Columns (mirrors captured request)
           ajaxUrl.searchParams.set('columns[0][data]', 'title');
+          ajaxUrl.searchParams.set('columns[0][name]', '');
           ajaxUrl.searchParams.set('columns[0][searchable]', 'true');
           ajaxUrl.searchParams.set('columns[0][orderable]', 'false');
+          ajaxUrl.searchParams.set('columns[0][search][value]', '');
+          ajaxUrl.searchParams.set('columns[0][search][regex]', 'false');
+
           ajaxUrl.searchParams.set('columns[1][data]', 'created_at');
+          ajaxUrl.searchParams.set('columns[1][name]', '');
           ajaxUrl.searchParams.set('columns[1][searchable]', 'true');
           ajaxUrl.searchParams.set('columns[1][orderable]', 'true');
+          ajaxUrl.searchParams.set('columns[1][search][value]', '');
+          ajaxUrl.searchParams.set('columns[1][search][regex]', 'false');
+
           ajaxUrl.searchParams.set('columns[2][data]', 'n_sort');
+          ajaxUrl.searchParams.set('columns[2][name]', '');
           ajaxUrl.searchParams.set('columns[2][searchable]', 'false');
           ajaxUrl.searchParams.set('columns[2][orderable]', 'true');
+          ajaxUrl.searchParams.set('columns[2][search][value]', '');
+          ajaxUrl.searchParams.set('columns[2][search][regex]', 'false');
+
+          ajaxUrl.searchParams.set('search[value]', '');
+          ajaxUrl.searchParams.set('search[regex]', 'false');
+
+          // Cache-buster used by DataTables in browsers
+          ajaxUrl.searchParams.set('_', String(Date.now()));
 
           const r = await this.fetchAjax(ajaxUrl.toString(), referer);
           if (!r.ok) break;
-          const payload = await r.json().catch(() => null);
+
+          const contentType = (
+            r.headers.get('content-type') || ''
+          ).toLowerCase();
+          let payload: any = null;
+          if (contentType.includes('application/json')) {
+            payload = await r.json().catch(() => null);
+          } else {
+            const text = await r.text().catch(() => '');
+            const ajaxBlockReason = this.detectBlockReason(text);
+            if (ajaxBlockReason) {
+              throw new Error(
+                `${ajaxBlockReason}. Open in webview or provide cookies (cf_clearance + novelfirenet_session + XSRF-TOKEN).`,
+              );
+            }
+            payload = null;
+          }
           if (!payload) break;
 
           const batch = this.extractChapterItemsFromAjaxPayload(
@@ -467,7 +547,13 @@ class NovelFire implements Plugin.PluginBase {
       if (chapters.length === 0) break;
     }
 
-    return allChapters.length === 0 ? [] : allChapters;
+    if (allChapters.length === 0) {
+      throw new Error(
+        'Could not parse chapters page. If Cloudflare blocks you, provide cookies (cf_clearance + novelfirenet_session + XSRF-TOKEN) and ensure Cookie is a single-line “k=v; k2=v2” string.',
+      );
+    }
+
+    return allChapters;
   }
 
   async parseNovel(novelPath: string): Promise<Plugin.SourceNovel> {
@@ -553,6 +639,13 @@ class NovelFire implements Plugin.PluginBase {
     const referer = this.inferChaptersRefererFromPath(url);
     const result = await this.fetchWithHeaders(url, referer);
     const body = await result.text();
+
+    const blockReason = this.detectBlockReason(body);
+    if (blockReason) {
+      throw new Error(
+        `${blockReason}. Provide cookies (cf_clearance + novelfirenet_session + XSRF-TOKEN) and use the novel /chapters page as referer.`,
+      );
+    }
 
     const loadedCheerio = load(body);
 
