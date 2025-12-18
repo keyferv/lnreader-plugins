@@ -8,7 +8,7 @@ import { localStorage, storage } from '@libs/storage';
 class NovelFire implements Plugin.PluginBase {
   id = 'novelfire';
   name = 'Novel Fire';
-  version = '1.0.14';
+  version = '1.0.15';
   icon = 'src/en/novelfire/icon.png';
   site = 'https://novelfire.net/';
 
@@ -158,13 +158,21 @@ class NovelFire implements Plugin.PluginBase {
   }
 
   private async fetchWithHeaders(url: string, referer?: string) {
-    const r = await fetchApi(url, { headers: this.requestHeaders(referer) });
+    const r = await fetchApi(url, {
+      headers: this.requestHeaders(referer),
+      // IMPORTANT: allow runtime cookie jar to attach cookies automatically (cf_clearance)
+      credentials: 'include',
+    });
     this.captureSetCookie(r);
     return r;
   }
 
   private async fetchAjax(url: string, referer: string) {
-    const r = await fetchApi(url, { headers: this.ajaxHeaders(referer) });
+    const r = await fetchApi(url, {
+      headers: this.ajaxHeaders(referer),
+      // IMPORTANT: allow runtime cookie jar to attach cookies automatically (cf_clearance)
+      credentials: 'include',
+    });
     this.captureSetCookie(r);
     return r;
   }
@@ -781,7 +789,7 @@ class NovelFire implements Plugin.PluginBase {
 
     if (!html) {
       throw new Error(
-        'Could not parse chapter content. If Cloudflare blocks you, provide cookies (cf_clearance) and session cookies.',
+        'Could not parse chapter content. If Cloudflare blocks you, open the novel in webview to pass the challenge (cf_clearance) and then retry.',
       );
     }
 
