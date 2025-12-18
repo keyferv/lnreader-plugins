@@ -8,7 +8,7 @@ import { localStorage, storage } from '@libs/storage';
 class NovelFire implements Plugin.PluginBase {
   id = 'novelfire';
   name = 'Novel Fire';
-  version = '1.0.13';
+  version = '1.0.14';
   icon = 'src/en/novelfire/icon.png';
   site = 'https://novelfire.net/';
 
@@ -325,7 +325,7 @@ class NovelFire implements Plugin.PluginBase {
     const blockReason = this.detectBlockReason(html);
     if (blockReason && search != true)
       throw new Error(
-        `${blockReason}. Provide at least cf_clearance. If your runtime can't persist cookies automatically, also include novelfirenet_session/XSRF-TOKEN when available.`,
+        `${blockReason}. Provide the Cloudflare cookie (cf_clearance). Other cookies may be set automatically after a successful open in webview.`,
       );
 
     const $ = load(html);
@@ -438,7 +438,7 @@ class NovelFire implements Plugin.PluginBase {
       const blockReason = this.detectBlockReason(chaptersHtml);
       if (blockReason) {
         throw new Error(
-          `${blockReason}. Provide at least cf_clearance. If your runtime can't persist cookies automatically, also include novelfirenet_session/XSRF-TOKEN when available.`,
+          `${blockReason}. Provide the Cloudflare cookie (cf_clearance). Other cookies may be set automatically after a successful open in webview.`,
         );
       }
 
@@ -509,7 +509,7 @@ class NovelFire implements Plugin.PluginBase {
             const ajaxBlockReason = this.detectBlockReason(text);
             if (ajaxBlockReason) {
               throw new Error(
-                `${ajaxBlockReason}. Provide at least cf_clearance. If your runtime can't persist cookies automatically, also include novelfirenet_session/XSRF-TOKEN when available.`,
+                `${ajaxBlockReason}. Provide the Cloudflare cookie (cf_clearance). Other cookies may be set automatically after a successful open in webview.`,
               );
             }
             payload = null;
@@ -657,7 +657,7 @@ class NovelFire implements Plugin.PluginBase {
 
     if (allChapters.length === 0) {
       throw new Error(
-        'Could not parse chapters page. If Cloudflare blocks you, provide at least cf_clearance and ensure Cookie is a single-line “k=v; k2=v2” string. If your runtime does not persist cookies, you may also need novelfirenet_session/XSRF-TOKEN after the first successful webview/open.',
+        'Could not parse chapters page. If Cloudflare blocks you, provide the Cloudflare cookie (cf_clearance) and ensure Cookie is a single-line “k=v; k2=v2” string. Other cookies may be set automatically after a successful open in webview.',
       );
     }
 
@@ -751,7 +751,7 @@ class NovelFire implements Plugin.PluginBase {
     const blockReason = this.detectBlockReason(body);
     if (blockReason) {
       throw new Error(
-        `${blockReason}. Provide at least cf_clearance and use the novel /chapters page as referer. If your runtime can't persist cookies, also include novelfirenet_session/XSRF-TOKEN when available.`,
+        `${blockReason}. Provide the Cloudflare cookie (cf_clearance) and use the novel /chapters page as referer. Other cookies may be set automatically after a successful open in webview.`,
       );
     }
 
