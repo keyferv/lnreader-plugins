@@ -8,7 +8,7 @@ import { localStorage, storage } from '@libs/storage';
 class NovelFire implements Plugin.PluginBase {
   id = 'novelfire';
   name = 'Novel Fire';
-  version = '1.0.10';
+  version = '1.0.11';
   icon = 'src/en/novelfire/icon.png';
   site = 'https://novelfire.net/';
 
@@ -45,8 +45,20 @@ class NovelFire implements Plugin.PluginBase {
     return headers;
   }
 
+  private ajaxHeaders(referer: string): Record<string, string> {
+    return {
+      ...this.requestHeaders(referer),
+      Accept: 'application/json, text/javascript, */*; q=0.01',
+      'X-Requested-With': 'XMLHttpRequest',
+    };
+  }
+
   private async fetchWithHeaders(url: string, referer?: string) {
     return fetchApi(url, { headers: this.requestHeaders(referer) });
+  }
+
+  private async fetchAjax(url: string, referer: string) {
+    return fetchApi(url, { headers: this.ajaxHeaders(referer) });
   }
 
   private inferChaptersRefererFromPath(pathOrUrl: string): string | undefined {
@@ -80,6 +92,88 @@ class NovelFire implements Plugin.PluginBase {
 
   private normalizePath(href: string, baseUrl: string) {
     return this.toPath(this.resolveAbsUrl(href, baseUrl));
+  }
+
+  private extractPostIdFromChaptersHtml(html: string): string | undefined {
+    // Seen patterns:
+    // - listChapterDataAjax?post_id=2888
+    // - post_id: 2888
+    // - post_id=2888
+    const directUrl = html.match(
+      /listChapterDataAjax\?[^"'<>]*post_id=(\d+)/i,
+    )?.[1];
+    if (directUrl) return directUrl;
+
+    const keyVal = html.match(/\bpost_id\b\s*[:=]\s*"?(\d+)"?/i)?.[1];
+    return keyVal;
+  }
+
+  private extractChapterItemsFromAjaxPayload(
+    payload: any,
+    baseUrl: string,
+  ): Plugin.ChapterItem[] {
+    const items: Plugin.ChapterItem[] = [];
+    const seen = new Set<string>();
+
+    const push = (name: string | undefined, href: string | undefined) => {
+      if (!href) return;
+      const abs = this.resolveAbsUrl(href, baseUrl);
+      const path = this.toPath(abs);
+      if (!path || seen.has(path)) return;
+      seen.add(path);
+      items.push({ name: (name || '').trim() || 'No Title Found', path });
+    };
+
+    const tryFromHtmlString = (html: string) => {
+      const $ = load(html);
+      const a = $('a[href]').first();
+      if (!a.length) return;
+      const href = a.attr('href');
+      const name = a.text().trim() || a.attr('title') || undefined;
+      push(name, href);
+    };
+
+    const visit = (node: any) => {
+      if (node == null) return;
+      if (typeof node === 'string') {
+        if (node.includes('<a') && node.includes('href=')) {
+          tryFromHtmlString(node);
+        }
+        return;
+      }
+      if (Array.isArray(node)) {
+        for (const v of node) visit(v);
+        return;
+      }
+      if (typeof node === 'object') {
+        // Common keys in DataTables responses
+        const href =
+          (node.href as string | undefined) ??
+          (node.url as string | undefined) ??
+          (node.link as string | undefined);
+        const title =
+          (node.title as string | undefined) ??
+          (node.name as string | undefined);
+        if (href) push(title, href);
+
+        // Sometimes fields contain HTML strings
+        for (const v of Object.values(node)) {
+          if (
+            typeof v === 'string' &&
+            v.includes('<a') &&
+            v.includes('href=')
+          ) {
+            tryFromHtmlString(v);
+          } else {
+            visit(v);
+          }
+        }
+      }
+    };
+
+    // DataTables typically: { data: [...] }
+    visit(payload?.data ?? payload);
+    return items;
   }
 
   async getCheerio(url: string, search: boolean): Promise<CheerioAPI> {
@@ -190,9 +284,84 @@ class NovelFire implements Plugin.PluginBase {
     );
     const allChapters: Plugin.ChapterItem[] = [];
 
-    // Function to parse a single page
+    // Prefer DataTables AJAX endpoint when present (the HTML table may be empty)
+    const base = this.resolveAbsUrl(chaptersBasePath, this.site);
+    const referer = base;
+    try {
+      const chaptersPageRes = await this.fetchWithHeaders(base, referer);
+      const chaptersHtml = await chaptersPageRes.text();
+      const postId = this.extractPostIdFromChaptersHtml(chaptersHtml);
+
+      if (postId) {
+        const ajaxUrl = new URL(
+          this.resolveAbsUrl('/listChapterDataAjax', this.site),
+        );
+        let draw = 1;
+        let start = 0;
+        const length = 100;
+
+        const all: Plugin.ChapterItem[] = [];
+        const seenAll = new Set<string>();
+
+        // Loop until we reach recordsTotal or no progress
+        // DataTables uses many query params; we provide the essentials.
+        for (let guard = 0; guard < 500; guard++) {
+          ajaxUrl.search = '';
+          ajaxUrl.searchParams.set('post_id', postId);
+          ajaxUrl.searchParams.set('draw', String(draw++));
+          ajaxUrl.searchParams.set('start', String(start));
+          ajaxUrl.searchParams.set('length', String(length));
+          ajaxUrl.searchParams.set('order[0][column]', '2');
+          ajaxUrl.searchParams.set('order[0][dir]', 'asc');
+          ajaxUrl.searchParams.set('columns[0][data]', 'title');
+          ajaxUrl.searchParams.set('columns[0][searchable]', 'true');
+          ajaxUrl.searchParams.set('columns[0][orderable]', 'false');
+          ajaxUrl.searchParams.set('columns[1][data]', 'created_at');
+          ajaxUrl.searchParams.set('columns[1][searchable]', 'true');
+          ajaxUrl.searchParams.set('columns[1][orderable]', 'true');
+          ajaxUrl.searchParams.set('columns[2][data]', 'n_sort');
+          ajaxUrl.searchParams.set('columns[2][searchable]', 'false');
+          ajaxUrl.searchParams.set('columns[2][orderable]', 'true');
+
+          const r = await this.fetchAjax(ajaxUrl.toString(), referer);
+          if (!r.ok) break;
+          const payload = await r.json().catch(() => null);
+          if (!payload) break;
+
+          const batch = this.extractChapterItemsFromAjaxPayload(
+            payload,
+            referer,
+          );
+          let added = 0;
+          for (const c of batch) {
+            if (!c?.path || seenAll.has(c.path)) continue;
+            seenAll.add(c.path);
+            all.push(c);
+            added++;
+          }
+
+          const recordsTotal =
+            typeof payload.recordsTotal === 'number'
+              ? payload.recordsTotal
+              : typeof payload.recordsFiltered === 'number'
+                ? payload.recordsFiltered
+                : undefined;
+
+          start += length;
+          const doneByTotal = recordsTotal != null && start >= recordsTotal;
+
+          if (doneByTotal) break;
+          if (added === 0) break;
+        }
+
+        if (all.length) return all;
+      }
+    } catch {
+      // ignore and fallback to HTML parsing
+    }
+
+    // Function to parse a single page (HTML fallback)
     const parsePage = async (page: number) => {
-      const base = this.resolveAbsUrl(chaptersBasePath, this.site);
       const url = `${base}${base.includes('?') ? '&' : '?'}page=${page}`;
       const result = await this.fetchWithHeaders(url, base);
       const body = await result.text();
@@ -404,7 +573,18 @@ class NovelFire implements Plugin.PluginBase {
       }
     });
 
-    return loadedCheerio('#content').html()!;
+    const html =
+      loadedCheerio('#content').html() ||
+      loadedCheerio('.chapter-content').html() ||
+      loadedCheerio('article').html();
+
+    if (!html) {
+      throw new Error(
+        'Could not parse chapter content. If Cloudflare blocks you, provide cookies (cf_clearance) and session cookies.',
+      );
+    }
+
+    return html;
   }
 
   async searchNovels(
