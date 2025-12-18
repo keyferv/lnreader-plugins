@@ -3,13 +3,51 @@ import { fetchApi } from '@libs/fetch';
 import { Plugin } from '@/types/plugin';
 import { NovelStatus } from '@libs/novelStatus';
 import { Filters, FilterTypes } from '@libs/filterInputs';
+import { localStorage, storage } from '@libs/storage';
 
 class NovelFire implements Plugin.PluginBase {
   id = 'novelfire';
   name = 'Novel Fire';
-  version = '1.0.8';
+  version = '1.0.9';
   icon = 'src/en/novelfire/icon.png';
   site = 'https://novelfire.net/';
+
+  // Enables access to host-provided LocalStorage/SessionStorage (if available)
+  webStorageUtilized = true;
+
+  private getCookieHeader(): string | undefined {
+    const fromStorage =
+      (storage.get('cookies') as string | undefined) ??
+      (storage.get('cookie') as string | undefined) ??
+      (storage.get(`${this.id}.cookies`) as string | undefined);
+
+    const ls = localStorage.get?.();
+    const fromLocalStorage =
+      (ls?.cookies as string | undefined) ??
+      (ls?.cookie as string | undefined) ??
+      (ls?.[`${this.id}.cookies`] as string | undefined);
+
+    const candidate = fromStorage ?? fromLocalStorage;
+    const cookie = typeof candidate === 'string' ? candidate.trim() : '';
+    return cookie.length ? cookie : undefined;
+  }
+
+  private requestHeaders(referer?: string): Record<string, string> {
+    const headers: Record<string, string> = {
+      Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      'Accept-Language': 'en-US,en;q=0.9,*;q=0.8',
+      'Upgrade-Insecure-Requests': '1',
+    };
+
+    const cookie = this.getCookieHeader();
+    if (cookie) headers.Cookie = cookie;
+    if (referer) headers.Referer = referer;
+    return headers;
+  }
+
+  private async fetchWithHeaders(url: string, referer?: string) {
+    return fetchApi(url, { headers: this.requestHeaders(referer) });
+  }
 
   private resolveAbsUrl(href: string, baseUrl: string) {
     try {
@@ -28,10 +66,12 @@ class NovelFire implements Plugin.PluginBase {
   }
 
   async getCheerio(url: string, search: boolean): Promise<CheerioAPI> {
-    const r = await fetchApi(url);
+    const r = await this.fetchWithHeaders(url, this.site);
     if (!r.ok && search != true)
       throw new Error(
-        'Could not reach site (' + r.status + ') try to open in webview.',
+        'Could not reach site (' +
+          r.status +
+          '). If Cloudflare blocks you, open in webview or provide cookies (cf_clearance).',
       );
     const $ = load(await r.text());
 
@@ -137,7 +177,7 @@ class NovelFire implements Plugin.PluginBase {
     const parsePage = async (page: number) => {
       const base = this.resolveAbsUrl(chaptersBasePath, this.site);
       const url = `${base}${base.includes('?') ? '&' : '?'}page=${page}`;
-      const result = await fetchApi(url);
+      const result = await this.fetchWithHeaders(url, this.site);
       const body = await result.text();
 
       const loadedCheerio = load(body);
@@ -324,7 +364,7 @@ class NovelFire implements Plugin.PluginBase {
 
   async parseChapter(chapterPath: string): Promise<string> {
     const url = this.resolveAbsUrl(chapterPath, this.site);
-    const result = await fetchApi(url);
+    const result = await this.fetchWithHeaders(url, this.site);
     const body = await result.text();
 
     const loadedCheerio = load(body);
@@ -354,7 +394,7 @@ class NovelFire implements Plugin.PluginBase {
     page: number,
   ): Promise<Plugin.NovelItem[]> {
     const url = `${this.site}search?keyword=${encodeURIComponent(searchTerm)}&page=${page}`;
-    const result = await fetchApi(url);
+    const result = await this.fetchWithHeaders(url, this.site);
     const body = await result.text();
 
     const loadedCheerio = load(body);
