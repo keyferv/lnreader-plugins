@@ -7,9 +7,25 @@ import { Filters, FilterTypes } from '@libs/filterInputs';
 class NovelFire implements Plugin.PluginBase {
   id = 'novelfire';
   name = 'Novel Fire';
-  version = '1.0.7';
+  version = '1.0.8';
   icon = 'src/en/novelfire/icon.png';
   site = 'https://novelfire.net/';
+
+  private resolveAbsUrl(href: string, baseUrl: string) {
+    try {
+      return new URL(href, baseUrl).toString();
+    } catch {
+      return href;
+    }
+  }
+
+  private toPath(absUrl: string) {
+    return absUrl.replace(this.site, '').replace(/^\//, '');
+  }
+
+  private normalizePath(href: string, baseUrl: string) {
+    return this.toPath(this.resolveAbsUrl(href, baseUrl));
+  }
 
   async getCheerio(url: string, search: boolean): Promise<CheerioAPI> {
     const r = await fetchApi(url);
@@ -87,17 +103,20 @@ class NovelFire implements Plugin.PluginBase {
           loadedCheerio(ele).find('img').attr('data-src') ||
           loadedCheerio(ele).find('img').attr('src');
 
-        const novelPath =
+        const novelHref =
           loadedCheerio(ele).find('.novel-title > a').attr('href') ||
           loadedCheerio(ele).find('.cover-wrap > a').attr('href') ||
           loadedCheerio(ele).find('a').attr('href');
 
-        if (!novelPath) return null;
+        if (!novelHref) return null;
+
+        const path = this.normalizePath(novelHref, url);
+        if (!path) return null;
 
         return {
           name: novelName,
           cover: novelCover,
-          path: novelPath.replace(this.site, ''),
+          path,
         };
       })
       .get()
@@ -105,15 +124,19 @@ class NovelFire implements Plugin.PluginBase {
   }
 
   async parseChapters(
-    novelPath: string,
+    chaptersBasePath: string,
     pages: number,
   ): Promise<Plugin.ChapterItem[]> {
-    const pagesArray = Array.from({ length: pages }, (_, i) => i + 1);
+    const pagesArray = Array.from(
+      { length: Math.max(1, pages) },
+      (_, i) => i + 1,
+    );
     const allChapters: Plugin.ChapterItem[] = [];
 
     // Function to parse a single page
     const parsePage = async (page: number) => {
-      const url = `${this.site}${novelPath}/chapters?page=${page}`;
+      const base = this.resolveAbsUrl(chaptersBasePath, this.site);
+      const url = `${base}${base.includes('?') ? '&' : '?'}page=${page}`;
       const result = await fetchApi(url);
       const body = await result.text();
 
@@ -123,21 +146,42 @@ class NovelFire implements Plugin.PluginBase {
         throw new NovelFireThrottlingError();
       }
 
-      const chapters = loadedCheerio('.chapter-list li')
-        .map((index, ele) => {
-          const chapterName =
-            loadedCheerio(ele).find('a').attr('title') || 'No Title Found';
-          const chapterPath = loadedCheerio(ele).find('a').attr('href');
+      const chapters: Plugin.ChapterItem[] = [];
+      const seen = new Set<string>();
 
-          if (!chapterPath) return null;
+      // Nuevo layout: tabla DataTables
+      loadedCheerio('#listChapter-table tbody tr td a[href]').each((_, a) => {
+        const href = loadedCheerio(a).attr('href');
+        if (!href) return;
+        const abs = this.resolveAbsUrl(href, url);
+        const path = this.toPath(abs);
+        if (!path || seen.has(path)) return;
 
-          return {
-            name: chapterName,
-            path: chapterPath.replace(this.site, ''),
-          };
-        })
-        .get()
-        .filter(chapter => chapter !== null) as Plugin.ChapterItem[];
+        const name =
+          loadedCheerio(a).text().trim() ||
+          loadedCheerio(a).attr('title') ||
+          'No Title Found';
+        seen.add(path);
+        chapters.push({ name, path });
+      });
+
+      // Fallback antiguo: lista .chapter-list
+      if (!chapters.length) {
+        loadedCheerio('.chapter-list li a[href]').each((_, a) => {
+          const href = loadedCheerio(a).attr('href');
+          if (!href) return;
+          const abs = this.resolveAbsUrl(href, url);
+          const path = this.toPath(abs);
+          if (!path || seen.has(path)) return;
+
+          const name =
+            loadedCheerio(a).attr('title') ||
+            loadedCheerio(a).text().trim() ||
+            'No Title Found';
+          seen.add(path);
+          chapters.push({ name, path });
+        });
+      }
 
       return chapters;
     };
@@ -185,16 +229,24 @@ class NovelFire implements Plugin.PluginBase {
       }
     }
 
-    // Merge all chapters into a single array
+    // Merge all chapters into a single array (dedupe entre páginas)
+    const seenAll = new Set<string>();
     for (const chapters of chaptersArray) {
-      allChapters.push(...chapters);
+      for (const c of chapters) {
+        if (!c?.path || seenAll.has(c.path)) continue;
+        seenAll.add(c.path);
+        allChapters.push(c);
+      }
+      // Si la paginación realmente no cambia el HTML, evitamos recorrer páginas de más
+      if (chapters.length === 0) break;
     }
 
     return allChapters.length === 0 ? [] : allChapters;
   }
 
   async parseNovel(novelPath: string): Promise<Plugin.SourceNovel> {
-    const $ = await this.getCheerio(this.site + novelPath, false);
+    const novelUrl = this.resolveAbsUrl(novelPath, this.site);
+    const $ = await this.getCheerio(novelUrl, false);
     const baseUrl = this.site;
 
     const novel: Partial<Plugin.SourceNovel> = {
@@ -243,18 +295,35 @@ class NovelFire implements Plugin.PluginBase {
     };
     novel.status = map[rawStatus.toLowerCase()] ?? NovelStatus.Unknown;
 
-    const totalChapters = $('.header-stats .icon-book-open')
+    const totalChaptersText = $('.header-stats .icon-book-open')
       .parent()
       .text()
       .trim();
-    const pages = Math.ceil(parseInt(totalChapters) / 100);
-    novel.chapters = await this.parseChapters(novelPath, pages);
+
+    // La página de la novela ahora suele enlazar explícitamente a /chapters
+    const chaptersHref = $(
+      'a.grdbtn.chapter-latest-container[href], a.chapter-latest-container[href]',
+    )
+      .first()
+      .attr('href');
+
+    const chaptersBasePath = chaptersHref
+      ? this.toPath(this.resolveAbsUrl(chaptersHref, novelUrl))
+      : `${this.toPath(novelUrl).replace(/\/$/, '')}/chapters`;
+
+    // Heurística de páginas: antes era 100 por página; mantenemos eso como fallback.
+    const totalChaptersNum = parseInt(
+      (totalChaptersText || '').replace(/[^0-9]/g, ''),
+      10,
+    );
+    const pages = totalChaptersNum ? Math.ceil(totalChaptersNum / 100) : 1;
+    novel.chapters = await this.parseChapters(chaptersBasePath, pages);
 
     return novel as Plugin.SourceNovel;
   }
 
   async parseChapter(chapterPath: string): Promise<string> {
-    const url = this.site + chapterPath;
+    const url = this.resolveAbsUrl(chapterPath, this.site);
     const result = await fetchApi(url);
     const body = await result.text();
 
@@ -297,14 +366,17 @@ class NovelFire implements Plugin.PluginBase {
         const novelCover = loadedCheerio(ele)
           .find('.novel-cover > img')
           .attr('src');
-        const novelPath = loadedCheerio(ele).find('a').attr('href');
+        const novelHref = loadedCheerio(ele).find('a').attr('href');
 
-        if (!novelPath) return null;
+        if (!novelHref) return null;
+
+        const path = this.normalizePath(novelHref, url);
+        if (!path) return null;
 
         return {
           name: novelName,
           cover: novelCover,
-          path: novelPath.replace(this.site, ''),
+          path,
         };
       })
       .get()
