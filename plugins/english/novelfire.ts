@@ -8,7 +8,7 @@ import { localStorage, storage } from '@libs/storage';
 class NovelFire implements Plugin.PluginBase {
   id = 'novelfire';
   name = 'Novel Fire';
-  version = '1.0.9';
+  version = '1.0.10';
   icon = 'src/en/novelfire/icon.png';
   site = 'https://novelfire.net/';
 
@@ -47,6 +47,23 @@ class NovelFire implements Plugin.PluginBase {
 
   private async fetchWithHeaders(url: string, referer?: string) {
     return fetchApi(url, { headers: this.requestHeaders(referer) });
+  }
+
+  private inferChaptersRefererFromPath(pathOrUrl: string): string | undefined {
+    const abs = this.resolveAbsUrl(pathOrUrl, this.site);
+    try {
+      const u = new URL(abs);
+      const parts = u.pathname.split('/').filter(Boolean);
+      // Expected patterns:
+      // - /book/<slug>/chapter-123
+      // - /book/<slug>/chapters
+      if (parts[0] === 'book' && parts[1]) {
+        return `${this.site}book/${parts[1]}/chapters`;
+      }
+      return this.site;
+    } catch {
+      return this.site;
+    }
   }
 
   private resolveAbsUrl(href: string, baseUrl: string) {
@@ -177,7 +194,7 @@ class NovelFire implements Plugin.PluginBase {
     const parsePage = async (page: number) => {
       const base = this.resolveAbsUrl(chaptersBasePath, this.site);
       const url = `${base}${base.includes('?') ? '&' : '?'}page=${page}`;
-      const result = await this.fetchWithHeaders(url, this.site);
+      const result = await this.fetchWithHeaders(url, base);
       const body = await result.text();
 
       const loadedCheerio = load(body);
@@ -364,7 +381,8 @@ class NovelFire implements Plugin.PluginBase {
 
   async parseChapter(chapterPath: string): Promise<string> {
     const url = this.resolveAbsUrl(chapterPath, this.site);
-    const result = await this.fetchWithHeaders(url, this.site);
+    const referer = this.inferChaptersRefererFromPath(url);
+    const result = await this.fetchWithHeaders(url, referer);
     const body = await result.text();
 
     const loadedCheerio = load(body);
