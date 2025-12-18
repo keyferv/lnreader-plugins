@@ -1,6 +1,7 @@
 import { load as parseHTML, type CheerioAPI } from 'cheerio';
 import type { AnyNode } from 'domhandler';
 import { fetchApi } from '@libs/fetch';
+import { FilterTypes } from '@libs/filterInputs';
 import { Plugin } from '@/types/plugin';
 
 function cleanText(input?: string | null) {
@@ -39,6 +40,81 @@ class NovelasLigerasNet implements Plugin.PluginBase {
   site = 'https://novelasligeras.net/';
   version = '1.0.0';
 
+  filters = {
+    category: {
+      type: FilterTypes.Picker,
+      label: 'Categoría',
+      value: '',
+      options: [
+        { label: 'Cualquiera', value: '' },
+        { label: 'Acción', value: '40' },
+        { label: 'Adulto', value: '53' },
+        { label: 'Artes Marciales', value: '52' },
+        { label: 'Aventura', value: '41' },
+        { label: 'Ciencia Ficción', value: '59' },
+        { label: 'Comedia', value: '43' },
+        { label: 'Deportes', value: '68' },
+        { label: 'Drama', value: '44' },
+        { label: 'Ecchi', value: '45' },
+        { label: 'Fantasía', value: '46' },
+        { label: 'Gender Bender', value: '47' },
+        { label: 'Harem', value: '48' },
+        { label: 'Histórico', value: '49' },
+        { label: 'Horror', value: '50' },
+        { label: 'Josei', value: '51' },
+        { label: 'Mechas', value: '54' },
+        { label: 'Misterio', value: '55' },
+        { label: 'Psicológico', value: '56' },
+        { label: 'Recuentos de la Vida', value: '66' },
+        { label: 'Romance', value: '57' },
+        { label: 'Seinen', value: '60' },
+        { label: 'Shojo', value: '62' },
+        { label: 'Shojo Ai', value: '63' },
+        { label: 'Shonen', value: '64' },
+        { label: 'Smut', value: '67' },
+        { label: 'Sobrenatural', value: '69' },
+        { label: 'Tragedia', value: '70' },
+        { label: 'Vida Escolar', value: '58' },
+        { label: 'Xianxia', value: '72' },
+        { label: 'Xuanhuan', value: '73' },
+        { label: 'Yuri', value: '75' },
+      ],
+    },
+    status: {
+      type: FilterTypes.Picker,
+      label: 'Estado',
+      value: '',
+      options: [
+        { label: 'Cualquiera', value: '' },
+        { label: 'Cancelado', value: '18' },
+        { label: 'Completado', value: '407' },
+        { label: 'En Proceso', value: '16' },
+        { label: 'Pausado', value: '17' },
+      ],
+    },
+    type: {
+      type: FilterTypes.Picker,
+      label: 'Tipo',
+      value: '',
+      options: [
+        { label: 'Cualquiera', value: '' },
+        { label: 'Novela Ligera', value: '23' },
+        { label: 'Novela Web', value: '24' },
+      ],
+    },
+    country: {
+      type: FilterTypes.Picker,
+      label: 'País',
+      value: '',
+      options: [
+        { label: 'Cualquiera', value: '' },
+        { label: 'China', value: '20' },
+        { label: 'Corea', value: '22' },
+        { label: 'Japón', value: '21' },
+      ],
+    },
+  };
+
   resolveUrl(path: string) {
     return new URL(path, this.site).toString();
   }
@@ -69,6 +145,8 @@ class NovelasLigerasNet implements Plugin.PluginBase {
     const novels: Plugin.NovelItem[] = [];
     const seen = new Set<string>();
 
+    const maxItems = options.max || 30;
+
     const pushNovel = (name: string, url: string, cover?: string) => {
       const abs = absolutizeUrl(this.site, url);
       const path = toPath(this.site, abs);
@@ -78,14 +156,6 @@ class NovelasLigerasNet implements Plugin.PluginBase {
       seen.add(path);
       novels.push({ name: cleanName, path, cover });
     };
-
-    // Prefer article/title patterns (WordPress-ish)
-    const selectors = [
-      'article h2 a[href]',
-      'article h3 a[href]',
-      '.entry-content a[href]',
-      'main a[href]',
-    ];
 
     const looksLikeNovelUrl = (href: string) => {
       const h = href.toLowerCase();
@@ -105,6 +175,40 @@ class NovelasLigerasNet implements Plugin.PluginBase {
       );
     };
 
+    // Prefer dt-css-grid (WooCommerce product grid)
+    $('.dt-css-grid .wf-cell').each((_idx: number, cell: AnyNode) => {
+      const a = $(cell).find('h4.entry-title a[href]').first();
+      const href = a.attr('href');
+      if (!href) return;
+      const abs = absolutizeUrl(this.site, href);
+      if (!abs.includes('novelasligeras.net')) return;
+      if (!looksLikeNovelUrl(abs)) return;
+
+      const name =
+        cleanText($(cell).attr('data-name')) ||
+        cleanText(a.text()) ||
+        cleanText(a.attr('title'));
+
+      const cover =
+        getImgSrc($, $(cell).find('img.attachment-woocommerce_thumbnail')[0]) ||
+        getImgSrc($, $(cell).find('figure.woocom-project img')[0]) ||
+        undefined;
+
+      pushNovel(name, abs, cover);
+    });
+
+    if (novels.length) return novels.slice(0, maxItems);
+
+    // Prefer article/title patterns (WordPress-ish)
+    const selectors = [
+      'article h2 a[href]',
+      'article h3 a[href]',
+      'article h4 a[href]',
+      'h4.entry-title a[href]',
+      '.entry-content a[href]',
+      'main a[href]',
+    ];
+
     for (const sel of selectors) {
       $(sel).each((_idx: number, a: AnyNode) => {
         const href = $(a).attr('href');
@@ -120,23 +224,42 @@ class NovelasLigerasNet implements Plugin.PluginBase {
 
         pushNovel(name, abs, cover);
       });
-      if (novels.length >= (options.max || 30)) break;
+      if (novels.length >= maxItems) break;
     }
 
-    return novels.slice(0, options.max || 30);
+    return novels.slice(0, maxItems);
   }
 
   async popularNovels(
     pageNo: number,
-    { showLatestNovels }: Plugin.PopularNovelsOptions,
+    {
+      showLatestNovels,
+      filters,
+    }: Plugin.PopularNovelsOptions<typeof this.filters>,
   ): Promise<Plugin.NovelItem[]> {
-    // Kotlin refería a esta lista por fecha.
-    const listUrl = showLatestNovels
-      ? this.site + 'index.php/lista-de-novela-ligera-novela-web/?orderby=date'
-      : this.site +
-        'index.php/lista-de-novela-ligera-novela-web/?orderby=rating';
+    const base = this.site + 'index.php/lista-de-novela-ligera-novela-web/';
 
-    const $ = await this.getDocument(listUrl + `&paged=${pageNo}`);
+    const params = new URLSearchParams();
+    params.set('paged', String(pageNo));
+
+    // URLs confirmadas por ti:
+    // - Recientes: /lista-de-novela-ligera-novela-web/
+    // - Popular:   /lista-de-novela-ligera-novela-web/?orderby=popularity
+    if (!showLatestNovels) params.set('orderby', 'popularity');
+
+    if (filters) {
+      if (filters.category?.value)
+        params.set('product-search-filter-product_cat', filters.category.value);
+      if (filters.status?.value)
+        params.set('product-search-filter-pa_estado', filters.status.value);
+      if (filters.type?.value)
+        params.set('product-search-filter-pa_tipo', filters.type.value);
+      if (filters.country?.value)
+        params.set('product-search-filter-pa_pais', filters.country.value);
+    }
+
+    const listUrl = `${base}?${params.toString()}`;
+    const $ = await this.getDocument(listUrl);
     const novels = this.extractNovelCandidates($, { max: 30 });
 
     // Fallback: homepage
@@ -152,15 +275,18 @@ class NovelasLigerasNet implements Plugin.PluginBase {
     searchTerm: string,
     pageNo: number,
   ): Promise<Plugin.NovelItem[]> {
-    const url =
-      this.site + `?s=${encodeURIComponent(searchTerm)}&paged=${pageNo}`;
+    const params = new URLSearchParams();
+    params.set('s', searchTerm);
+    params.set('post_type', 'product');
+    params.set('paged', String(pageNo));
+    const url = `${this.site}?${params.toString()}`;
     const $ = await this.getDocument(url);
 
     const novels: Plugin.NovelItem[] = [];
     const seen = new Set<string>();
 
     $('article').each((_idx: number, article: AnyNode) => {
-      const a = $(article).find('h2 a[href], h3 a[href]').first();
+      const a = $(article).find('h2 a[href], h3 a[href], h4 a[href]').first();
       const href = a.attr('href');
       if (!href) return;
       const abs = absolutizeUrl(this.site, href);
