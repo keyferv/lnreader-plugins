@@ -8,7 +8,7 @@ import { localStorage, storage } from '@libs/storage';
 class NovelFire implements Plugin.PluginBase {
   id = 'novelfire';
   name = 'Novel Fire';
-  version = '1.0.15';
+  version = '1.0.16';
   icon = 'src/en/novelfire/icon.png';
   site = 'https://novelfire.net/';
 
@@ -435,11 +435,22 @@ class NovelFire implements Plugin.PluginBase {
     const allChapters: Plugin.ChapterItem[] = [];
 
     // Prefer DataTables AJAX endpoint when present (the HTML table may be empty)
-    const base = this.resolveAbsUrl(chaptersBasePath, this.site);
+    let base = this.resolveAbsUrl(chaptersBasePath, this.site);
     const referer = base;
     try {
-      const chaptersPageRes = await this.fetchWithHeaders(base, referer);
-      const chaptersHtml = await chaptersPageRes.text();
+      let chaptersPageRes = await this.fetchWithHeaders(base, referer);
+      let chaptersHtml = await chaptersPageRes.text();
+
+      // Check if we need to redirect to /chapters page (NovelFire update)
+      if (!this.extractPostIdFromChaptersHtml(chaptersHtml)) {
+        const $ = load(chaptersHtml);
+        const chaptersLink = $('.chapter-latest-container').attr('href');
+        if (chaptersLink) {
+          base = this.resolveAbsUrl(chaptersLink, base);
+          chaptersPageRes = await this.fetchWithHeaders(base, referer);
+          chaptersHtml = await chaptersPageRes.text();
+        }
+      }
 
       // const blockReason = this.detectBlockReason(chaptersHtml);
       // if (blockReason) {
