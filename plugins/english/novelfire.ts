@@ -8,7 +8,7 @@ import { localStorage, storage } from '@libs/storage';
 class NovelFire implements Plugin.PluginBase {
   id = 'novelfire';
   name = 'Novel Fire';
-  version = '1.0.18';
+  version = '1.0.19';
   icon = 'src/en/novelfire/icon.png';
   site = 'https://novelfire.net/';
 
@@ -449,6 +449,27 @@ class NovelFire implements Plugin.PluginBase {
         chaptersPageRes = await this.fetchWithHeaders(base, referer);
         chaptersHtml = await chaptersPageRes.text();
         $ = load(chaptersHtml);
+      }
+
+      // FAST MODE: Generate chapters from max attribute to avoid rate limiting
+      const maxChaptersAttr = $('#gotochapno').attr('max');
+      if (maxChaptersAttr) {
+        const maxChapters = parseInt(maxChaptersAttr, 10);
+        if (!isNaN(maxChapters) && maxChapters > 0) {
+          const chapters: Plugin.ChapterItem[] = [];
+          // Ensure we don't duplicate /chapters if it exists (though usually it's just /book/slug)
+          const cleanPath = chaptersBasePath
+            .replace(/\/chapters\/?$/, '')
+            .replace(/\/$/, '');
+
+          for (let i = 1; i <= maxChapters; i++) {
+            chapters.push({
+              name: `Chapter ${i}`,
+              path: `${cleanPath}/chapter-${i}`,
+            });
+          }
+          return chapters;
+        }
       }
 
       // Try to detect total pages from HTML if not provided or small
