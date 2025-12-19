@@ -8,7 +8,7 @@ import { localStorage, storage } from '@libs/storage';
 class NovelFire implements Plugin.PluginBase {
   id = 'novelfire';
   name = 'Novel Fire';
-  version = '1.0.16';
+  version = '1.0.17';
   icon = 'src/en/novelfire/icon.png';
   site = 'https://novelfire.net/';
 
@@ -250,7 +250,7 @@ class NovelFire implements Plugin.PluginBase {
     )?.[1];
     if (directUrl) return directUrl;
 
-    const keyVal = html.match(/\bpost_id\b\s*[:=]\s*"?(\d+)"?/i)?.[1];
+    const keyVal = html.match(/\bpost_id\b\s*[:=]\s*["']?(\d+)["']?/i)?.[1];
     return keyVal;
   }
 
@@ -442,14 +442,12 @@ class NovelFire implements Plugin.PluginBase {
       let chaptersHtml = await chaptersPageRes.text();
 
       // Check if we need to redirect to /chapters page (NovelFire update)
-      if (!this.extractPostIdFromChaptersHtml(chaptersHtml)) {
-        const $ = load(chaptersHtml);
-        const chaptersLink = $('.chapter-latest-container').attr('href');
-        if (chaptersLink) {
-          base = this.resolveAbsUrl(chaptersLink, base);
-          chaptersPageRes = await this.fetchWithHeaders(base, referer);
-          chaptersHtml = await chaptersPageRes.text();
-        }
+      const $ = load(chaptersHtml);
+      const chaptersLink = $('.chapter-latest-container').attr('href');
+      if (chaptersLink) {
+        base = this.resolveAbsUrl(chaptersLink, base);
+        chaptersPageRes = await this.fetchWithHeaders(base, referer);
+        chaptersHtml = await chaptersPageRes.text();
       }
 
       // const blockReason = this.detectBlockReason(chaptersHtml);
