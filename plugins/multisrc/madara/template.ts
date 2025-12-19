@@ -1,7 +1,7 @@
 import { fetchApi } from '@libs/fetch';
 import { Filters } from '@libs/filterInputs';
 import { Plugin } from '@/types/plugin';
-import { Cheerio, AnyNode, CheerioAPI, load as parseHTML } from 'cheerio';
+import { Cheerio, CheerioAPI, load as parseHTML } from 'cheerio';
 import { defaultCover } from '@libs/defaultCover';
 import { NovelStatus } from '@libs/novelStatus';
 import dayjs from 'dayjs';
@@ -24,6 +24,7 @@ export type MadaraMetadata = {
   sourceSite: string;
   sourceName: string;
   options?: MadaraOptions;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   filters?: any;
 };
 
@@ -37,7 +38,7 @@ class MadaraPlugin implements Plugin.PluginBase {
   filters?: Filters | undefined;
 
   hideLocked = storage.get('hideLocked');
-  pluginSettings?: Record<string, any>;
+  pluginSettings?: Record<string, unknown>;
 
   constructor(metadata: MadaraMetadata) {
     this.id = metadata.id;
@@ -60,7 +61,8 @@ class MadaraPlugin implements Plugin.PluginBase {
     }
   }
 
-  translateDragontea(text: Cheerio<AnyNode>): Cheerio<AnyNode> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  translateDragontea(text: Cheerio<any>): Cheerio<any> {
     if (this.id !== 'dragontea') return text;
 
     const $ = parseHTML(
@@ -367,6 +369,7 @@ class MadaraPlugin implements Plugin.PluginBase {
       loadedCheerio('.c-blog-post > div > div:nth-child(2)');
 
     if (this.options?.customJs) {
+      // eslint-disable-next-line no-empty
       try {
         // CustomJS HERE
       } catch (error) {
