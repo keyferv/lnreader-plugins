@@ -8,7 +8,7 @@ import { localStorage, storage } from '@libs/storage';
 class NovelFire implements Plugin.PluginBase {
   id = 'novelfire';
   name = 'Novel Fire';
-  version = '1.0.20';
+  version = '1.0.21';
   icon = 'src/en/novelfire/icon.png';
   site = 'https://novelfire.net/';
 
@@ -352,23 +352,29 @@ class NovelFire implements Plugin.PluginBase {
     if (showLatestNovels) {
       url = `${this.site}latest-release-novels?page=${pageNo}`;
     } else if (filters) {
-      url = this.site + 'search-adv';
+      if (filters.sort.value === 'ranking-ratings') {
+        url = `${this.site}ranking/ratings?page=${pageNo}`;
+      } else if (filters.sort.value === 'ranking-most-read') {
+        url = `${this.site}ranking/most-read?page=${pageNo}`;
+      } else {
+        url = this.site + 'search-adv';
 
-      const params = new URLSearchParams();
-      for (const language of filters.language.value) {
-        params.append('country_id[]', language);
+        const params = new URLSearchParams();
+        for (const language of filters.language.value) {
+          params.append('country_id[]', language);
+        }
+        params.append('ctgcon', filters.genre_operator.value);
+        for (const genre of filters.genres.value) {
+          params.append('categories[]', genre);
+        }
+        params.append('totalchapter', filters.chapters.value);
+        params.append('ratcon', filters.rating_operator.value);
+        params.append('rating', filters.rating.value);
+        params.append('status', filters.status.value);
+        params.append('sort', filters.sort.value);
+        params.append('page', pageNo.toString());
+        url += `?${params.toString()}`;
       }
-      params.append('ctgcon', filters.genre_operator.value);
-      for (const genre of filters.genres.value) {
-        params.append('categories[]', genre);
-      }
-      params.append('totalchapter', filters.chapters.value);
-      params.append('ratcon', filters.rating_operator.value);
-      params.append('rating', filters.rating.value);
-      params.append('status', filters.status.value);
-      params.append('sort', filters.sort.value);
-      params.append('page', pageNo.toString());
-      url += `?${params.toString()}`;
     } else {
       // Endpoint por defecto para "popular" (sin filtros)
       url = `${this.site}search-adv?ctgcon=and&totalchapter=0&ratcon=min&rating=0&status=-1&sort=rank-top&page=${pageNo}`;
@@ -883,6 +889,8 @@ class NovelFire implements Plugin.PluginBase {
         { label: 'Title (Z>A)', value: 'cba' },
         { label: 'Last Updated (Newest)', value: 'date' },
         { label: 'Chapter Count (Most)', value: 'chapter-count-most' },
+        { label: 'User Votes (Ranking)', value: 'ranking-ratings' },
+        { label: 'Most Read (Ranking)', value: 'ranking-most-read' },
       ],
       type: FilterTypes.Picker,
     },
