@@ -1122,7 +1122,7 @@
 		"name": "TranslatinOtaku",
 		"site": "https://translatinotaku.net/",
 		"lang": "English",
-		"version": "1.0.8",
+		"version": "1.0.9",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/english/TranslatinOtaku[madara].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/multisrc/madara/translatinotaku/icon.png"
 	},
