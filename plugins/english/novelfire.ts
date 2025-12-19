@@ -8,7 +8,7 @@ import { localStorage, storage } from '@libs/storage';
 class NovelFire implements Plugin.PluginBase {
   id = 'novelfire';
   name = 'Novel Fire';
-  version = '1.0.19';
+  version = '1.0.20';
   icon = 'src/en/novelfire/icon.png';
   site = 'https://novelfire.net/';
 
@@ -398,11 +398,17 @@ class NovelFire implements Plugin.PluginBase {
             'No Title Found';
 
         // Probar diferentes atributos para la portada
-        const novelCover =
-          loadedCheerio(ele).find('.novel-cover > img').attr('data-src') ||
-          loadedCheerio(ele).find('.novel-cover > img').attr('src') ||
+        let novelCover =
+          loadedCheerio(ele).find('.novel-cover img').attr('data-src') ||
+          loadedCheerio(ele).find('.novel-cover img').attr('src') ||
+          loadedCheerio(ele).find('.cover img').attr('data-src') ||
+          loadedCheerio(ele).find('.cover img').attr('src') ||
           loadedCheerio(ele).find('img').attr('data-src') ||
           loadedCheerio(ele).find('img').attr('src');
+
+        if (novelCover) {
+          novelCover = this.resolveAbsUrl(novelCover, url);
+        }
 
         const novelHref =
           loadedCheerio(ele).find('.novel-title > a').attr('href') ||
