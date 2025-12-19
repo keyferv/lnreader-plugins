@@ -8,7 +8,7 @@ import { localStorage, storage } from '@libs/storage';
 class NovelFire implements Plugin.PluginBase {
   id = 'novelfire';
   name = 'Novel Fire';
-  version = '1.0.17';
+  version = '1.0.18';
   icon = 'src/en/novelfire/icon.png';
   site = 'https://novelfire.net/';
 
@@ -428,7 +428,7 @@ class NovelFire implements Plugin.PluginBase {
     chaptersBasePath: string,
     pages: number,
   ): Promise<Plugin.ChapterItem[]> {
-    const pagesArray = Array.from(
+    let pagesArray = Array.from(
       { length: Math.max(1, pages) },
       (_, i) => i + 1,
     );
@@ -442,12 +442,22 @@ class NovelFire implements Plugin.PluginBase {
       let chaptersHtml = await chaptersPageRes.text();
 
       // Check if we need to redirect to /chapters page (NovelFire update)
-      const $ = load(chaptersHtml);
+      let $ = load(chaptersHtml);
       const chaptersLink = $('.chapter-latest-container').attr('href');
       if (chaptersLink) {
         base = this.resolveAbsUrl(chaptersLink, base);
         chaptersPageRes = await this.fetchWithHeaders(base, referer);
         chaptersHtml = await chaptersPageRes.text();
+        $ = load(chaptersHtml);
+      }
+
+      // Try to detect total pages from HTML if not provided or small
+      const maxChapters = parseInt($('#gotochapno').attr('max') || '0', 10);
+      if (maxChapters > 0) {
+        const calculatedPages = Math.ceil(maxChapters / 20);
+        if (calculatedPages > pagesArray.length) {
+          pagesArray = Array.from({ length: calculatedPages }, (_, i) => i + 1);
+        }
       }
 
       // const blockReason = this.detectBlockReason(chaptersHtml);
