@@ -95,8 +95,9 @@
     "sourceSite": "https://novelbin.com/",
     "sourceName": "Novel Bin",
     "options": {
-      "latestPage": "sort/latest",
-      "searchPage": "search"
+      "latestPage": "sort/novelbin-daily-update",
+      "searchPage": "search",
+      "versionIncrements": 1
     }
   }
 ]
