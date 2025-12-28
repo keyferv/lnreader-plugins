@@ -97,7 +97,8 @@
     "options": {
       "latestPage": "sort/novelbin-daily-update",
       "searchPage": "search",
-      "versionIncrements": 3
+      "lang": "English",
+      "versionIncrements": 4
     }
   }
 ]
