@@ -815,7 +815,7 @@
 		"name": "Novel Bin",
 		"site": "https://novelbin.com/",
 		"lang": "English",
-		"version": "2.1.2",
+		"version": "2.1.4",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/english/NovelBin[readnovelfull].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/multisrc/readnovelfull/novelbin/icon.png"
 	},
