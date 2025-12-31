@@ -8,6 +8,7 @@ class HasulTL implements Plugin.PluginBase {
   icon = 'src/es/hasutl/icon.jpg';
   site = 'https://hasutl.wordpress.com/';
   version = '1.0.0';
+  lang = 'Spanish';
 
   async popularNovels(): Promise<Plugin.NovelItem[]> {
     const url = this.site + 'light-novels-activas/';

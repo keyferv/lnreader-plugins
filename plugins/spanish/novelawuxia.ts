@@ -10,6 +10,7 @@ class ReinoWuxia implements Plugin.PluginBase {
   icon = 'src/es/reinowuxia/icon.png';
   filters?: Filters | undefined;
   version = '1.0.0';
+  lang = 'Spanish';
   site = 'http://www.reinowuxia.com/';
   getNovelName(y: string | undefined) {
     return y?.replace(/-/g, ' ').replace(/(?:^|\s)\S/g, a => a.toUpperCase());

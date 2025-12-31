@@ -7,6 +7,7 @@ class SkyNovels implements Plugin.PluginBase {
   site = 'https://www.skynovels.net/';
   apiSite = 'https://api.skynovels.net/api/';
   version = '1.0.1';
+  lang = 'Spanish';
   icon = 'src/es/skynovels/icon.png';
 
   async popularNovels(): Promise<Plugin.NovelItem[]> {

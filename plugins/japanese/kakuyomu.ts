@@ -11,6 +11,7 @@ class KakuyomuPlugin implements Plugin.PluginBase {
   icon = 'src/jp/kakuyomu/icon.png';
   site = 'https://kakuyomu.jp';
   version = '1.0.0';
+  lang = 'Japanese';
   filters = {
     genre: {
       type: FilterTypes.Picker,

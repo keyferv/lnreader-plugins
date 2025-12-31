@@ -7,6 +7,7 @@ class Oasis implements Plugin.PluginBase {
   name = 'Oasis Translations';
   site = 'https://oasistranslations.wordpress.com/';
   version = '1.0.0';
+  lang = 'Spanish';
   filters?: Filters | undefined;
   icon = 'src/es/oasistranslations/icon.png';
   async popularNovels(): Promise<Plugin.NovelItem[]> {

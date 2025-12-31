@@ -10,6 +10,7 @@ class Yuuki implements Plugin.PluginBase {
   site = 'https://yuukitls.com/';
   filters?: Filters | undefined;
   version = '1.0.0';
+  lang = 'Spanish';
 
   async popularNovels(): Promise<Plugin.NovelItem[]> {
     const result = await fetchApi(this.site);

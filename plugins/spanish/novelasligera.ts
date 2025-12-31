@@ -10,6 +10,7 @@ class Ligera implements Plugin.PluginBase {
   site = 'https://novelasligera.com/';
   filters?: Filters | undefined;
   version = '1.0.0';
+  lang = 'Spanish';
 
   async popularNovels(): Promise<Plugin.NovelItem[]> {
     const result = await fetchApi(this.site);

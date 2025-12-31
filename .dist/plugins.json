@@ -1874,6 +1874,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/es/hasutl/icon.jpg"
 	},
 	{
+		"id": "ichijoutranslations",
+		"name": "Ichijou Translations",
+		"site": "https://www.ichijoutranslations.com",
+		"lang": "Español",
+		"version": "1.0.1",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/spanish/ichijoutranslations.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/es/ichijoutranslations/icon.png"
+	},
+	{
 		"id": "lightnoveldaily",
 		"name": "LightNovelDaily",
 		"site": "https://lightnoveldaily.com",
