@@ -38,7 +38,13 @@ class NovelasLigerasNet implements Plugin.PluginBase {
   name = 'Novelas Ligeras (net)';
   icon = 'src/es/novelasligera/icon.png';
   site = 'https://novelasligeras.net/';
-  version = '1.0.2';
+  version = '1.0.3';
+  // bumped to 1.0.3 to ensure installer picks latest
+  // previous: 1.0.2
+  // new: 1.0.3
+  // NOTE: keep in sync with compiled .js
+  // (this is source-of-truth)
+
   lang = 'Spanish';
 
   filters = {
