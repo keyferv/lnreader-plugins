@@ -52,7 +52,7 @@ class IchijouTranslations implements Plugin.PluginBase {
   site = 'https://www.ichijoutranslations.com';
   apiSite = 'https://api.ichijoutranslations.com/api';
   cdnSite = 'https://cdn.ichijoutranslations.com';
-  version = '1.0.1';
+  version = '1.0.2';
   icon = 'src/es/ichijoutranslations/icon.png';
   lang = 'Spanish';
 

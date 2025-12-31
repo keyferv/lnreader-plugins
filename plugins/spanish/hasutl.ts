@@ -7,7 +7,7 @@ class HasulTL implements Plugin.PluginBase {
   name = 'Hasu Translations';
   icon = 'src/es/hasutl/icon.jpg';
   site = 'https://hasutl.wordpress.com/';
-  version = '1.0.0';
+  version = '1.0.2';
   lang = 'Spanish';
 
   async popularNovels(): Promise<Plugin.NovelItem[]> {

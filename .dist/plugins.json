@@ -409,7 +409,7 @@
 		"name": "FanNovel",
 		"site": "https://www.fanmtl.com",
 		"lang": "English",
-		"version": "1.0.4",
+		"version": "1.0.5",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/english/FanNovel[readwn].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/multisrc/readwn/fannovel/icon.png"
 	},
@@ -1869,7 +1869,7 @@
 		"name": "Hasu Translations",
 		"site": "https://hasutl.wordpress.com/",
 		"lang": "Español",
-		"version": "1.0.0",
+		"version": "1.0.2",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/spanish/hasutl.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/es/hasutl/icon.jpg"
 	},
@@ -1878,7 +1878,7 @@
 		"name": "Ichijou Translations",
 		"site": "https://www.ichijoutranslations.com",
 		"lang": "Español",
-		"version": "1.0.1",
+		"version": "1.0.2",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/spanish/ichijoutranslations.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/es/ichijoutranslations/icon.png"
 	},
@@ -1905,7 +1905,7 @@
 		"name": "Novelas Ligera",
 		"site": "https://novelasligera.com/",
 		"lang": "Español",
-		"version": "1.0.0",
+		"version": "1.0.2",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/spanish/novelasligera.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/es/novelasligera/icon.png"
 	},
@@ -1914,7 +1914,7 @@
 		"name": "Novelas Ligeras (net)",
 		"site": "https://novelasligeras.net/",
 		"lang": "Español",
-		"version": "1.0.0",
+		"version": "1.0.2",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/spanish/novelasligerasnet.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/es/novelasligera/icon.png"
 	},
@@ -1923,7 +1923,7 @@
 		"name": "Oasis Translations",
 		"site": "https://oasistranslations.wordpress.com/",
 		"lang": "Español",
-		"version": "1.0.0",
+		"version": "1.0.2",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/spanish/oasistranslations.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/es/oasistranslations/icon.png"
 	},
@@ -1941,7 +1941,7 @@
 		"name": "ReinoWuxia",
 		"site": "http://www.reinowuxia.com/",
 		"lang": "Español",
-		"version": "1.0.0",
+		"version": "1.0.2",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/spanish/novelawuxia.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/es/reinowuxia/icon.png"
 	},
@@ -1950,7 +1950,7 @@
 		"name": "SkyNovels",
 		"site": "https://www.skynovels.net/",
 		"lang": "Español",
-		"version": "1.0.1",
+		"version": "1.0.2",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/spanish/skynovels.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/es/skynovels/icon.png"
 	},
@@ -1977,7 +1977,7 @@
 		"name": "TuNovelaLigera",
 		"site": "https://tunovelaligera.com",
 		"lang": "Español",
-		"version": "1.1.0",
+		"version": "1.1.2",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/spanish/tunovelaligera.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/es/tunovelaligera/icon.png"
 	},
@@ -1986,7 +1986,7 @@
 		"name": "Yuuki Tls",
 		"site": "https://yuukitls.com/",
 		"lang": "Español",
-		"version": "1.0.0",
+		"version": "1.0.2",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/spanish/yukitls.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/es/yuukitls/icon.png"
 	},

@@ -10,7 +10,7 @@ class TuNovelaLigera implements Plugin.PagePlugin {
   name = 'TuNovelaLigera';
   icon = 'src/es/tunovelaligera/icon.png';
   site = 'https://tunovelaligera.com';
-  version = '1.1.0';
+  version = '1.1.2';
   lang = 'Spanish';
 
   async sleep(ms: number) {

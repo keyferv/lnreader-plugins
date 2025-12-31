@@ -9,7 +9,7 @@ class Yuuki implements Plugin.PluginBase {
   icon = 'src/es/yuukitls/icon.png';
   site = 'https://yuukitls.com/';
   filters?: Filters | undefined;
-  version = '1.0.0';
+  version = '1.0.2';
   lang = 'Spanish';
 
   async popularNovels(): Promise<Plugin.NovelItem[]> {

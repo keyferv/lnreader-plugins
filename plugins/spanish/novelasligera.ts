@@ -9,7 +9,7 @@ class Ligera implements Plugin.PluginBase {
   icon = 'src/es/novelasligera/icon.png';
   site = 'https://novelasligera.com/';
   filters?: Filters | undefined;
-  version = '1.0.0';
+  version = '1.0.2';
   lang = 'Spanish';
 
   async popularNovels(): Promise<Plugin.NovelItem[]> {

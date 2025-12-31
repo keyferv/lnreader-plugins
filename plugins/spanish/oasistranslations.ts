@@ -6,7 +6,7 @@ class Oasis implements Plugin.PluginBase {
   id = 'oasistranslations';
   name = 'Oasis Translations';
   site = 'https://oasistranslations.wordpress.com/';
-  version = '1.0.0';
+  version = '1.0.2';
   lang = 'Spanish';
   filters?: Filters | undefined;
   icon = 'src/es/oasistranslations/icon.png';

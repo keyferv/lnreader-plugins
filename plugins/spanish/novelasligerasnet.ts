@@ -38,7 +38,7 @@ class NovelasLigerasNet implements Plugin.PluginBase {
   name = 'Novelas Ligeras (net)';
   icon = 'src/es/novelasligera/icon.png';
   site = 'https://novelasligeras.net/';
-  version = '1.0.0';
+  version = '1.0.2';
   lang = 'Spanish';
 
   filters = {

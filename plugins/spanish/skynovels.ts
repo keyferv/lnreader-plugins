@@ -6,7 +6,7 @@ class SkyNovels implements Plugin.PluginBase {
   name = 'SkyNovels';
   site = 'https://www.skynovels.net/';
   apiSite = 'https://api.skynovels.net/api/';
-  version = '1.0.1';
+  version = '1.0.2';
   lang = 'Spanish';
   icon = 'src/es/skynovels/icon.png';
 
