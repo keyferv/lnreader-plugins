@@ -1914,7 +1914,7 @@
 		"name": "Novelas Ligeras (net)",
 		"site": "https://novelasligeras.net/",
 		"lang": "Español",
-		"version": "1.0.3",
+		"version": "1.0.0",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/spanish/novelasligerasnet.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/es/novelasligera/icon.png"
 	},
