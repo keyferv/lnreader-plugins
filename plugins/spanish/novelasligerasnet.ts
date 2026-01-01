@@ -38,14 +38,7 @@ class NovelasLigerasNet implements Plugin.PluginBase {
   name = 'Novelas Ligeras (net)';
   icon = 'src/es/novelasligera/icon.png';
   site = 'https://novelasligeras.net/';
-  version = '1.0.3';
-  // bumped to 1.0.3 to ensure installer picks latest
-  // previous: 1.0.2
-  // new: 1.0.3
-  // NOTE: keep in sync with compiled .js
-  // (this is source-of-truth)
-
-  lang = 'Spanish';
+  version = '1.0.0';
 
   filters = {
     category: {
@@ -123,7 +116,11 @@ class NovelasLigerasNet implements Plugin.PluginBase {
   };
 
   resolveUrl(path: string) {
-    return new URL(path, this.site).toString();
+    try {
+      return new URL(path, this.site).toString();
+    } catch {
+      return path;
+    }
   }
 
   private async getDocument(url: string) {
@@ -167,7 +164,13 @@ class NovelasLigerasNet implements Plugin.PluginBase {
     const looksLikeNovelUrl = (href: string) => {
       const h = href.toLowerCase();
       if (h.includes('wp-login') || h.includes('wp-admin')) return false;
-      if (h.includes('#') || h.startsWith('javascript:')) return false;
+      if (
+        h.includes('#') ||
+        h.startsWith('javascript:') ||
+        h.startsWith('data:') ||
+        h.startsWith('vbscript:')
+      )
+        return false;
       if (h.includes('mailto:') || h.includes('tel:')) return false;
       if (h.includes('/category/') || h.includes('/tag/')) return false;
       if (h.includes('/feed/') || h.includes('rss')) return false;
@@ -374,7 +377,13 @@ class NovelasLigerasNet implements Plugin.PluginBase {
     const looksLikeChapterUrl = (href: string) => {
       const h = href.toLowerCase();
       if (!h.includes('novelasligeras.net')) return false;
-      if (h.includes('#') || h.startsWith('javascript:')) return false;
+      if (
+        h.includes('#') ||
+        h.startsWith('javascript:') ||
+        h.startsWith('data:') ||
+        h.startsWith('vbscript:')
+      )
+        return false;
       // Ejemplo real: /index.php/2025/09/17/shadow-slave-cap-1-novela-web-2/
       const looksDatedPost = /\/index\.php\/20\d{2}\/\d{2}\/\d{2}\//.test(h);
       return (

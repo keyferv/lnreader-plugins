@@ -102,11 +102,10 @@ for (let language in languages) {
 
   plugins.forEach(plugin => {
     if (plugin.startsWith('.')) return;
-    minify(path.join(langPath, plugin));
-    const rawCode = fs.readFileSync(
-      `${COMPILED_PLUGIN_DIR}/${language.toLowerCase()}/${plugin}`,
-      'utf-8',
-    );
+    const pluginPath = path.join(langPath, plugin);
+    if (fs.statSync(pluginPath).isDirectory()) return;
+    minify(pluginPath);
+    const rawCode = fs.readFileSync(pluginPath, 'utf-8');
     const instance = Function(
       'require',
       'module',
