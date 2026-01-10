@@ -36,7 +36,7 @@ function toPath(site: string, fullUrl: string) {
 class NovelasLigerasNet implements Plugin.PluginBase {
   id = 'novelasligerasnet';
   name = 'Novelas Ligeras (net)';
-  icon = 'src/es/novelasligeranet/icon.png';
+  icon = 'src/es/novelasligerasnet/icon.png';
   site = 'https://novelasligeras.net/';
   version = '1.0.1';
 
