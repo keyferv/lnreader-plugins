@@ -9,13 +9,16 @@ class ArchTranslation implements Plugin.PluginBase {
   name = 'ArchTranslation';
   site = 'https://www.archtranslation.com';
   icon = 'src/id/archtranslation/icon.png';
-  version = '1.0.0';
+  version = '1.0.3';
 
   async popularNovels(
     pageNo: number,
     { filters }: Plugin.PopularNovelsOptions,
   ): Promise<Plugin.NovelItem[]> {
-    const url = `${this.site}/search/label/LN?max-results=20&start=${(pageNo - 1) * 20}`;
+    let url = `${this.site}/search/label/LN?max-results=20`;
+    if (pageNo > 1) {
+      url += `&start=${(pageNo - 1) * 20}`;
+    }
 
     const body = await fetchText(url);
     const $ = loadCheerio(body);
@@ -26,13 +29,11 @@ class ArchTranslation implements Plugin.PluginBase {
       const title = $(el).find('.entry-title a').text().trim();
       const path = $(el).find('.entry-title a').attr('href');
       let cover =
-        $(el).find('.post-filter-image img').attr('src') ||
-        $(el).find('.post-filter-image img').attr('data-src');
+        $(el).find('.post-filter-image img').attr('data-src') ||
+        $(el).find('.post-filter-image img').attr('src');
 
       if (cover) {
-        if (cover.match(/(s\d+(-c)?)|(w\d+-h\d+)/)) {
-          cover = cover.replace(/(s\d+(-c)?)|(w\d+-h\d+(-?p-k-no-nu)?)/, 's0');
-        }
+        cover = cover.replace(/(s\d+(-c)?)|(w\d+-h\d+(-?p-k-no-nu)?)/g, 's0');
       }
 
       if (path && title) {
@@ -59,83 +60,73 @@ class ArchTranslation implements Plugin.PluginBase {
       chapters: [],
     };
 
-    // Cover
     const coverImg = postBody.find('img').first();
-    let coverUrl = coverImg.attr('src') || coverImg.attr('data-src');
+    let coverUrl = coverImg.attr('data-src') || coverImg.attr('src');
     if (coverUrl) {
-      if (coverUrl.match(/(s\d+(-c)?)|(w\d+-h\d+)/)) {
-        coverUrl = coverUrl.replace(
-          /(s\d+(-c)?)|(w\d+-h\d+(-?p-k-no-nu)?)/,
-          's0',
-        );
-      }
+      coverUrl = coverUrl.replace(
+        /(s\d+(-c)?)|(w\d+-h\d+(-?p-k-no-nu)?)/g,
+        's0',
+      );
       novel.cover = coverUrl;
     }
 
-    // Metadata extraction
-    const contentText = postBody.text();
+    let contentText = '';
+    // Includes h4 for user specific structure
+    postBody.find('div, p, span, h4').each((_, el) => {
+      const t = $(el).text().trim();
+      if (t) contentText += t + '\n';
+    });
 
-    if (contentText.includes('Author:')) {
-      novel.author = contentText.split('Author:')[1].split('\n')[0].trim();
-    }
-    if (contentText.includes('Artist:')) {
-      novel.artist = contentText.split('Artist:')[1].split('\n')[0].trim();
-    }
-    if (contentText.includes('Genre:')) {
-      novel.genres = contentText.split('Genre:')[1].split('\n')[0].trim();
-    }
-    if (contentText.includes('Status:')) {
-      const statusStr = contentText
-        .split('Status:')[1]
-        .split('\n')[0]
-        .trim()
-        .toLowerCase();
-      if (statusStr.includes('ongoing')) novel.status = NovelStatus.Ongoing;
-      else if (statusStr.includes('completed'))
+    const authorMatch = contentText.match(/Author\s*:\s*(.+)/i);
+    const artistMatch = contentText.match(/Artist\s*:\s*(.+)/i);
+    const genreMatch = contentText.match(/Genre\s*:\s*(.+)/i);
+    const statusMatch = contentText.match(/Status\s*:\s*(.+)/i);
+
+    if (authorMatch) novel.author = authorMatch[1].trim();
+    if (artistMatch) novel.artist = artistMatch[1].trim();
+    if (genreMatch) novel.genres = genreMatch[1].trim();
+    if (statusMatch) {
+      const status = statusMatch[1].toLowerCase();
+      if (status.includes('ongoing')) novel.status = NovelStatus.Ongoing;
+      else if (status.includes('completed'))
         novel.status = NovelStatus.Completed;
-      else if (statusStr.includes('hiatus'))
-        novel.status = NovelStatus.OnHiatus;
+      else if (status.includes('hiatus')) novel.status = NovelStatus.OnHiatus;
       else novel.status = NovelStatus.Unknown;
     }
 
-    // Synopsis
-    if (contentText.includes('Sinopsis:')) {
-      let synopsis = contentText.split('Sinopsis:')[1];
-      if (synopsis.includes('Volume 1')) {
-        synopsis = synopsis.split('Volume 1')[0];
+    const sinopsisIndex = contentText.toLowerCase().indexOf('sinopsis');
+    if (sinopsisIndex !== -1) {
+      let summary = contentText.substring(sinopsisIndex + 9);
+      const nextSectionMatch = summary.match(
+        /(Volume \d+|Chapter \d+|Prolo(g|ue))/i,
+      );
+      if (nextSectionMatch && nextSectionMatch.index) {
+        summary = summary.substring(0, nextSectionMatch.index);
       }
-      novel.summary = synopsis.trim();
+      novel.summary = summary.trim();
+    } else {
+      novel.summary = contentText.substring(0, 300) + '...';
     }
 
-    // Chapters
     const chapterSet = new Set<string>();
-
     postBody.find('a').each((i, el) => {
-      const link = $(el);
-      const href = link.attr('href');
-      const text = link.text().trim();
+      const href = $(el).attr('href');
+      const text = $(el).text().trim();
 
-      if (!href) return;
+      if (href && href.includes('archtranslation.com') && text) {
+        const isChapter =
+          /Chapter|Vol|Prolo|Epilo|Ilustra|Selingan|Short story/i.test(text);
+        const isExcluded =
+          href.includes('/search/label') ||
+          href.includes('/author/') ||
+          href.startsWith(this.site + '/?');
 
-      if (
-        href.includes('archtranslation.com') &&
-        !href.includes('/label/') &&
-        !href.includes('.jpg') &&
-        !href.includes('.png') &&
-        !href.includes('search/label') &&
-        text.length > 0 &&
-        text.toLowerCase() !== 'read more'
-      ) {
-        // Additional heuristic: Exclude the Prologue link if found in summary or similar, but here we just collect links.
-        // The structure has explicit links like "Chapter 1", "Prologue" etc.
-        // Filter out links that are just 'Volume 1' or 'Illustrations' if they point to images or same page anchors (snippet shows explicit links so it's fine)
-
-        if (!chapterSet.has(href)) {
+        if (isChapter && !isExcluded && !chapterSet.has(href)) {
           chapterSet.add(href);
           novel.chapters?.push({
             name: text,
             path: href.replace(this.site, ''),
-            releaseTime: undefined,
+            releaseTime: null,
             chapterNumber: novel.chapters.length + 1,
           });
         }
@@ -151,13 +142,13 @@ class ArchTranslation implements Plugin.PluginBase {
 
     const content = $('.post-body');
 
-    // Remove Ads and widgets
     content.find('#bottom-ad-placeholder').remove();
     content.find('.widget.HTML').remove();
     content.find('.adsbygoogle').remove();
     content.find('script').remove();
+    content.find('#related-post').remove();
+    content.find('.post-footer').remove();
 
-    // Remove navigation buttons (Previous, Contents, Next)
     content.find('.btn').remove();
     content.find('a').each((_, el) => {
       const text = $(el).text().trim().toLowerCase();
@@ -166,9 +157,20 @@ class ArchTranslation implements Plugin.PluginBase {
       }
     });
 
-    // Remove other clutter
-    content.find('#related-post').remove();
-    content.find('.post-footer').remove();
+    content.find('img').each((i, el) => {
+      const dataSrc = $(el).attr('data-src');
+      if (dataSrc) {
+        $(el).attr('src', dataSrc);
+        $(el).removeAttr('data-src');
+      }
+      const src = $(el).attr('src');
+      if (src) {
+        $(el).attr(
+          'src',
+          src.replace(/(s\d+(-c)?)|(w\d+-h\d+(-?p-k-no-nu)?)/g, 's0'),
+        );
+      }
+    });
 
     return content.html() || '';
   }
