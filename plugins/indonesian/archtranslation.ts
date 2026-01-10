@@ -15,7 +15,7 @@ class ArchTranslation implements Plugin.PluginBase {
     pageNo: number,
     { filters }: Plugin.PopularNovelsOptions,
   ): Promise<Plugin.NovelItem[]> {
-    const url = `${this.site}/search/label/LN?max-results=20`;
+    const url = `${this.site}/search/label/LN?max-results=20&start=${(pageNo - 1) * 20}`;
 
     const body = await fetchText(url);
     const $ = loadCheerio(body);
@@ -177,7 +177,9 @@ class ArchTranslation implements Plugin.PluginBase {
     searchTerm: string,
     pageNo: number,
   ): Promise<Plugin.NovelItem[]> {
-    const url = `${this.site}/search?q=${encodeURIComponent(searchTerm)}&max-results=20`;
+    const url = `${this.site}/search?q=${encodeURIComponent(
+      searchTerm,
+    )}&max-results=20&start=${(pageNo - 1) * 20}`;
     const body = await fetchText(url);
     const $ = loadCheerio(body);
 
