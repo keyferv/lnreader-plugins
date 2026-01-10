@@ -9,15 +9,29 @@ class ArchTranslation implements Plugin.PluginBase {
   name = 'ArchTranslation';
   site = 'https://www.archtranslation.com';
   icon = 'src/id/archtranslation/icon.png';
-  version = '1.0.3';
+  version = '1.0.4';
 
   async popularNovels(
     pageNo: number,
     { filters }: Plugin.PopularNovelsOptions,
   ): Promise<Plugin.NovelItem[]> {
-    let url = `${this.site}/search/label/LN?max-results=20`;
+    // Blogspot uses token-based pagination (updated-max), not simple offset
+    // We need to follow the chain of "Older Posts" links
+    let url = `${this.site}/search/label/LN?max-results=6`;
+
+    // For pages > 1, follow the pagination chain
     if (pageNo > 1) {
-      url += `&start=${(pageNo - 1) * 20}`;
+      let currentUrl = url;
+      for (let i = 1; i < pageNo; i++) {
+        const pageBody = await fetchText(currentUrl);
+        const page$ = loadCheerio(pageBody);
+        const nextUrl = page$('.blog-pager-older-link').attr('href');
+        if (!nextUrl) {
+          return []; // No more pages available
+        }
+        currentUrl = nextUrl;
+      }
+      url = currentUrl;
     }
 
     const body = await fetchText(url);
