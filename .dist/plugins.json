@@ -409,7 +409,7 @@
 		"name": "FanNovel",
 		"site": "https://www.fanmtl.com",
 		"lang": "English",
-		"version": "1.0.5",
+		"version": "1.0.4",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/english/FanNovel[readwn].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/multisrc/readwn/fannovel/icon.png"
 	},
@@ -1433,6 +1433,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/fr/xiaowaz/icon.png"
 	},
 	{
+		"id": "archtranslation",
+		"name": "ArchTranslation",
+		"site": "https://www.archtranslation.com",
+		"lang": "Bahasa Indonesia",
+		"version": "1.0.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/indonesian/archtranslation.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/id/archtranslation/icon.png"
+	},
+	{
 		"id": "bacalightnovel",
 		"name": "Baca Light Novel",
 		"site": "https://bacalightnovel.co/",
@@ -1914,9 +1923,9 @@
 		"name": "Novelas Ligeras (net)",
 		"site": "https://novelasligeras.net/",
 		"lang": "Español",
-		"version": "1.0.0",
+		"version": "1.0.1",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/spanish/novelasligerasnet.js",
-		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/es/novelasligera/icon.png"
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/es/novelasligeranet/icon.png"
 	},
 	{
 		"id": "oasistranslations",

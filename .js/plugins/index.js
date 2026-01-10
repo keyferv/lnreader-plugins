@@ -162,6 +162,7 @@ var warriorlegendtrad_1 = __importDefault(require("@plugins/french/warriorlegend
 var WorldNovel_madara_1 = __importDefault(require("@plugins/french/WorldNovel[madara]"));
 var wuxialnscantrad_1 = __importDefault(require("@plugins/french/wuxialnscantrad"));
 var xiaowaz_1 = __importDefault(require("@plugins/french/xiaowaz"));
+var archtranslation_1 = __importDefault(require("@plugins/indonesian/archtranslation"));
 var BacaLightNovel_lightnovelwp_1 = __importDefault(require("@plugins/indonesian/BacaLightNovel[lightnovelwp]"));
 var indowebnovel_1 = __importDefault(require("@plugins/indonesian/indowebnovel"));
 var MeioNovel_madara_1 = __importDefault(require("@plugins/indonesian/MeioNovel[madara]"));
@@ -410,6 +411,7 @@ var PLUGINS = [
     WorldNovel_madara_1.default,
     wuxialnscantrad_1.default,
     xiaowaz_1.default,
+    archtranslation_1.default,
     BacaLightNovel_lightnovelwp_1.default,
     indowebnovel_1.default,
     MeioNovel_madara_1.default,
