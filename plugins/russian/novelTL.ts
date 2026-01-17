@@ -3,6 +3,7 @@ import { FilterTypes, Filters } from '@libs/filterInputs';
 import { defaultCover } from '@libs/defaultCover';
 import { fetchApi } from '@libs/fetch';
 import { NovelStatus } from '@libs/novelStatus';
+import { load as parseHTML } from 'cheerio';
 import dayjs from 'dayjs';
 
 const statusKey: Record<string, string> = {
@@ -16,7 +17,7 @@ class TL implements Plugin.PluginBase {
   id = 'TL';
   name = 'NovelTL';
   site = 'https://novel.tl';
-  version = '1.0.1';
+  version = '1.0.2';
   icon = 'src/ru/noveltl/icon.png';
 
   async fetchNovels(
@@ -94,7 +95,7 @@ class TL implements Plugin.PluginBase {
         Referer: this.site,
         body: JSON.stringify({
           query:
-            'query Book($url:String){project(project:{fullUrl:$url}){title translationStatus fullUrl covers{url}persons(langs:["ru","en","*"],roles:["author","illustrator"]){role name{firstName lastName}}genres{nameRu nameEng}tags{nameRu nameEng}annotation{text}subprojects{content{title volumes{content{shortName chapters{title publishDate fullUrl published}}}}}}}',
+            'query Book($url:String){project(project:{fullUrl:$url}){title translationStatus fullUrl covers{url}persons(langs:["ru","en","*"],roles:["author","illustrator"]){role name{firstName lastName}}genres{nameRu nameEng}tags{nameRu nameEng}subprojects{content{title volumes{content{shortName chapters{title publishDate fullUrl published}}}}}}}',
           variables: {
             url: novelPath,
           },
@@ -102,13 +103,20 @@ class TL implements Plugin.PluginBase {
       },
     ).then(res => res.json());
 
+    // Obtener la descripción mediante scraping HTML
+    const pageHtml = await fetchApi(this.site + '/r/' + novelPath).then(res =>
+      res.text(),
+    );
+    const loadedCheerio = parseHTML(pageHtml);
+    const summary = loadedCheerio('.info__annotation').text().trim();
+
     const novel: Plugin.SourceNovel = {
       path: novelPath,
       name: data.project?.title || '',
       cover: data.project?.covers?.[0]?.url
         ? this.site + data.project.covers[0].url
         : defaultCover,
-      summary: data.project?.annotation?.text,
+      summary: summary || '',
       status:
         statusKey[data.project?.translationStatus || 'unknown'] ||
         NovelStatus.Unknown,
