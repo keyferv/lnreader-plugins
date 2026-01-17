@@ -1833,7 +1833,7 @@
 		"name": "NovelTL",
 		"site": "https://novel.tl",
 		"lang": "Русский",
-		"version": "1.0.1",
+		"version": "1.0.2",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/russian/novelTL.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/ru/noveltl/icon.png"
 	},
