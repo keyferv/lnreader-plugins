@@ -17,7 +17,7 @@ class TL implements Plugin.PluginBase {
   id = 'TL';
   name = 'NovelTL';
   site = 'https://novel.tl';
-  version = '1.1.1';
+  version = '1.1.2';
   icon = 'src/ru/noveltl/icon.png';
 
   async fetchNovels(
@@ -87,46 +87,57 @@ class TL implements Plugin.PluginBase {
 
   async parseNovel(novelPath: string): Promise<Plugin.SourceNovel> {
     const slug = novelPath.split('/').pop() || novelPath;
+    const url = this.site + '/r/' + slug;
 
-    // 1. Descargar HTML con la URL correcta
-    const body = await fetchApi(this.site + '/r/' + slug).then(res =>
-      res.text(),
-    );
+    // 1. Descargar y verificar
+    const response = await fetchApi(url);
+    if (response.status === 404) throw new Error('Novela no encontrada (404).');
+    const body = await response.text();
 
-    // 2. Extraer el estado de Apollo
+    // 2. Extraer JSON
     const scriptRegex =
       /<script id="serverApp-state" type="application\/json">([\s\S]*?)<\/script>/;
     const match = body.match(scriptRegex);
-    if (!match)
-      throw new Error(
-        'No se pudo encontrar el JSON de la novela (serverApp-state).',
-      );
+    if (!match) throw new Error('Error crítico: JSON de Apollo no encontrado.');
 
-    // 3. Limpiar y parsear JSON
     const cleanJson = match[1].replace(/&q;/g, '"');
     const apolloData = JSON.parse(cleanJson);
     const db = apolloData['apollo.state'];
 
-    // 4. Función Helper
+    // 3. Función Resolve (Mejorada para evitar nulos)
     const resolve = (ref: any): any => {
       if (!ref) return null;
       if (Array.isArray(ref)) return ref.map(resolve).filter(Boolean);
-      if (ref.type === 'id' && ref.id) return resolve(db[ref.id]) || db[ref.id];
-      return ref;
+      // Si es un puntero { type: 'id', ... }
+      if (ref.type === 'id' && ref.id) {
+        const obj = db[ref.id];
+        // Si el objeto apuntado es a su vez otro puntero, recursividad:
+        if (obj && obj.type === 'id') return resolve(obj);
+        return obj;
+      }
+      return ref; // Si ya es el objeto real
     };
 
-    // 5. Encontrar el Proyecto Principal
+    // 4. Encontrar Proyecto
     const projectKey = Object.keys(db).find(
-      key => key.startsWith('Project:') && !key.includes('.'),
+      k => k.startsWith('Project:') && !k.includes('.'),
     );
-
     let project = db[projectKey || ''];
 
+    // Fallback por si la key es rara
     if (!project) {
-      throw new Error('Datos del proyecto no encontrados en el JSON.');
+      const fallback = Object.keys(db).find(
+        k => db[k].url === slug && db[k].__typename === 'Project',
+      );
+      if (fallback) project = db[fallback];
     }
+    if (!project) throw new Error('Datos del proyecto no encontrados.');
 
-    const projectSlug = project.url || slug;
+    // 5. Portada y Metadatos
+    const covers = resolve(project.covers);
+    const coverUrl = covers?.[0]?.url
+      ? this.site + covers[0].url
+      : defaultCover;
 
     const loadedCheerio = parseHTML(body);
     const summary =
@@ -134,40 +145,29 @@ class TL implements Plugin.PluginBase {
       project.annotation?.text ||
       '';
 
+    // Autor
+    let author = '';
+    const persons = resolve(project.persons);
+    if (Array.isArray(persons)) {
+      const authors = persons.filter(
+        (p: any) => p.role === 'author' || p.role === 'original_story',
+      );
+      author = authors
+        .map((p: any) => p.name?.lastName || p.name?.firstName)
+        .join(', ');
+    }
+
+    // Géneros y tags (extraído del código anterior para no perderlo)
     const genres: string[] = [];
     loadedCheerio('.tags a, .genres a').each((_, el) => {
       const genre = loadedCheerio(el).text().trim();
       if (genre) genres.push(genre);
     });
 
-    let author = '';
-    if (project.persons) {
-      const persons = resolve(project.persons);
-      if (Array.isArray(persons)) {
-        const authors = persons.filter(
-          (p: any) => p.role === 'author' || p.role === 'original_story',
-        );
-        if (authors.length > 0)
-          author = authors
-            .map((p: any) => p.name?.lastName || p.name?.firstName)
-            .join(', ');
-      }
-    }
-    if (!author) {
-      loadedCheerio('.line').each((_, el) => {
-        const text = loadedCheerio(el).text();
-        if (text.includes('Автор:') || text.includes('Author:')) {
-          author = text.replace(/Автор:|Author:/g, '').trim();
-        }
-      });
-    }
-
     const novel: Plugin.SourceNovel = {
       path: novelPath,
       name: project.title || 'Sin Título',
-      cover: project.covers?.[0]?.url
-        ? this.site + project.covers[0].url
-        : defaultCover,
+      cover: coverUrl,
       author: author,
       status:
         statusKey[project.translationStatus || 'unknown'] ||
@@ -177,60 +177,79 @@ class TL implements Plugin.PluginBase {
       chapters: [],
     };
 
-    const subprojectsData = resolve(project.subprojects);
-    const translationProjects = subprojectsData?.content
-      ? resolve(subprojectsData.content)
-      : Array.isArray(subprojectsData)
-        ? subprojectsData
-        : [subprojectsData];
-
+    // 6. Extracción de Capítulos (Lógica robusta)
     const chapters: Plugin.ChapterItem[] = [];
 
-    if (translationProjects) {
-      translationProjects.forEach((transProject: any) => {
-        if (!transProject) return;
-        const workTitle = transProject.title || 'Main';
-        const volumes = resolve(transProject.volumes);
-        const volumesList = volumes?.content
-          ? resolve(volumes.content)
-          : Array.isArray(volumes)
-            ? volumes
+    // Resolvemos 'subprojects' (puede ser objeto contenedor o array directo)
+    let transProjects = resolve(project.subprojects);
+
+    // Si es un objeto contenedor con 'content', bajamos un nivel
+    if (
+      transProjects &&
+      !Array.isArray(transProjects) &&
+      transProjects.content
+    ) {
+      transProjects = resolve(transProjects.content);
+    }
+
+    // Aseguramos que sea array
+    const projectsList = Array.isArray(transProjects)
+      ? transProjects
+      : transProjects
+        ? [transProjects]
+        : [];
+
+    projectsList.forEach((proj: any) => {
+      if (!proj) return;
+
+      // Lo mismo para 'volumes'
+      let vols = resolve(proj.volumes);
+      if (vols && !Array.isArray(vols) && vols.content) {
+        vols = resolve(vols.content);
+      }
+      const volumesList = Array.isArray(vols) ? vols : vols ? [vols] : [];
+
+      volumesList.forEach((vol: any, vIndex: number) => {
+        if (!vol) return;
+
+        const volSlug = vol.url;
+        const volName = vol.name || vol.shortName || `Volumen ${vIndex + 1}`;
+
+        // Lo mismo para 'chapters'
+        const chaps = resolve(vol.chapters); // Generalmente es array directo, pero por si acaso
+        const chaptersList = Array.isArray(chaps)
+          ? chaps
+          : chaps
+            ? [chaps]
             : [];
 
-        volumesList.forEach((vol: any, volumeIndex: number) => {
-          if (!vol) return;
-          const volSlug = vol.url;
-          const volName =
-            vol.shortName || vol.name || `Volumen ${volumeIndex + 1}`;
-          const chaptersList = resolve(vol.chapters);
+        chaptersList.forEach((chap: any) => {
+          if (!chap) return;
 
-          if (chaptersList && Array.isArray(chaptersList)) {
-            chaptersList.forEach((chap: any) => {
-              if (!chap) return;
-              const chapSlug = chap.url;
-
-              let chapTitle = chap.title;
-              if (!chapTitle) {
-                if (chapSlug === 'ill') chapTitle = 'Иллюстрации';
-                else chapTitle = `Глава ${chapSlug}`;
-              }
-
-              const fullPath = `${projectSlug}/${volSlug}/${chapSlug}`;
-
-              chapters.push({
-                name: `${volName} - ${chapTitle}`,
-                path: fullPath,
-                releaseTime: chap.publishDate
-                  ? dayjs(chap.publishDate).format('LLL')
-                  : undefined,
-                chapterNumber: chapters.length + 1,
-                page: workTitle,
-              });
-            });
+          const chapSlug = chap.url;
+          let chapTitle = chap.title;
+          if (!chapTitle) {
+            chapTitle =
+              chapSlug === 'ill' ? 'Иллюстрации' : `Глава ${chapSlug}`;
           }
+
+          const fullPath = `${project.url || slug}/${volSlug}/${chapSlug}`;
+
+          // FORMATO PEDIDO: "Volumen X Capítulo Y"
+          const displayName = `${volName} ${chapTitle}`;
+
+          chapters.push({
+            name: displayName, // Nombre combinado
+            path: fullPath,
+            releaseTime: chap.publishDate
+              ? dayjs(chap.publishDate).format('LLL')
+              : undefined,
+            chapterNumber: chapters.length + 1,
+            // volume: volName // lnreader-plugins no usa la propiedad 'volume' estándarmente en Plugin.ChapterItem, se mantiene en 'name'
+          });
         });
       });
-    }
+    });
 
     novel.chapters = chapters;
     return novel;
