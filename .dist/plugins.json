@@ -1437,7 +1437,7 @@
 		"name": "ArchTranslation",
 		"site": "https://www.archtranslation.com",
 		"lang": "Bahasa Indonesia",
-		"version": "1.0.8",
+		"version": "1.1.1",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/indonesian/archtranslation.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/id/archtranslation/icon.png"
 	},

@@ -9,7 +9,7 @@ class ArchTranslation implements Plugin.PluginBase {
   name = 'ArchTranslation';
   site = 'https://www.archtranslation.com';
   icon = 'src/id/archtranslation/icon.png';
-  version = '1.0.8'; // Versión con arreglo de enlaces relativos
+  version = '1.1.1'; // Agrupación por Volúmenes
 
   async popularNovels(
     pageNo: number,
@@ -39,12 +39,15 @@ class ArchTranslation implements Plugin.PluginBase {
     $('.blog-post').each((i, el) => {
       let title = $(el).find('.entry-title a').text().trim();
       const path = $(el).find('.entry-title a').attr('href');
-      let cover =
-        $(el).find('.post-filter-image img').attr('data-src') ||
-        $(el).find('.post-filter-image img').attr('src');
+
+      let img = $(el).find('.post-filter-image img');
+      if (img.length === 0) img = $(el).find('img');
+
+      let cover = img.first().attr('data-src') || img.first().attr('src');
 
       if (cover) {
-        cover = cover.replace(/(s\d+(-c)?)|(w\d+-h\d+(-?p-k-no-nu)?)/g, 's0');
+        if (cover.startsWith('//')) cover = 'https:' + cover;
+        cover = cover.replace(/=[^=]+$/, '=s0');
       }
 
       title = title.replace(/(Chapter|Vol|Volume)\s*\d+.*/i, '').trim();
@@ -65,72 +68,84 @@ class ArchTranslation implements Plugin.PluginBase {
     let body = await fetchText(this.site + novelPath);
     let $ = loadCheerio(body);
 
-    let postBody = $('.post-body');
-    if (postBody.length === 0) {
-      postBody = $('.entry-content');
-    }
+    // Selectores seguros
+    let postBody = $('#postBody');
+    if (postBody.length === 0) postBody = $('.post-body');
+    if (postBody.length === 0) postBody = $('.entry-content');
 
     // --- 1. EXTRACCIÓN DE PORTADA ---
     let coverUrl = defaultCover;
-    // Buscamos primero en el contenedor típico de blogger
     let coverImg = postBody.find('.separator img').first();
-    // Si no, la primera imagen que encontremos
-    if (coverImg.length === 0) {
-      coverImg = postBody.find('img').first();
-    }
+    if (coverImg.length === 0) coverImg = postBody.find('img').first();
 
     let rawCoverUrl = coverImg.attr('data-src') || coverImg.attr('src');
     if (rawCoverUrl) {
-      // Asegurar URL absoluta
-      if (rawCoverUrl.startsWith('//')) {
-        rawCoverUrl = 'https:' + rawCoverUrl;
-      } else if (rawCoverUrl.startsWith('/')) {
+      if (rawCoverUrl.startsWith('//')) rawCoverUrl = 'https:' + rawCoverUrl;
+      else if (rawCoverUrl.startsWith('/'))
         rawCoverUrl = this.site + rawCoverUrl;
-      }
-
-      // Limpieza de tamaño
-      if (rawCoverUrl.match(/\/s\d+.*?\//)) {
-        rawCoverUrl = rawCoverUrl.replace(/\/s\d+.*?\//, '/s0/');
-      } else if (rawCoverUrl.match(/=(s\d+|w\d+).*?$/)) {
-        rawCoverUrl = rawCoverUrl.replace(/=(s\d+|w\d+).*?$/, '=s0');
-      }
+      rawCoverUrl = rawCoverUrl.replace(/=[^=]+$/, '=s0');
       coverUrl = rawCoverUrl;
     }
 
-    // --- 2. EXTRACCIÓN DE CAPÍTULOS ---
+    // --- 2. EXTRACCIÓN DE CAPÍTULOS CON VOLÚMENES ---
     const chapters: Plugin.ChapterItem[] = [];
     const chapterSet = new Set<string>();
+    let currentVolume = ''; // Variable para guardar el volumen actual
 
     const chapterRegex =
       /Chapter|Vol|Prolo|Epilo|Ilustra|Selingan|Short story|Side Story|Extras|Ekstra|Batch|Tamat|Bagian/i;
 
-    postBody.find('a').each((i, el) => {
-      let href = $(el).attr('href');
-      const text = $(el).text().trim();
+    // Recorremos TODOS los elementos en orden para detectar encabezados de volumen
+    postBody.find('*').each((i, el) => {
+      const $el = $(el);
 
-      if (href && text) {
-        // Normalizar URL a absoluta para pasar los filtros
-        if (href.startsWith('//')) href = 'https:' + href;
-        else if (href.startsWith('/')) href = this.site + href;
+      // A) Detección de Cabecera de Volumen
+      // Si el elemento contiene texto como "Volume 1", actualizamos currentVolume
+      // Ignoramos enlaces para esto, solo texto plano o contenedores
+      if (el.tagName !== 'a') {
+        const text = $el.text().trim();
+        // Regex estricto: Debe ser "Volume X" o "Vol X" exacto
+        if (/^(Volume|Vol\.?)\s*\d+$/i.test(text)) {
+          currentVolume = text;
+          return;
+        }
+      }
 
-        if (href.includes('archtranslation.com')) {
-          // Limpiar parámetros de la URL (?m=1, etc) que causan duplicados
-          href = href.split('?')[0];
+      // B) Detección de Capítulo
+      if (el.tagName === 'a') {
+        let href = $el.attr('href');
+        const text = $el.text().trim();
 
-          const isExcluded =
-            href.includes('/search/label') ||
-            href.includes('/author/') ||
-            href.replace(this.site, '') === novelPath;
+        if (href && text) {
+          if (href && href.startsWith('//')) href = 'https:' + href;
+          else if (href && href.startsWith('/')) href = this.site + href;
 
-          if (chapterRegex.test(text) && !isExcluded) {
-            if (!chapterSet.has(href)) {
-              chapterSet.add(href);
-              chapters.push({
-                name: text,
-                path: href.replace(this.site, ''),
-                releaseTime: null,
-                chapterNumber: chapters.length + 1,
-              });
+          if (href && href.includes('archtranslation.com')) {
+            href = href.split('?')[0];
+
+            const isExcluded =
+              href.includes('/search/label') ||
+              href.includes('/author/') ||
+              href.replace(this.site, '') === novelPath;
+
+            if (chapterRegex.test(text) && !isExcluded) {
+              if (!chapterSet.has(href)) {
+                chapterSet.add(href);
+
+                // Construimos el nombre final
+                let displayName = text;
+                if (currentVolume) {
+                  displayName = `${currentVolume} ${text}`;
+                }
+
+                chapters.push({
+                  name: displayName,
+                  path: href.replace(this.site, ''),
+                  releaseTime: null,
+                  chapterNumber: chapters.length + 1,
+                  volume: currentVolume || undefined, // Agrupa en la UI si la app lo soporta
+                });
+              }
             }
           }
         }
@@ -138,36 +153,22 @@ class ArchTranslation implements Plugin.PluginBase {
     });
 
     // --- 3. REDIRECCIÓN (Fallback) ---
-    // Solo si no encontramos capítulos y parece un post antiguo
     if (chapters.length === 0 && novelPath.match(/\/\d{4}\/\d{2}\//)) {
       let projectUrl: string | undefined;
 
       $('a[href*="/p/"]').each((_, el) => {
         let href = $(el).attr('href');
         const text = $(el).text().toLowerCase();
-
-        if (href) {
-          if (href.startsWith('/')) href = this.site + href;
-
-          if (href.includes(this.site)) {
+        if (href && href.includes(this.site)) {
+          if (!text.includes('privacy') && !text.includes('dmca')) {
+            const currentTitle = $('.entry-title').text().trim().toLowerCase();
             if (
-              !text.includes('privacy') &&
-              !text.includes('dmca') &&
-              !text.includes('contact')
+              currentTitle.includes(text) ||
+              text.includes('project') ||
+              text.includes('toc')
             ) {
-              const currentTitle = $('.entry-title')
-                .text()
-                .trim()
-                .toLowerCase();
-              if (
-                currentTitle.includes(text) ||
-                text.includes('project') ||
-                text.includes('toc') ||
-                text.includes('read')
-              ) {
-                projectUrl = href;
-                return false;
-              }
+              projectUrl = href;
+              return false;
             }
           }
         }
@@ -175,10 +176,7 @@ class ArchTranslation implements Plugin.PluginBase {
 
       if (projectUrl) {
         const newPath = projectUrl.replace(this.site, '');
-        // Evitar bucle infinito si la redirección es a la misma página
-        if (newPath !== novelPath) {
-          return this.parseNovel(newPath);
-        }
+        if (newPath !== novelPath) return this.parseNovel(newPath);
       }
     }
 
@@ -265,8 +263,7 @@ class ArchTranslation implements Plugin.PluginBase {
       let src = $(el).attr('src');
       if (src) {
         if (src.includes('blogger.googleusercontent.com')) {
-          src = src.replace(/\/s\d+.*?\//, '/s1600/');
-          src = src.replace(/=s\d+.*?$/, '=s1600');
+          src = src.replace(/=[^=]+$/, '=s1600');
         }
         $(el).attr('src', src);
       }
@@ -296,12 +293,15 @@ class ArchTranslation implements Plugin.PluginBase {
     $('.blog-post').each((i, el) => {
       let title = $(el).find('.entry-title a').text().trim();
       const path = $(el).find('.entry-title a').attr('href');
-      let cover =
-        $(el).find('.post-filter-image img').attr('src') ||
-        $(el).find('.post-filter-image img').attr('data-src');
+
+      let img = $(el).find('.post-filter-image img');
+      if (img.length === 0) img = $(el).find('img');
+
+      let cover = img.first().attr('data-src') || img.first().attr('src');
 
       if (cover) {
-        cover = cover.replace(/(s\d+(-c)?)|(w\d+-h\d+(-?p-k-no-nu)?)/g, 's0');
+        if (cover.startsWith('//')) cover = 'https:' + cover;
+        cover = cover.replace(/=[^=]+$/, '=s0');
       }
 
       title = title.replace(/(Chapter|Vol|Volume)\s*\d+.*/i, '').trim();
