@@ -17,7 +17,7 @@ class TL implements Plugin.PluginBase {
   id = 'TL';
   name = 'NovelTL';
   site = 'https://novel.tl';
-  version = '1.0.2';
+  version = '1.1.0';
   icon = 'src/ru/noveltl/icon.png';
 
   async fetchNovels(
@@ -83,85 +83,132 @@ class TL implements Plugin.PluginBase {
   }
 
   async parseNovel(novelPath: string): Promise<Plugin.SourceNovel> {
-    const { data }: response = await fetchApi(
-      this.site + '/api/site/v2/graphql',
-      {
-        method: 'post',
-        headers: {
-          Accept: 'application/json, text/plain, */*',
-          'Accept-Language': 'ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3',
-          'Content-Type': 'application/json',
-        },
-        Referer: this.site,
-        body: JSON.stringify({
-          query:
-            'query Book($url:String){project(project:{fullUrl:$url}){title translationStatus fullUrl covers{url}persons(langs:["ru","en","*"],roles:["author","illustrator"]){role name{firstName lastName}}genres{nameRu nameEng}tags{nameRu nameEng}subprojects{content{title volumes{content{shortName chapters{title publishDate fullUrl published}}}}}}}',
-          variables: {
-            url: novelPath,
-          },
-        }),
-      },
-    ).then(res => res.json());
-
-    // Obtener la descripción mediante scraping HTML
-    const pageHtml = await fetchApi(this.site + '/r/' + novelPath).then(res =>
+    // 1. Descargar HTML
+    const body = await fetchApi(this.site + '/r/' + novelPath).then(res =>
       res.text(),
     );
-    const loadedCheerio = parseHTML(pageHtml);
-    const summary = loadedCheerio('.info__annotation').text().trim();
 
-    const novel: Plugin.SourceNovel = {
-      path: novelPath,
-      name: data.project?.title || '',
-      cover: data.project?.covers?.[0]?.url
-        ? this.site + data.project.covers[0].url
-        : defaultCover,
-      summary: summary || '',
-      status:
-        statusKey[data.project?.translationStatus || 'unknown'] ||
-        NovelStatus.Unknown,
+    // 2. Extraer el estado de Apollo
+    const scriptRegex =
+      /<script id="serverApp-state" type="application\/json">([\s\S]*?)<\/script>/;
+    const match = body.match(scriptRegex);
+    if (!match) throw new Error('No se pudo encontrar el JSON de la novela.');
+
+    // 3. Limpiar y parsear JSON
+    const cleanJson = match[1].replace(/&q;/g, '"');
+    const apolloData = JSON.parse(cleanJson);
+    const db = apolloData['apollo.state'];
+
+    // 4. Función Helper para resolver referencias (Project:123 -> Objeto real)
+    const resolve = (ref: any): any => {
+      if (!ref) return null;
+      if (Array.isArray(ref)) return ref.map(resolve).filter(Boolean);
+      if (ref.type === 'id' && ref.id) return resolve(db[ref.id]) || db[ref.id];
+      return ref;
     };
 
-    const genres = [data.project?.tags, data.project?.genres]
-      .flat()
-      .map(item => item?.nameRu || item?.nameEng)
-      .filter(item => item);
+    // 5. Encontrar el Proyecto Principal
+    const projectKey = Object.keys(db).find(
+      key => key.startsWith('Project:') && !key.includes('.'),
+    );
+    const project = db[projectKey || ''];
 
-    if (genres?.length) {
-      novel.genres = genres.join(', ');
-    }
+    if (!project) throw new Error('Datos del proyecto no encontrados.');
 
-    data.project?.persons?.forEach(person => {
-      if (person.role == 'author' && person.name.firstName) {
-        novel.author =
-          person.name.firstName + ' ' + (person.name?.lastName || '');
-      }
-      if (person.role == 'illustrator' && person.name.firstName) {
-        novel.artist =
-          person.name.firstName + ' ' + (person.name?.lastName || '');
+    const projectSlug = project.url;
+
+    // Obtener descripción del HTML
+    const loadedCheerio = parseHTML(body);
+    const summary = loadedCheerio('.info__annotation').text().trim();
+
+    // Obtener géneros y tags del HTML
+    const genres: string[] = [];
+    loadedCheerio('.tags a, .genres a').each((_, el) => {
+      const genre = loadedCheerio(el).text().trim();
+      if (genre) genres.push(genre);
+    });
+
+    // Obtener autor del HTML
+    let author = '';
+    loadedCheerio('.line').each((_, el) => {
+      const text = loadedCheerio(el).text();
+      if (text.includes('Автор:') || text.includes('Author:')) {
+        author = text.replace(/Автор:|Author:/g, '').trim();
       }
     });
 
+    // 6. Crear objeto de la novela
+    const novel: Plugin.SourceNovel = {
+      path: novelPath,
+      name: project.title || 'Sin Título',
+      cover: project.covers?.[0]?.url
+        ? this.site + project.covers[0].url
+        : defaultCover,
+      author: author,
+      status:
+        statusKey[project.translationStatus || 'unknown'] ||
+        NovelStatus.Unknown,
+      summary: summary || '',
+      genres: genres.length ? genres.join(', ') : '',
+      chapters: [],
+    };
+
+    // 7. Procesar Volúmenes y Capítulos
+    const subprojectsData = resolve(project.subprojects);
+    const translationProjects = subprojectsData?.content
+      ? resolve(subprojectsData.content)
+      : Array.isArray(subprojectsData)
+        ? subprojectsData
+        : [subprojectsData];
+
     const chapters: Plugin.ChapterItem[] = [];
 
-    data.project?.subprojects?.content?.forEach(work =>
-      work.volumes.content.forEach((volume, volumeIndex) =>
-        volume.chapters.forEach((chapter, chapterIndex) => {
-          if (chapter.published) {
-            chapters.push({
-              name:
-                (volume.shortName || 'Том ' + (volumeIndex + 1)) +
-                ' ' +
-                (chapter.title || 'Глава ' + (chapterIndex + 1)),
-              path: chapter.fullUrl,
-              releaseTime: dayjs(chapter.publishDate).format('LLL'),
-              chapterNumber: chapters.length + 1,
-              page: work.title || 'Основная серия',
+    if (translationProjects) {
+      translationProjects.forEach((transProject: any) => {
+        if (!transProject) return;
+        const workTitle = transProject.title || 'Основная серия';
+        const volumes = resolve(transProject.volumes);
+        const volumesList = volumes?.content
+          ? resolve(volumes.content)
+          : Array.isArray(volumes)
+            ? volumes
+            : [];
+
+        volumesList.forEach((vol: any, volumeIndex: number) => {
+          if (!vol) return;
+          const volSlug = vol.url;
+          const volName = vol.shortName || 'Том ' + (volumeIndex + 1);
+          const chaptersList = resolve(vol.chapters);
+
+          if (chaptersList && Array.isArray(chaptersList)) {
+            chaptersList.forEach((chap: any, chapterIndex: number) => {
+              if (!chap) return;
+              const chapSlug = chap.url;
+
+              // Generar título si no existe
+              let chapTitle = chap.title;
+              if (!chapTitle) {
+                if (chapSlug === 'ill') chapTitle = 'Иллюстрации';
+                else chapTitle = 'Глава ' + chapSlug;
+              }
+
+              // Construir URL completa
+              const fullPath = `${projectSlug}/${volSlug}/${chapSlug}`;
+
+              chapters.push({
+                name: volName + ' ' + chapTitle,
+                path: fullPath,
+                releaseTime: chap.publishDate
+                  ? dayjs(chap.publishDate).format('LLL')
+                  : undefined,
+                chapterNumber: chapters.length + 1,
+                page: workTitle,
+              });
             });
           }
-        }),
-      ),
-    );
+        });
+      });
+    }
 
     novel.chapters = chapters;
     return novel;
