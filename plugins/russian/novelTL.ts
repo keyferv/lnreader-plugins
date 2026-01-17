@@ -17,7 +17,7 @@ class TL implements Plugin.PluginBase {
   id = 'TL';
   name = 'NovelTL';
   site = 'https://novel.tl';
-  version = '1.1.2';
+  version = '1.1.3';
   icon = 'src/ru/noveltl/icon.png';
 
   async fetchNovels(
@@ -283,7 +283,15 @@ class TL implements Plugin.PluginBase {
       }
     }
 
-    return chapterText || 'No se pudo cargar el texto del capítulo.';
+    if (chapterText) {
+      return chapterText
+        .replace(/&l;/g, '<')
+        .replace(/&g;/g, '>')
+        .replace(/&q;/g, '"')
+        .replace(/&s;/g, "'");
+    }
+
+    return 'No se pudo cargar el texto del capítulo.';
   }
 
   resolveUrl = (path: string) => this.site + '/r/' + path;
