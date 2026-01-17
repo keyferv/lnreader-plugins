@@ -17,7 +17,7 @@ class TL implements Plugin.PluginBase {
   id = 'TL';
   name = 'NovelTL';
   site = 'https://novel.tl';
-  version = '1.1.0';
+  version = '1.1.1';
   icon = 'src/ru/noveltl/icon.png';
 
   async fetchNovels(
@@ -31,8 +31,9 @@ class TL implements Plugin.PluginBase {
         method: 'post',
         headers: {
           Accept: 'application/json, text/plain, */*',
-          'Accept-Language': 'ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3',
           'Content-Type': 'application/json',
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         },
         Referer: this.site,
         body: JSON.stringify({
@@ -57,15 +58,17 @@ class TL implements Plugin.PluginBase {
     ).then(res => res.json());
 
     const novels: Plugin.NovelItem[] = [];
-    data?.projects?.content?.forEach(novel =>
+    data?.projects?.content?.forEach(novel => {
+      const cleanSlug = novel.fullUrl.split('/').pop() || novel.fullUrl;
+
       novels.push({
         name: novel.title,
-        path: novel.fullUrl,
+        path: cleanSlug,
         cover: novel?.covers?.[0]?.url
           ? this.site + novel.covers[0].url
           : defaultCover,
-      }),
-    );
+      });
+    });
 
     return novels;
   }
@@ -83,8 +86,10 @@ class TL implements Plugin.PluginBase {
   }
 
   async parseNovel(novelPath: string): Promise<Plugin.SourceNovel> {
-    // 1. Descargar HTML
-    const body = await fetchApi(this.site + '/r/' + novelPath).then(res =>
+    const slug = novelPath.split('/').pop() || novelPath;
+
+    // 1. Descargar HTML con la URL correcta
+    const body = await fetchApi(this.site + '/r/' + slug).then(res =>
       res.text(),
     );
 
@@ -92,14 +97,17 @@ class TL implements Plugin.PluginBase {
     const scriptRegex =
       /<script id="serverApp-state" type="application\/json">([\s\S]*?)<\/script>/;
     const match = body.match(scriptRegex);
-    if (!match) throw new Error('No se pudo encontrar el JSON de la novela.');
+    if (!match)
+      throw new Error(
+        'No se pudo encontrar el JSON de la novela (serverApp-state).',
+      );
 
     // 3. Limpiar y parsear JSON
     const cleanJson = match[1].replace(/&q;/g, '"');
     const apolloData = JSON.parse(cleanJson);
     const db = apolloData['apollo.state'];
 
-    // 4. Función Helper para resolver referencias (Project:123 -> Objeto real)
+    // 4. Función Helper
     const resolve = (ref: any): any => {
       if (!ref) return null;
       if (Array.isArray(ref)) return ref.map(resolve).filter(Boolean);
@@ -111,33 +119,49 @@ class TL implements Plugin.PluginBase {
     const projectKey = Object.keys(db).find(
       key => key.startsWith('Project:') && !key.includes('.'),
     );
-    const project = db[projectKey || ''];
 
-    if (!project) throw new Error('Datos del proyecto no encontrados.');
+    let project = db[projectKey || ''];
 
-    const projectSlug = project.url;
+    if (!project) {
+      throw new Error('Datos del proyecto no encontrados en el JSON.');
+    }
 
-    // Obtener descripción del HTML
+    const projectSlug = project.url || slug;
+
     const loadedCheerio = parseHTML(body);
-    const summary = loadedCheerio('.info__annotation').text().trim();
+    const summary =
+      loadedCheerio('.info__annotation').text().trim() ||
+      project.annotation?.text ||
+      '';
 
-    // Obtener géneros y tags del HTML
     const genres: string[] = [];
     loadedCheerio('.tags a, .genres a').each((_, el) => {
       const genre = loadedCheerio(el).text().trim();
       if (genre) genres.push(genre);
     });
 
-    // Obtener autor del HTML
     let author = '';
-    loadedCheerio('.line').each((_, el) => {
-      const text = loadedCheerio(el).text();
-      if (text.includes('Автор:') || text.includes('Author:')) {
-        author = text.replace(/Автор:|Author:/g, '').trim();
+    if (project.persons) {
+      const persons = resolve(project.persons);
+      if (Array.isArray(persons)) {
+        const authors = persons.filter(
+          (p: any) => p.role === 'author' || p.role === 'original_story',
+        );
+        if (authors.length > 0)
+          author = authors
+            .map((p: any) => p.name?.lastName || p.name?.firstName)
+            .join(', ');
       }
-    });
+    }
+    if (!author) {
+      loadedCheerio('.line').each((_, el) => {
+        const text = loadedCheerio(el).text();
+        if (text.includes('Автор:') || text.includes('Author:')) {
+          author = text.replace(/Автор:|Author:/g, '').trim();
+        }
+      });
+    }
 
-    // 6. Crear objeto de la novela
     const novel: Plugin.SourceNovel = {
       path: novelPath,
       name: project.title || 'Sin Título',
@@ -148,12 +172,11 @@ class TL implements Plugin.PluginBase {
       status:
         statusKey[project.translationStatus || 'unknown'] ||
         NovelStatus.Unknown,
-      summary: summary || '',
+      summary: summary,
       genres: genres.length ? genres.join(', ') : '',
       chapters: [],
     };
 
-    // 7. Procesar Volúmenes y Capítulos
     const subprojectsData = resolve(project.subprojects);
     const translationProjects = subprojectsData?.content
       ? resolve(subprojectsData.content)
@@ -166,7 +189,7 @@ class TL implements Plugin.PluginBase {
     if (translationProjects) {
       translationProjects.forEach((transProject: any) => {
         if (!transProject) return;
-        const workTitle = transProject.title || 'Основная серия';
+        const workTitle = transProject.title || 'Main';
         const volumes = resolve(transProject.volumes);
         const volumesList = volumes?.content
           ? resolve(volumes.content)
@@ -177,26 +200,25 @@ class TL implements Plugin.PluginBase {
         volumesList.forEach((vol: any, volumeIndex: number) => {
           if (!vol) return;
           const volSlug = vol.url;
-          const volName = vol.shortName || 'Том ' + (volumeIndex + 1);
+          const volName =
+            vol.shortName || vol.name || `Volumen ${volumeIndex + 1}`;
           const chaptersList = resolve(vol.chapters);
 
           if (chaptersList && Array.isArray(chaptersList)) {
-            chaptersList.forEach((chap: any, chapterIndex: number) => {
+            chaptersList.forEach((chap: any) => {
               if (!chap) return;
               const chapSlug = chap.url;
 
-              // Generar título si no existe
               let chapTitle = chap.title;
               if (!chapTitle) {
                 if (chapSlug === 'ill') chapTitle = 'Иллюстрации';
-                else chapTitle = 'Глава ' + chapSlug;
+                else chapTitle = `Глава ${chapSlug}`;
               }
 
-              // Construir URL completa
               const fullPath = `${projectSlug}/${volSlug}/${chapSlug}`;
 
               chapters.push({
-                name: volName + ' ' + chapTitle,
+                name: `${volName} - ${chapTitle}`,
                 path: fullPath,
                 releaseTime: chap.publishDate
                   ? dayjs(chap.publishDate).format('LLL')
@@ -215,28 +237,37 @@ class TL implements Plugin.PluginBase {
   }
 
   async parseChapter(chapterPath: string): Promise<string> {
-    const { data } = await fetchApi(this.site + '/api/site/v2/graphql', {
-      method: 'post',
-      headers: {
-        Accept: 'application/json, text/plain, */*',
-        'Accept-Language': 'ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3',
-        'Content-Type': 'application/json',
-      },
-      Referer: this.site,
-      body: JSON.stringify({
-        query:
-          'query($url:String){chapter(chapter:{fullUrl:$url}){text{text}}}',
-        variables: {
-          url: decodeURI(chapterPath),
-        },
-      }),
-    }).then(res => res.json());
+    const url = `${this.site}/r/${chapterPath}`;
 
-    const chapterText = data.chapter?.text?.text || '';
-    return chapterText;
+    const body = await fetchApi(url).then(res => res.text());
+    const loadedCheerio = parseHTML(body);
+
+    let chapterText = loadedCheerio('.chapter-text').html();
+
+    if (!chapterText) {
+      const scriptRegex =
+        /<script id="serverApp-state" type="application\/json">([\s\S]*?)<\/script>/;
+      const match = body.match(scriptRegex);
+      if (match) {
+        const cleanJson = match[1].replace(/&q;/g, '"');
+        const data = JSON.parse(cleanJson);
+        const db = data['apollo.state'];
+        const textKey = Object.keys(db).find(
+          k =>
+            db[k].text &&
+            typeof db[k].text === 'string' &&
+            db[k].__typename === 'Text',
+        );
+        if (textKey) {
+          chapterText = db[textKey].text;
+        }
+      }
+    }
+
+    return chapterText || 'No se pudo cargar el texto del capítulo.';
   }
 
-  resolveUrl = (path: string) => 'https://' + path;
+  resolveUrl = (path: string) => this.site + '/r/' + path;
 
   filters = {
     tags: {
