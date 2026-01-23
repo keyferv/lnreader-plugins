@@ -52,7 +52,7 @@ class IchijouTranslations implements Plugin.PluginBase {
   site = 'https://www.ichijoutranslations.com';
   apiSite = 'https://api.ichijoutranslations.com/api';
   cdnSite = 'https://cdn.ichijoutranslations.com';
-  version = '1.0.3';
+  version = '1.0.4';
   icon = 'src/es/ichijoutranslations/icon.png';
   lang = 'Spanish';
 
@@ -134,11 +134,13 @@ class IchijouTranslations implements Plugin.PluginBase {
     const body = (await result.json()) as { data: IchijouWorkDetails };
     const work = body.data;
 
-    const coverImage = work.workImages.find(
-      img =>
-        (img.image_type.code === 'cover' || img.image_type.code === 'card') &&
-        img.image_url,
-    );
+    const coverImage =
+      work.workImages.find(
+        img => img.image_type.code === 'card' && img.image_url,
+      ) ||
+      work.workImages.find(
+        img => img.image_type.code === 'cover' && img.image_url,
+      );
 
     let cover = coverImage?.image_url;
     if (cover && !cover.startsWith('http')) {
