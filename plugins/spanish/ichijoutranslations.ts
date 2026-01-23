@@ -53,7 +53,7 @@ class IchijouTranslations implements Plugin.PluginBase {
   site = 'https://www.ichijoutranslations.com';
   apiSite = 'https://api.ichijoutranslations.com/api';
   cdnSite = 'https://cdn.ichijoutranslations.com';
-  version = '1.0.6';
+  version = '1.0.7';
   icon = 'src/es/ichijoutranslations/icon.png';
   lang = 'Spanish';
 
@@ -76,12 +76,24 @@ class IchijouTranslations implements Plugin.PluginBase {
     const $ = loadCheerio(html);
     const novels: Plugin.NovelItem[] = [];
 
-    $('div.grid article').each((_, element) => {
+    const articleSelector =
+      'div.grid.grid-cols-2 article[role="button"], div.grid article';
+
+    $(articleSelector).each((_, element) => {
       const article = $(element);
       const anchor = article.find('a[href*="/obras/"]').first();
-      const href = anchor.attr('href');
+      const href =
+        anchor.attr('href') ||
+        article.attr('data-href') ||
+        article.attr('data-url') ||
+        article.attr('data-path') ||
+        article.find('[data-href]').attr('data-href') ||
+        article.find('[data-url]').attr('data-url') ||
+        article.find('[data-path]').attr('data-path');
       const title = article.find('h3').first().text().trim();
-      const img = article.find('img').first();
+      const img = article.find('div.relative img').first().length
+        ? article.find('div.relative img').first()
+        : article.find('img').first();
       const imgSrc = img.attr('src');
 
       if (!href || !title || !imgSrc) return;
