@@ -52,7 +52,7 @@ class IchijouTranslations implements Plugin.PluginBase {
   site = 'https://www.ichijoutranslations.com';
   apiSite = 'https://api.ichijoutranslations.com/api';
   cdnSite = 'https://cdn.ichijoutranslations.com';
-  version = '1.0.2';
+  version = '1.0.3';
   icon = 'src/es/ichijoutranslations/icon.png';
   lang = 'Spanish';
 
@@ -100,16 +100,19 @@ class IchijouTranslations implements Plugin.PluginBase {
     body.data.data.forEach(work => {
       const coverImage = work.workImages.find(
         img =>
-          img.image_type.code === 'cover' || img.image_type.code === 'card',
+          (img.image_type.code === 'cover' || img.image_type.code === 'card') &&
+          img.image_url,
       );
-      const cover = coverImage
-        ? this.cdnSite + coverImage.image_url
-        : undefined;
+
+      let cover = coverImage?.image_url;
+      if (cover && !cover.startsWith('http')) {
+        cover = this.cdnSite + (cover.startsWith('/') ? cover : `/${cover}`);
+      }
 
       novels.push({
         name: work.title,
         cover: cover,
-        path: `obras/${work.id}-${work.slug}`,
+        path: `/obras/${work.id}-${work.slug}`,
       });
     });
 
@@ -117,7 +120,12 @@ class IchijouTranslations implements Plugin.PluginBase {
   }
 
   async parseNovel(novelPath: string): Promise<Plugin.SourceNovel> {
-    const id = novelPath.split('/')[1].split('-')[0];
+    const id = novelPath
+      .split('/')
+      .pop()
+      ?.match(/^(\d+)-/)?.[1];
+    if (!id) throw new Error('No se pudo obtener el ID de la novela');
+
     // Assuming the endpoint for work details follows the pattern /home/work/:id
     // If this is incorrect, it needs to be updated based on the actual API.
     const url = `${this.apiSite}/home/work/${id}`;
@@ -127,22 +135,32 @@ class IchijouTranslations implements Plugin.PluginBase {
     const work = body.data;
 
     const coverImage = work.workImages.find(
-      img => img.image_type.code === 'cover' || img.image_type.code === 'card',
+      img =>
+        (img.image_type.code === 'cover' || img.image_type.code === 'card') &&
+        img.image_url,
     );
+
+    let cover = coverImage?.image_url;
+    if (cover && !cover.startsWith('http')) {
+      cover = this.cdnSite + (cover.startsWith('/') ? cover : `/${cover}`);
+    }
+
+    const genres = work.workGenres?.map(g => g.genre.name) || [];
+    if (work.type?.name) genres.push(work.type.name);
 
     const novel: Plugin.SourceNovel = {
       path: novelPath,
       name: work.title,
-      cover: coverImage ? this.cdnSite + coverImage.image_url : undefined,
+      cover: cover,
       summary: work.synopsis,
-      status: work.publicationStatus.name,
-      genres: work.workGenres.map(g => g.genre.name).join(', '),
+      status: work.publicationStatus?.name?.trim(),
+      genres: genres.join(', '),
     };
 
     if (work.chapters) {
       novel.chapters = work.chapters.map(chapter => ({
         name: `Capítulo ${chapter.number}: ${chapter.title}`,
-        path: `capitulo/${chapter.id}-${chapter.slug}`,
+        path: `/capitulo/${chapter.id}-${chapter.slug}`,
         chapterNumber: chapter.number,
       }));
     }
@@ -151,7 +169,11 @@ class IchijouTranslations implements Plugin.PluginBase {
   }
 
   async parseChapter(chapterPath: string): Promise<string> {
-    const id = chapterPath.split('/')[1].split('-')[0];
+    const id = chapterPath
+      .split('/')
+      .pop()
+      ?.match(/^(\d+)-/)?.[1];
+    if (!id) throw new Error('No se pudo obtener el ID del capítulo');
     // Assuming endpoint for chapter details
     const url = `${this.apiSite}/home/chapter/${id}`;
 
@@ -177,16 +199,19 @@ class IchijouTranslations implements Plugin.PluginBase {
     body.data.data.forEach(work => {
       const coverImage = work.workImages.find(
         img =>
-          img.image_type.code === 'cover' || img.image_type.code === 'card',
+          (img.image_type.code === 'cover' || img.image_type.code === 'card') &&
+          img.image_url,
       );
-      const cover = coverImage
-        ? this.cdnSite + coverImage.image_url
-        : undefined;
+
+      let cover = coverImage?.image_url;
+      if (cover && !cover.startsWith('http')) {
+        cover = this.cdnSite + (cover.startsWith('/') ? cover : `/${cover}`);
+      }
 
       novels.push({
         name: work.title,
         cover: cover,
-        path: `obras/${work.id}-${work.slug}`,
+        path: `/obras/${work.id}-${work.slug}`,
       });
     });
 

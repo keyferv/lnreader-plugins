@@ -1887,7 +1887,7 @@
 		"name": "Ichijou Translations",
 		"site": "https://www.ichijoutranslations.com",
 		"lang": "Español",
-		"version": "1.0.2",
+		"version": "1.0.3",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/spanish/ichijoutranslations.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/es/ichijoutranslations/icon.png"
 	},
