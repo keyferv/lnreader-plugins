@@ -1,6 +1,7 @@
 import { fetchApi } from '@libs/fetch';
 import { Plugin } from '@/types/plugin';
 import { Filters, FilterTypes } from '@libs/filterInputs';
+import { load as loadCheerio } from 'cheerio';
 
 type IchijouResponse = {
   data: {
@@ -52,9 +53,61 @@ class IchijouTranslations implements Plugin.PluginBase {
   site = 'https://www.ichijoutranslations.com';
   apiSite = 'https://api.ichijoutranslations.com/api';
   cdnSite = 'https://cdn.ichijoutranslations.com';
-  version = '1.0.4';
+  version = '1.0.6';
   icon = 'src/es/ichijoutranslations/icon.png';
   lang = 'Spanish';
+
+  private buildExploreUrl(
+    pageNo: number,
+    sortBy: string,
+    sortOrder: string,
+    searchTerm?: string,
+  ): string {
+    let url = `${this.site}/explorar?page=${pageNo}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+
+    if (searchTerm) {
+      url += `&search=${encodeURIComponent(searchTerm)}`;
+    }
+
+    return url;
+  }
+
+  private parseExploreHtml(html: string): Plugin.NovelItem[] {
+    const $ = loadCheerio(html);
+    const novels: Plugin.NovelItem[] = [];
+
+    $('div.grid article').each((_, element) => {
+      const article = $(element);
+      const anchor = article.find('a[href*="/obras/"]').first();
+      const href = anchor.attr('href');
+      const title = article.find('h3').first().text().trim();
+      const img = article.find('img').first();
+      const imgSrc = img.attr('src');
+
+      if (!href || !title || !imgSrc) return;
+
+      let cover = imgSrc;
+      if (!cover.startsWith('http')) {
+        cover = new URL(cover, this.site).toString();
+      }
+
+      let path = href;
+      if (path.startsWith('http')) {
+        path = new URL(path).pathname;
+      }
+      if (!path.startsWith('/')) {
+        path = `/${path}`;
+      }
+
+      novels.push({
+        name: title,
+        cover,
+        path,
+      });
+    });
+
+    return novels;
+  }
 
   filters = {
     sortBy: {
@@ -83,40 +136,14 @@ class IchijouTranslations implements Plugin.PluginBase {
     pageNo: number,
     { filters }: Plugin.PopularNovelsOptions<typeof this.filters>,
   ): Promise<Plugin.NovelItem[]> {
-    let url = `${this.apiSite}/home/explore?page=${pageNo}&limit=12`;
-
-    if (filters?.sortBy?.value) {
-      url += `&sortBy=${filters.sortBy.value}`;
-    }
-    if (filters?.sortOrder?.value) {
-      url += `&sortOrder=${filters.sortOrder.value}`;
-    }
+    const sortBy = filters?.sortBy?.value || this.filters.sortBy.value;
+    const sortOrder = filters?.sortOrder?.value || this.filters.sortOrder.value;
+    const url = this.buildExploreUrl(pageNo, sortBy, sortOrder);
 
     const result = await fetchApi(url);
-    const body = (await result.json()) as IchijouResponse;
+    const html = await result.text();
 
-    const novels: Plugin.NovelItem[] = [];
-
-    body.data.data.forEach(work => {
-      const coverImage = work.workImages.find(
-        img =>
-          (img.image_type.code === 'cover' || img.image_type.code === 'card') &&
-          img.image_url,
-      );
-
-      let cover = coverImage?.image_url;
-      if (cover && !cover.startsWith('http')) {
-        cover = this.cdnSite + (cover.startsWith('/') ? cover : `/${cover}`);
-      }
-
-      novels.push({
-        name: work.title,
-        cover: cover,
-        path: `/obras/${work.id}-${work.slug}`,
-      });
-    });
-
-    return novels;
+    return this.parseExploreHtml(html);
   }
 
   async parseNovel(novelPath: string): Promise<Plugin.SourceNovel> {
@@ -189,35 +216,14 @@ class IchijouTranslations implements Plugin.PluginBase {
     searchTerm: string,
     pageNo: number,
   ): Promise<Plugin.NovelItem[]> {
-    const url = `${this.apiSite}/home/explore?page=${pageNo}&limit=12&search=${encodeURIComponent(
-      searchTerm,
-    )}`;
+    const sortBy = this.filters.sortBy.value;
+    const sortOrder = this.filters.sortOrder.value;
+    const url = this.buildExploreUrl(pageNo, sortBy, sortOrder, searchTerm);
 
     const result = await fetchApi(url);
-    const body = (await result.json()) as IchijouResponse;
+    const html = await result.text();
 
-    const novels: Plugin.NovelItem[] = [];
-
-    body.data.data.forEach(work => {
-      const coverImage = work.workImages.find(
-        img =>
-          (img.image_type.code === 'cover' || img.image_type.code === 'card') &&
-          img.image_url,
-      );
-
-      let cover = coverImage?.image_url;
-      if (cover && !cover.startsWith('http')) {
-        cover = this.cdnSite + (cover.startsWith('/') ? cover : `/${cover}`);
-      }
-
-      novels.push({
-        name: work.title,
-        cover: cover,
-        path: `/obras/${work.id}-${work.slug}`,
-      });
-    });
-
-    return novels;
+    return this.parseExploreHtml(html);
   }
 }
 
