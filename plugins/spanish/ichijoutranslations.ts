@@ -40,11 +40,8 @@ type IchijouDetailChapter = {
   title: string;
   orderIndex: number;
   slug?: string;
-  chapter_file?: {
+  chapterFile?: {
     fileUrl: string;
-    file_type: {
-      code: string;
-    };
   };
 };
 
@@ -53,11 +50,8 @@ type IchijouVolume = {
   title: string;
   orderIndex: number;
   displayNumber: string;
-  volume_file?: {
+  volumeFile?: {
     fileUrl: string;
-    file_type: {
-      code: string;
-    };
   };
   chapters: IchijouDetailChapter[];
 };
@@ -80,7 +74,7 @@ class IchijouTranslations implements Plugin.PluginBase {
   apiSite = 'https://api.ichijoutranslations.com/api';
   cdnSite = 'https://cdn.ichijoutranslations.com';
   private readonly apiHomeBase = 'https://api.ichijoutranslations.com/api/home';
-  version = '1.1.3';
+  version = '1.1.4';
   icon = 'src/es/ichijoutranslations/icon.png';
   lang = 'Spanish';
 
@@ -90,6 +84,17 @@ class IchijouTranslations implements Plugin.PluginBase {
       this.cdnSite +
       (relativePath.startsWith('/') ? relativePath : `/${relativePath}`)
     );
+  }
+
+  /**
+   * Crea un path seguro para capítulos/volúmenes PDF.
+   * Quita la extensión .pdf para que LNReader NO dispare el PdfReaderScreen
+   * (que crashea por falta de contexto 'novel'). En su lugar, parseChapter
+   * reconstruye la URL completa y devuelve HTML con enlace al PDF.
+   */
+  private buildPdfReaderPath(fileUrl: string): string {
+    const clean = fileUrl.replace(/^\//, '').replace(/\.pdf$/i, '');
+    return `/leer-pdf/${clean}`;
   }
 
   filters = {
@@ -185,12 +190,11 @@ class IchijouTranslations implements Plugin.PluginBase {
         (a, b) => a.orderIndex - b.orderIndex,
       );
       for (const volume of sortedVolumes) {
-        if (volume.volume_file?.fileUrl) {
+        if (volume.volumeFile?.fileUrl) {
           chapterNumber++;
-          // URL directa al PDF → LNReader abre visor PDF nativo
           chapters.push({
             name: `Volumen ${volume.displayNumber || volume.orderIndex} - ${volume.title}`,
-            path: this.buildCdnUrl(volume.volume_file.fileUrl),
+            path: this.buildPdfReaderPath(volume.volumeFile.fileUrl),
             chapterNumber,
           });
         }
@@ -201,10 +205,10 @@ class IchijouTranslations implements Plugin.PluginBase {
           );
           for (const chapter of sortedChapters) {
             chapterNumber++;
-            if (chapter.chapter_file?.fileUrl) {
+            if (chapter.chapterFile?.fileUrl) {
               chapters.push({
                 name: chapter.title,
-                path: this.buildCdnUrl(chapter.chapter_file.fileUrl),
+                path: this.buildPdfReaderPath(chapter.chapterFile.fileUrl),
                 chapterNumber,
               });
             } else {
@@ -225,10 +229,10 @@ class IchijouTranslations implements Plugin.PluginBase {
       );
       for (const chapter of sortedChapters) {
         chapterNumber++;
-        if (chapter.chapter_file?.fileUrl) {
+        if (chapter.chapterFile?.fileUrl) {
           chapters.push({
             name: chapter.title,
-            path: this.buildCdnUrl(chapter.chapter_file.fileUrl),
+            path: this.buildPdfReaderPath(chapter.chapterFile.fileUrl),
             chapterNumber,
           });
         } else {
@@ -241,7 +245,7 @@ class IchijouTranslations implements Plugin.PluginBase {
       }
     }
 
-    const hasPdf = chapters.some(c => /\.pdf(\?|$)/i.test(c.path));
+    const hasPdf = chapters.some(c => c.path.startsWith('/leer-pdf/'));
     const summary = hasPdf
       ? `${work.synopsis}\n\nEste título contiene volúmenes/capítulos en PDF.`
       : work.synopsis;
@@ -258,14 +262,23 @@ class IchijouTranslations implements Plugin.PluginBase {
   }
 
   async parseChapter(chapterPath: string): Promise<string> {
-    // Los capítulos PDF (URLs que terminan en .pdf) son abiertos
-    // directamente por el visor PDF nativo de LNReader.
-    // parseChapter solo se llama para capítulos de texto.
-
-    if (/\.pdf(\?|$)/i.test(chapterPath)) {
-      return 'Este capítulo es un PDF. Ábrelo desde la app.';
+    // Capítulos/volúmenes PDF: reconstruir URL del CDN y mostrar enlace.
+    // Usamos /leer-pdf/ en vez de la URL .pdf directa porque el
+    // PdfReaderScreen de LNReader crashea ("Cannot read property 'novel'").
+    if (chapterPath.startsWith('/leer-pdf/')) {
+      const relativePath =
+        '/' + chapterPath.slice('/leer-pdf/'.length) + '.pdf';
+      const pdfUrl = this.buildCdnUrl(relativePath);
+      return (
+        '<div style="text-align:center;padding:32px 16px;font-family:sans-serif;">' +
+        '<p style="font-size:18px;margin-bottom:24px;">Este capítulo está en formato PDF.</p>' +
+        `<a href="${pdfUrl}" style="display:inline-block;padding:14px 28px;` +
+        'background:#1976D2;color:#fff;text-decoration:none;border-radius:8px;' +
+        'font-size:16px;">Abrir PDF</a></div>'
+      );
     }
 
+    // Capítulos de texto
     const id = chapterPath
       .split('/')
       .pop()
