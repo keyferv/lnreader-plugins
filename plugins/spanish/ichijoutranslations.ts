@@ -52,7 +52,7 @@ type IchijouVolume = {
   title: string;
   orderIndex: number;
   createdAt?: string;
-  volumeFile?: {
+  volume_file?: {
     fileUrl: string;
   };
   fileUrl?: string;
@@ -68,7 +68,12 @@ type IchijouWorkDetails = {
   id: number;
   title: string;
   synopsis: string;
-  coverUrl?: string;
+  workImages?: {
+    image_url: string;
+    image_type: {
+      code: string;
+    };
+  }[];
   publicationStatus?: {
     name: string;
   };
@@ -89,7 +94,7 @@ class IchijouTranslations implements Plugin.PluginBase {
   private readonly apiRoot = 'https://api.ichijoutranslations.com';
   cdnSite = 'https://cdn.ichijoutranslations.com';
   private readonly apiHomeBase = 'https://api.ichijoutranslations.com/api/home';
-  version = '1.1.4';
+  version = '1.1.5';
   icon = 'src/es/ichijoutranslations/icon.png';
   lang = 'Spanish';
 
@@ -199,8 +204,17 @@ class IchijouTranslations implements Plugin.PluginBase {
     const body = (await result.json()) as IchijouWorkDetailsResponse;
     const work = body.data;
 
-    // Cover
-    const cover = work.coverUrl ? this.buildCdnUrl(work.coverUrl) : undefined;
+    // Cover – obtener de workImages (card o cover)
+    const coverImage =
+      work.workImages?.find(
+        img => img.image_type.code === 'card' && img.image_url,
+      ) ??
+      work.workImages?.find(
+        img => img.image_type.code === 'cover' && img.image_url,
+      );
+    const cover = coverImage?.image_url
+      ? this.buildCdnUrl(coverImage.image_url)
+      : undefined;
 
     // Genres
     const genres = work.workGenres?.map(g => g.genre.name) || [];
@@ -215,7 +229,7 @@ class IchijouTranslations implements Plugin.PluginBase {
         (a, b) => a.orderIndex - b.orderIndex,
       );
       for (const volume of sortedVolumes) {
-        const fileUrl = volume.fileUrl || volume.volumeFile?.fileUrl;
+        const fileUrl = volume.fileUrl || volume.volume_file?.fileUrl;
         if (fileUrl && this.isPdfFile(fileUrl)) {
           chapterNumber++;
           chapters.push({
@@ -276,9 +290,11 @@ class IchijouTranslations implements Plugin.PluginBase {
       );
     }
 
-    // Capítulos de texto
+    // Capítulos de texto: extraer ID y usar /api/home/chapter/{id}
     if (chapterPath.startsWith('/capitulo/')) {
-      const url = `${this.apiSite}/home${chapterPath}`;
+      const chapterId = chapterPath.split('/').pop()?.match(/^(\d+)/)?.[1];
+      if (!chapterId) throw new Error('No se pudo obtener el ID del capítulo');
+      const url = `${this.apiSite}/home/chapter/${chapterId}`;
       const result = await fetchApi(url);
       const body = (await result.json()) as {
         data?: { content?: string };
