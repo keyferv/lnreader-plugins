@@ -80,7 +80,7 @@ class IchijouTranslations implements Plugin.PluginBase {
   apiSite = 'https://api.ichijoutranslations.com/api';
   cdnSite = 'https://cdn.ichijoutranslations.com';
   private readonly apiHomeBase = 'https://api.ichijoutranslations.com/api/home';
-  version = '1.1.2';
+  version = '1.1.3';
   icon = 'src/es/ichijoutranslations/icon.png';
   lang = 'Spanish';
 
@@ -144,7 +144,7 @@ class IchijouTranslations implements Plugin.PluginBase {
       novels.push({
         name: work.title,
         cover,
-        path: `/obras/${work.slug}`,
+        path: `/obras/${work.id}-${work.slug}`,
       });
     });
 
@@ -310,7 +310,7 @@ class IchijouTranslations implements Plugin.PluginBase {
       novels.push({
         name: work.title,
         cover,
-        path: `/obras/${work.slug}`,
+        path: `/obras/${work.id}-${work.slug}`,
       });
     });
 
