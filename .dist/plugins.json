@@ -676,6 +676,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/en/lnmtl/icon.png"
 	},
 	{
+		"id": "lorenovels",
+		"name": "Lore Novels",
+		"site": "https://lorenovels.com",
+		"lang": "English",
+		"version": "1.0.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/english/lorenovels.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/en/lorenovels/icon.svg"
+	},
+	{
 		"id": "ltnovel",
 		"name": "Ltnovel",
 		"site": "https://www.ltnovels.com",
@@ -1887,7 +1896,7 @@
 		"name": "Ichijou Translations",
 		"site": "https://www.ichijoutranslations.com",
 		"lang": "Español",
-		"version": "1.0.9",
+		"version": "1.1.2",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/spanish/ichijoutranslations.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/es/ichijoutranslations/icon.png"
 	},

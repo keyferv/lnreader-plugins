@@ -251,6 +251,7 @@ var nettruyen_1 = __importDefault(require("@plugins/vietnamese/nettruyen"));
 var truyenchu_1 = __importDefault(require("@plugins/vietnamese/truyenchu"));
 var Truyenconect_1 = __importDefault(require("@plugins/vietnamese/Truyenconect"));
 var truyenfull_1 = __importDefault(require("@plugins/vietnamese/truyenfull"));
+var lorenovels_1 = __importDefault(require("@plugins/english/lorenovels"));
 var PLUGINS = [
     ArNovel_madara_1.default,
     Azora_madara_1.default,
@@ -500,5 +501,6 @@ var PLUGINS = [
     truyenchu_1.default,
     Truyenconect_1.default,
     truyenfull_1.default,
+    lorenovels_1.default,
 ];
 exports.default = PLUGINS;
