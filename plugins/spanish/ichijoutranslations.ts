@@ -40,20 +40,22 @@ type IchijouDetailChapter = {
   title: string;
   orderIndex: number;
   slug?: string;
+  createdAt?: string;
   chapterFile?: {
     fileUrl: string;
   };
+  fileUrl?: string;
 };
 
 type IchijouVolume = {
   id: number;
   title: string;
   orderIndex: number;
-  displayNumber: string;
+  createdAt?: string;
   volumeFile?: {
     fileUrl: string;
   };
-  chapters: IchijouDetailChapter[];
+  fileUrl?: string;
 };
 
 type IchijouWorkDetailsResponse = {
@@ -62,9 +64,21 @@ type IchijouWorkDetailsResponse = {
   data: IchijouWorkDetails;
 };
 
-type IchijouWorkDetails = IchijouWork & {
-  chapters: IchijouDetailChapter[];
-  volumes: IchijouVolume[];
+type IchijouWorkDetails = {
+  id: number;
+  title: string;
+  synopsis: string;
+  coverUrl?: string;
+  publicationStatus?: {
+    name: string;
+  };
+  workGenres?: {
+    genre: {
+      name: string;
+    };
+  }[];
+  chapters?: IchijouDetailChapter[] | null;
+  volumes?: IchijouVolume[] | null;
 };
 
 class IchijouTranslations implements Plugin.PluginBase {
@@ -72,6 +86,7 @@ class IchijouTranslations implements Plugin.PluginBase {
   name = 'Ichijou Translations';
   site = 'https://www.ichijoutranslations.com';
   apiSite = 'https://api.ichijoutranslations.com/api';
+  private readonly apiRoot = 'https://api.ichijoutranslations.com';
   cdnSite = 'https://cdn.ichijoutranslations.com';
   private readonly apiHomeBase = 'https://api.ichijoutranslations.com/api/home';
   version = '1.1.4';
@@ -87,14 +102,33 @@ class IchijouTranslations implements Plugin.PluginBase {
   }
 
   /**
-   * Crea un path seguro para capítulos/volúmenes PDF.
-   * Quita la extensión .pdf para que LNReader NO dispare el PdfReaderScreen
-   * (que crashea por falta de contexto 'novel'). En su lugar, parseChapter
-   * reconstruye la URL completa y devuelve HTML con enlace al PDF.
+   * Crea un path seguro para PDFs con el prefijo /leer-pdf/.
+   * parseChapter reconstruye la URL completa eliminando ese prefijo.
    */
   private buildPdfReaderPath(fileUrl: string): string {
-    const clean = fileUrl.replace(/^\//, '').replace(/\.pdf$/i, '');
-    return `/leer-pdf/${clean}`;
+    const path = this.normalizeApiPath(fileUrl);
+    return path.startsWith('/leer-pdf/') ? path : `/leer-pdf${path}`;
+  }
+
+  private normalizeApiPath(fileUrl: string): string {
+    const withoutDomain = fileUrl.replace(/^https?:\/\/[^/]+/i, '');
+    const normalized = withoutDomain.startsWith('/')
+      ? withoutDomain
+      : `/${withoutDomain}`;
+    return normalized;
+  }
+
+  private isPdfFile(fileUrl: string): boolean {
+    return /\.pdf(\?|$)/i.test(fileUrl);
+  }
+
+  private buildChapterPdfPath(fileUrl: string): string {
+    const path = this.normalizeApiPath(fileUrl);
+    const [pathOnly, query] = path.split('?');
+    const filename = pathOnly.split('/').pop();
+    if (!filename) return this.buildPdfReaderPath(path);
+    const suffix = query ? `?${query}` : '';
+    return `/leer-pdf/chapter-files/${filename}${suffix}`;
   }
 
   filters = {
@@ -166,95 +200,60 @@ class IchijouTranslations implements Plugin.PluginBase {
     const work = body.data;
 
     // Cover
-    const coverImage =
-      work.workImages.find(
-        img => img.image_type.code === 'card' && img.image_url,
-      ) ||
-      work.workImages.find(
-        img => img.image_type.code === 'cover' && img.image_url,
-      );
-    const cover = coverImage?.image_url
-      ? this.buildCdnUrl(coverImage.image_url)
-      : undefined;
+    const cover = work.coverUrl ? this.buildCdnUrl(work.coverUrl) : undefined;
 
     // Genres
     const genres = work.workGenres?.map(g => g.genre.name) || [];
-    if (work.type?.name) genres.push(work.type.name);
 
     // Build chapters list from volumes and chapters
     const chapters: Plugin.ChapterItem[] = [];
     let chapterNumber = 0;
 
-    if (work.volumes?.length) {
-      const sortedVolumes = [...work.volumes].sort(
+    const volumes = Array.isArray(work.volumes) ? work.volumes : [];
+    if (volumes.length) {
+      const sortedVolumes = [...volumes].sort(
         (a, b) => a.orderIndex - b.orderIndex,
       );
       for (const volume of sortedVolumes) {
-        if (volume.volumeFile?.fileUrl) {
+        const fileUrl = volume.fileUrl || volume.volumeFile?.fileUrl;
+        if (fileUrl && this.isPdfFile(fileUrl)) {
           chapterNumber++;
           chapters.push({
-            name: `Volumen ${volume.displayNumber || volume.orderIndex} - ${volume.title}`,
-            path: this.buildPdfReaderPath(volume.volumeFile.fileUrl),
+            name: `Volumen ${volume.orderIndex}: ${volume.title}`,
+            path: this.buildPdfReaderPath(fileUrl),
+            releaseTime: volume.createdAt,
             chapterNumber,
           });
-        }
-
-        if (volume.chapters?.length) {
-          const sortedChapters = [...volume.chapters].sort(
-            (a, b) => a.orderIndex - b.orderIndex,
-          );
-          for (const chapter of sortedChapters) {
-            chapterNumber++;
-            if (chapter.chapterFile?.fileUrl) {
-              chapters.push({
-                name: chapter.title,
-                path: this.buildPdfReaderPath(chapter.chapterFile.fileUrl),
-                chapterNumber,
-              });
-            } else {
-              chapters.push({
-                name: chapter.title,
-                path: `/capitulo/${chapter.id}${chapter.slug ? '-' + chapter.slug : ''}`,
-                chapterNumber,
-              });
-            }
-          }
         }
       }
     }
 
-    if (work.chapters?.length) {
-      const sortedChapters = [...work.chapters].sort(
+    const rootChapters = Array.isArray(work.chapters) ? work.chapters : [];
+    if (rootChapters.length) {
+      const sortedChapters = [...rootChapters].sort(
         (a, b) => a.orderIndex - b.orderIndex,
       );
       for (const chapter of sortedChapters) {
         chapterNumber++;
-        if (chapter.chapterFile?.fileUrl) {
-          chapters.push({
-            name: chapter.title,
-            path: this.buildPdfReaderPath(chapter.chapterFile.fileUrl),
-            chapterNumber,
-          });
-        } else {
-          chapters.push({
-            name: chapter.title,
-            path: `/capitulo/${chapter.id}${chapter.slug ? '-' + chapter.slug : ''}`,
-            chapterNumber,
-          });
-        }
+        const fileUrl = chapter.fileUrl || chapter.chapterFile?.fileUrl;
+        const pdfPath =
+          fileUrl && this.isPdfFile(fileUrl)
+            ? this.buildChapterPdfPath(fileUrl)
+            : null;
+        chapters.push({
+          name: `Capítulo ${chapter.orderIndex}: ${chapter.title}`,
+          path: pdfPath ?? `/capitulo/${chapter.id}`,
+          releaseTime: chapter.createdAt,
+          chapterNumber,
+        });
       }
     }
-
-    const hasPdf = chapters.some(c => c.path.startsWith('/leer-pdf/'));
-    const summary = hasPdf
-      ? `${work.synopsis}\n\nEste título contiene volúmenes/capítulos en PDF.`
-      : work.synopsis;
 
     return {
       path: novelPath,
       name: work.title,
       cover,
-      summary,
+      summary: work.synopsis,
       status: work.publicationStatus?.name?.trim(),
       genres: genres.join(', '),
       chapters,
@@ -262,13 +261,12 @@ class IchijouTranslations implements Plugin.PluginBase {
   }
 
   async parseChapter(chapterPath: string): Promise<string> {
-    // Capítulos/volúmenes PDF: reconstruir URL del CDN y mostrar enlace.
+    // Capítulos/volúmenes PDF: reconstruir URL de la API y mostrar enlace.
     // Usamos /leer-pdf/ en vez de la URL .pdf directa porque el
     // PdfReaderScreen de LNReader crashea ("Cannot read property 'novel'").
-    if (chapterPath.startsWith('/leer-pdf/')) {
-      const relativePath =
-        '/' + chapterPath.slice('/leer-pdf/'.length) + '.pdf';
-      const pdfUrl = this.buildCdnUrl(relativePath);
+    if (chapterPath.includes('/leer-pdf/')) {
+      const relativePath = chapterPath.replace('/leer-pdf', '');
+      const pdfUrl = `${this.apiRoot}${relativePath}`;
       return (
         '<div style="text-align:center;padding:32px 16px;font-family:sans-serif;">' +
         '<p style="font-size:18px;margin-bottom:24px;">Este capítulo está en formato PDF.</p>' +
@@ -279,6 +277,19 @@ class IchijouTranslations implements Plugin.PluginBase {
     }
 
     // Capítulos de texto
+    if (chapterPath.startsWith('/capitulo/')) {
+      const url = `${this.apiSite}/home${chapterPath}`;
+      const result = await fetchApi(url);
+      const body = (await result.json()) as {
+        data?: { content?: string };
+        content?: string;
+      };
+      const content = body.data?.content ?? body.content ?? '';
+      if (!content) throw new Error('No se encontró contenido del capítulo');
+      return content;
+    }
+
+    // Fallback para rutas antiguas
     const id = chapterPath
       .split('/')
       .pop()
@@ -287,9 +298,13 @@ class IchijouTranslations implements Plugin.PluginBase {
     const url = `${this.apiSite}/home/chapter/${id}`;
 
     const result = await fetchApi(url);
-    const body = (await result.json()) as { data: { content: string } };
-
-    return body.data.content;
+    const body = (await result.json()) as {
+      data?: { content?: string };
+      content?: string;
+    };
+    const content = body.data?.content ?? body.content ?? '';
+    if (!content) throw new Error('No se encontró contenido del capítulo');
+    return content;
   }
 
   async searchNovels(
