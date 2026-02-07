@@ -94,7 +94,7 @@ class IchijouTranslations implements Plugin.PluginBase {
   private readonly apiRoot = 'https://api.ichijoutranslations.com';
   cdnSite = 'https://cdn.ichijoutranslations.com';
   private readonly apiHomeBase = 'https://api.ichijoutranslations.com/api/home';
-  version = '1.1.5';
+  version = '1.2.0';
   icon = 'src/es/ichijoutranslations/icon.png';
   lang = 'Spanish';
 
@@ -106,34 +106,8 @@ class IchijouTranslations implements Plugin.PluginBase {
     );
   }
 
-  /**
-   * Crea un path seguro para PDFs con el prefijo /leer-pdf/.
-   * parseChapter reconstruye la URL completa eliminando ese prefijo.
-   */
-  private buildPdfReaderPath(fileUrl: string): string {
-    const path = this.normalizeApiPath(fileUrl);
-    return path.startsWith('/leer-pdf/') ? path : `/leer-pdf${path}`;
-  }
-
-  private normalizeApiPath(fileUrl: string): string {
-    const withoutDomain = fileUrl.replace(/^https?:\/\/[^/]+/i, '');
-    const normalized = withoutDomain.startsWith('/')
-      ? withoutDomain
-      : `/${withoutDomain}`;
-    return normalized;
-  }
-
   private isPdfFile(fileUrl: string): boolean {
     return /\.pdf(\?|$)/i.test(fileUrl);
-  }
-
-  private buildChapterPdfPath(fileUrl: string): string {
-    const path = this.normalizeApiPath(fileUrl);
-    const [pathOnly, query] = path.split('?');
-    const filename = pathOnly.split('/').pop();
-    if (!filename) return this.buildPdfReaderPath(path);
-    const suffix = query ? `?${query}` : '';
-    return `/leer-pdf/chapter-files/${filename}${suffix}`;
   }
 
   filters = {
@@ -234,7 +208,7 @@ class IchijouTranslations implements Plugin.PluginBase {
           chapterNumber++;
           chapters.push({
             name: `Volumen ${volume.orderIndex}: ${volume.title}`,
-            path: this.buildPdfReaderPath(fileUrl),
+            path: this.buildCdnUrl(fileUrl),
             releaseTime: volume.createdAt,
             chapterNumber,
           });
@@ -251,9 +225,7 @@ class IchijouTranslations implements Plugin.PluginBase {
         chapterNumber++;
         const fileUrl = chapter.fileUrl || chapter.chapterFile?.fileUrl;
         const pdfPath =
-          fileUrl && this.isPdfFile(fileUrl)
-            ? this.buildChapterPdfPath(fileUrl)
-            : null;
+          fileUrl && this.isPdfFile(fileUrl) ? this.buildCdnUrl(fileUrl) : null;
         chapters.push({
           name: `Capítulo ${chapter.orderIndex}: ${chapter.title}`,
           path: pdfPath ?? `/capitulo/${chapter.id}`,
@@ -275,12 +247,25 @@ class IchijouTranslations implements Plugin.PluginBase {
   }
 
   async parseChapter(chapterPath: string): Promise<string> {
-    // Capítulos/volúmenes PDF: reconstruir URL de la API y mostrar enlace.
-    // Usamos /leer-pdf/ en vez de la URL .pdf directa porque el
-    // PdfReaderScreen de LNReader crashea ("Cannot read property 'novel'").
+    // PDF directo (URL CDN completa) — la app redirige a PdfReaderScreen antes
+    // de llegar aquí, pero lo dejamos como fallback por si acaso.
+    if (this.isPdfFile(chapterPath)) {
+      const pdfUrl = chapterPath.startsWith('http')
+        ? chapterPath
+        : this.buildCdnUrl(chapterPath);
+      return (
+        '<div style="text-align:center;padding:32px 16px;font-family:sans-serif;">' +
+        '<p style="font-size:18px;margin-bottom:24px;">Este capítulo está en formato PDF.</p>' +
+        `<a href="${pdfUrl}" style="display:inline-block;padding:14px 28px;` +
+        'background:#1976D2;color:#fff;text-decoration:none;border-radius:8px;' +
+        'font-size:16px;">Abrir PDF</a></div>'
+      );
+    }
+
+    // Backward compat: rutas /leer-pdf/ antiguas
     if (chapterPath.includes('/leer-pdf/')) {
       const relativePath = chapterPath.replace('/leer-pdf', '');
-      const pdfUrl = `${this.apiRoot}${relativePath}`;
+      const pdfUrl = this.buildCdnUrl(relativePath);
       return (
         '<div style="text-align:center;padding:32px 16px;font-family:sans-serif;">' +
         '<p style="font-size:18px;margin-bottom:24px;">Este capítulo está en formato PDF.</p>' +
@@ -292,7 +277,10 @@ class IchijouTranslations implements Plugin.PluginBase {
 
     // Capítulos de texto: extraer ID y usar /api/home/chapter/{id}
     if (chapterPath.startsWith('/capitulo/')) {
-      const chapterId = chapterPath.split('/').pop()?.match(/^(\d+)/)?.[1];
+      const chapterId = chapterPath
+        .split('/')
+        .pop()
+        ?.match(/^(\d+)/)?.[1];
       if (!chapterId) throw new Error('No se pudo obtener el ID del capítulo');
       const url = `${this.apiSite}/home/chapter/${chapterId}`;
       const result = await fetchApi(url);
