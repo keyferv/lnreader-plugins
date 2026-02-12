@@ -80,7 +80,8 @@ class DevilNovels implements Plugin.PluginBase {
         }
       }
 
-      if (name) map.set(path || href, { name, path, cover: img, latestChapter });
+      if (name)
+        map.set(path || href, { name, path, cover: img, latestChapter });
     });
 
     // Convert to array and support pagination (10 items per page)
@@ -137,7 +138,11 @@ class DevilNovels implements Plugin.PluginBase {
     // an elementor-posts grid — handle those too (h3.elementor-post__title a)
     $('.elementor-posts-container article, .elementor-post').each((i, el) => {
       const block = $(el);
-      const a = block.find('h3.elementor-post__title a, h3.elementor-post__title > a, a[data-wpel-link="internal"]').first();
+      const a = block
+        .find(
+          'h3.elementor-post__title a, h3.elementor-post__title > a, a[data-wpel-link="internal"]',
+        )
+        .first();
       const href = a.attr('href') || '';
       const text = a.text().trim();
       if (!href || !text) return;
@@ -162,7 +167,11 @@ class DevilNovels implements Plugin.PluginBase {
       const normalizedPageUrl = pageUrl.replace(/#.*$/, '');
       if (!normalizedPageUrl) continue;
       // Avoid refetching the main novel URL
-      if (normalizedPageUrl === (url) || normalizedPageUrl === (this.site + novelPath)) continue;
+      if (
+        normalizedPageUrl === url ||
+        normalizedPageUrl === this.site + novelPath
+      )
+        continue;
 
       try {
         const abs = normalizedPageUrl.startsWith('http')
@@ -174,18 +183,24 @@ class DevilNovels implements Plugin.PluginBase {
         const $$ = parseHTML(pbody);
 
         // extract chapter links from this page (same selectors)
-        $$('.elementor-posts-container article, .elementor-post').each((i, el) => {
-          const block = $$(el);
-          const a = block.find('h3.elementor-post__title a, h3.elementor-post__title > a, a[data-wpel-link="internal"]').first();
-          const href = a.attr('href') || '';
-          const text = a.text().trim();
-          if (!href || !text) return;
-          const path = href.replace(this.site, '');
-          if (!seen.has(path)) {
-            seen.add(path);
-            novel.chapters!.push({ name: text, path });
-          }
-        });
+        $$('.elementor-posts-container article, .elementor-post').each(
+          (i, el) => {
+            const block = $$(el);
+            const a = block
+              .find(
+                'h3.elementor-post__title a, h3.elementor-post__title > a, a[data-wpel-link="internal"]',
+              )
+              .first();
+            const href = a.attr('href') || '';
+            const text = a.text().trim();
+            if (!href || !text) return;
+            const path = href.replace(this.site, '');
+            if (!seen.has(path)) {
+              seen.add(path);
+              novel.chapters!.push({ name: text, path });
+            }
+          },
+        );
 
         // small pause between page fetches
         await sleep(300);
