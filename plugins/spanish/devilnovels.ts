@@ -10,7 +10,7 @@ class DevilNovels implements Plugin.PluginBase {
   name = 'DevilNovels';
   icon = 'src/es/devilnovels/icon.png';
   site = 'https://devilnovels.com/';
-  version = '1.0.0';
+  version = '1.0.2';
 
   async popularNovels(
     page: number,
@@ -61,12 +61,26 @@ class DevilNovels implements Plugin.PluginBase {
       const tds = $(el).find('td');
       if (tds.length < 1) return;
       const left = tds.first();
+      const right = tds.eq(1);
+
       const titleA = left.find('a').first();
       const href = titleA.attr('href') || '';
       const name = titleA.text().trim();
       const img = left.find('img').attr('src') || defaultCover;
       const path = href.replace(this.site, '');
-      if (name) map.set(path || href, { name, path, cover: img });
+
+      // Try to capture the latest chapter from the second <td>
+      let latestChapter: { name: string; path: string } | undefined;
+      if (right && right.length) {
+        const latestA = right.find('a').first();
+        const lhref = latestA.attr('href') || '';
+        const lname = latestA.text().trim();
+        if (lname) {
+          latestChapter = { name: lname, path: lhref.replace(this.site, '') };
+        }
+      }
+
+      if (name) map.set(path || href, { name, path, cover: img, latestChapter });
     });
 
     // Convert to array and support pagination (10 items per page)
@@ -102,20 +116,84 @@ class DevilNovels implements Plugin.PluginBase {
       chapters: [],
     };
 
-    // Attempt to collect chapter links if present
+    // Attempt to collect chapter links if present (deduplicate)
+    const seen = new Set<string>();
     $('.entry-content a, .post a').each((i, el) => {
       const a = $(el);
       const href = a.attr('href') || '';
       const text = a.text().trim();
       if (!href || !text) return;
       // basic heuristic: chapter links often contain 'chapter' or 'capitulo' or '/act/'
-      if (/chapter|capitulo|cap|act|/i.test(href)) {
-        novel.chapters!.push({
-          name: text,
-          path: href.replace(this.site, ''),
-        });
+      if (/chapter|capitulo|cap|act/i.test(href)) {
+        const path = href.replace(this.site, '');
+        if (!seen.has(path)) {
+          seen.add(path);
+          novel.chapters!.push({ name: text, path });
+        }
       }
     });
+
+    // Some themes (Elementor) list posts/articles as chapter links inside
+    // an elementor-posts grid — handle those too (h3.elementor-post__title a)
+    $('.elementor-posts-container article, .elementor-post').each((i, el) => {
+      const block = $(el);
+      const a = block.find('h3.elementor-post__title a, h3.elementor-post__title > a, a[data-wpel-link="internal"]').first();
+      const href = a.attr('href') || '';
+      const text = a.text().trim();
+      if (!href || !text) return;
+      const path = href.replace(this.site, '');
+      if (!seen.has(path)) {
+        seen.add(path);
+        novel.chapters!.push({ name: text, path });
+      }
+    });
+
+    // Handle pagination: gather page links from elementor pagination and fetch them
+    const pageLinks: string[] = $('.elementor-pagination a.page-numbers')
+      .map((i, el) => $(el).attr('href') || '')
+      .get()
+      .filter(h => !!h);
+
+    // Remove duplicates and ensure we don't re-fetch the current page
+    const uniquePageLinks = Array.from(new Set(pageLinks));
+
+    for (const pageUrl of uniquePageLinks) {
+      // If the link is the same as the novel page, skip
+      const normalizedPageUrl = pageUrl.replace(/#.*$/, '');
+      if (!normalizedPageUrl) continue;
+      // Avoid refetching the main novel URL
+      if (normalizedPageUrl === (url) || normalizedPageUrl === (this.site + novelPath)) continue;
+
+      try {
+        const abs = normalizedPageUrl.startsWith('http')
+          ? normalizedPageUrl
+          : this.site + normalizedPageUrl.replace(/^\//, '');
+        const pres = await fetchApi(abs);
+        if (!pres.ok) continue;
+        const pbody = await pres.text();
+        const $$ = parseHTML(pbody);
+
+        // extract chapter links from this page (same selectors)
+        $$('.elementor-posts-container article, .elementor-post').each((i, el) => {
+          const block = $$(el);
+          const a = block.find('h3.elementor-post__title a, h3.elementor-post__title > a, a[data-wpel-link="internal"]').first();
+          const href = a.attr('href') || '';
+          const text = a.text().trim();
+          if (!href || !text) return;
+          const path = href.replace(this.site, '');
+          if (!seen.has(path)) {
+            seen.add(path);
+            novel.chapters!.push({ name: text, path });
+          }
+        });
+
+        // small pause between page fetches
+        await sleep(300);
+      } catch (e) {
+        // ignore individual page fetch errors
+        continue;
+      }
+    }
 
     return novel;
   }

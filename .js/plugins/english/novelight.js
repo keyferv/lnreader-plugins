@@ -1,1 +1,278 @@
-var t=this&&this.__awaiter||function(t,e,n,i){return new(n||(n=Promise))((function(r,o){function a(t){try{c(i.next(t))}catch(t){o(t)}}function s(t){try{c(i.throw(t))}catch(t){o(t)}}function c(t){var e;t.done?r(t.value):(e=t.value,e instanceof n?e:new n((function(t){t(e)}))).then(a,s)}c((i=i.apply(t,e||[])).next())}))},e=this&&this.__generator||function(t,e){var n,i,r,o={label:0,sent:function(){if(1&r[0])throw r[1];return r[1]},trys:[],ops:[]},a=Object.create(("function"==typeof Iterator?Iterator:Object).prototype);return a.next=s(0),a.throw=s(1),a.return=s(2),"function"==typeof Symbol&&(a[Symbol.iterator]=function(){return this}),a;function s(s){return function(c){return function(s){if(n)throw new TypeError("Generator is already executing.");for(;a&&(a=0,s[0]&&(o=0)),o;)try{if(n=1,i&&(r=2&s[0]?i.return:s[0]?i.throw||((r=i.return)&&r.call(i),0):i.next)&&!(r=r.call(i,s[1])).done)return r;switch(i=0,r&&(s=[2&s[0],r.value]),s[0]){case 0:case 1:r=s;break;case 4:return o.label++,{value:s[1],done:!1};case 5:o.label++,i=s[1],s=[0];continue;case 7:s=o.ops.pop(),o.trys.pop();continue;default:if(!(r=o.trys,(r=r.length>0&&r[r.length-1])||6!==s[0]&&2!==s[0])){o=0;continue}if(3===s[0]&&(!r||s[1]>r[0]&&s[1]<r[3])){o.label=s[1];break}if(6===s[0]&&o.label<r[1]){o.label=r[1],r=s;break}if(r&&o.label<r[2]){o.label=r[2],o.ops.push(s);break}r[2]&&o.ops.pop(),o.trys.pop();continue}s=e.call(t,o)}catch(t){s=[6,t],i=0}finally{n=r=0}if(5&s[0])throw s[1];return{value:s[0]?s[1]:void 0,done:!0}}([s,c])}}},n=this&&this.__importDefault||function(t){return t&&t.__esModule?t:{default:t}};Object.defineProperty(exports,"__esModule",{value:!0});var i=require("cheerio"),r=require("@libs/fetch"),o=require("@libs/defaultCover"),a=n(require("dayjs")),s=require("@libs/storage"),c=require("@libs/novelStatus"),u=function(){function n(){this.id="novelight",this.name="Novelight",this.version="1.1.1",this.icon="src/en/novelight/icon.png",this.site="https://novelight.net/",this.hideLocked=s.storage.get("hideLocked"),this.pluginSettings={hideLocked:{value:"",label:"Hide locked chapters",type:"Switch"}}}return n.prototype.popularNovels=function(n){return t(this,void 0,void 0,(function(){var t,a,s,c,u=this;return e(this,(function(e){switch(e.label){case 0:return t="".concat(this.site,"catalog/?ordering=popularity&page=").concat(n),[4,(0,r.fetchApi)(t).then((function(t){return t.text()}))];case 1:return a=e.sent(),s=(0,i.load)(a),c=[],s("a.item").each((function(t,e){var n=s(e).find("div.title").text().trim(),i=e.attribs.href,r=s(e).find("img").attr("src"),a=r?u.site+r:o.defaultCover;if(i){var l={name:n,cover:null!=a?a:o.defaultCover,path:i.replace("/","")};c.push(l)}})),[2,c]}}))}))},n.prototype.parseNovel=function(n){return t(this,void 0,void 0,(function(){var t,o,a,s,u,l,h,d,f,p;return e(this,(function(e){switch(e.label){case 0:return[4,(0,r.fetchApi)(this.site+n).then((function(t){return t.text()}))];case 1:for(t=e.sent(),o=(0,i.load)(t),a={path:n,name:o("h1").text()||"Untitled",cover:this.site+o(".poster > img").attr("src"),summary:o("section.text-info.section > p").text(),totalPages:o("#select-pagination-chapter > option").length,chapters:[]},s=o("div.mini-info > .item").toArray(),u="",l="",h=0,d=s;h<d.length;h++)f=d[h],"Status"===(p=o(f).find(".sub-header").text().trim())&&(u=o(f).find("div.info").text().trim()),"Translation"===p&&(l=o(f).find("div.info").text().trim()),"Author"===p&&(a.author=o(f).find("div.info").text().trim()),"Genres"===p&&(a.genres=o(f).find("div.info > a").map((function(t,e){return o(e).text()})).toArray().join(", "));return"cancelled"===u?a.status=c.NovelStatus.Cancelled:"releasing"===u||"ongoing"===l?a.status=c.NovelStatus.Ongoing:"completed"===u&&"completed"===l&&(a.status=c.NovelStatus.Completed),[2,a]}}))}))},n.prototype.parsePage=function(n,o){return t(this,void 0,void 0,(function(){var t,s,c,u,l,h,d,f,p,v,m,g,b=this;return e(this,(function(e){switch(e.label){case 0:return[4,(0,r.fetchApi)(this.site+n).then((function(t){return t.text()}))];case 1:return t=e.sent(),s=null===(d=null==t?void 0:t.match(/window\.CSRF_TOKEN = "([^"]+)"/))||void 0===d?void 0:d[1],c=null===(f=null==t?void 0:t.match(/const OBJECT_BY_COMMENT = ([0-9]+)/))||void 0===f?void 0:f[1],u=parseInt(null!==(g=null===(m=null===(v=null===(p=null==t?void 0:t.match(/<option value="([0-9]+)"/g))||void 0===p?void 0:p.at(-1))||void 0===v?void 0:v.match(/([0-9]+)/))||void 0===m?void 0:m[1])&&void 0!==g?g:"1"),[4,(0,r.fetchApi)("".concat(this.site,"/book/ajax/chapter-pagination?csrfmiddlewaretoken=").concat(s,"&book_id=").concat(c,"&page=").concat(u-parseInt(o)+1),{headers:{Host:this.site.replace("https://","").replace("/",""),Referer:this.site+n,"X-Requested-With":"XMLHttpRequest"}}).then((function(t){return t.json()})).then((function(t){return t.html}))];case 2:return l=e.sent(),h=[],(0,i.load)("<html>"+l+"</html>")("a").each((function(t,e){var n=(0,i.load)(e)(".title").text().trim(),r=!!(0,i.load)(e)(".cost").text().trim();if(!b.hideLocked||!r){var s;try{s=(0,a.default)((0,i.load)(e)(".date").text().trim(),"DD.MM.YYYY").toISOString()}catch(t){}var c=r?"🔒 "+n:n,u=e.attribs.href;h.push({name:c,path:u,page:o,releaseTime:s})}})),[2,{chapters:h.reverse()}]}}))}))},n.prototype.parseChapter=function(n){return t(this,void 0,void 0,(function(){var o,a,s,c,u,l,h,d,f=this;return e(this,(function(p){switch(p.label){case 0:return[4,(0,r.fetchApi)(this.site+n).then((function(t){return t.text()}))];case 1:return o=p.sent(),a=null===(h=null==o?void 0:o.match(/window\.CSRF_TOKEN = "([^"]+)"/))||void 0===h?void 0:h[1],s=null===(d=null==o?void 0:o.match(/const CHAPTER_ID = "([0-9]+)/))||void 0===d?void 0:d[1],[4,(0,r.fetchApi)(this.site+"book/ajax/read-chapter/"+s,{method:"GET",headers:{Cookie:"csrftoken="+a,Referer:this.site+n,"X-Requested-With":"XMLHttpRequest"}}).then((function(n){return t(f,void 0,void 0,(function(){var t;return e(this,(function(e){switch(e.label){case 0:return[4,n.json()];case 1:return t=e.sent(),c=t.class,[2,t.content]}}))}))}))];case 2:return u=p.sent(),l=(0,i.load)(u),[2,(l("."+c).html()||"").replace(/class="advertisment"/g,'style="display:none;"')]}}))}))},n.prototype.searchNovels=function(n){return t(this,void 0,void 0,(function(){var t,a,s,c,u=this;return e(this,(function(e){switch(e.label){case 0:return t="".concat(this.site,"catalog/?search=").concat(encodeURIComponent(n)),[4,(0,r.fetchApi)(t).then((function(t){return t.text()}))];case 1:return a=e.sent(),s=(0,i.load)(a),c=[],s("a.item").each((function(t,e){var n=s(e).find("div.title").text().trim(),i=e.attribs.href,r=s(e).find("img").attr("src"),a=r?u.site+r:o.defaultCover;if(i){var l={name:n,cover:null!=a?a:o.defaultCover,path:i.replace("/","")};c.push(l)}})),[2,c]}}))}))},n}();exports.default=new u;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var cheerio_1 = require("cheerio");
+var fetch_1 = require("@libs/fetch");
+var defaultCover_1 = require("@libs/defaultCover");
+var dayjs_1 = __importDefault(require("dayjs"));
+var storage_1 = require("@libs/storage");
+var novelStatus_1 = require("@libs/novelStatus");
+var Novelight = /** @class */ (function () {
+    function Novelight() {
+        this.id = 'novelight';
+        this.name = 'Novelight';
+        this.version = '1.1.1';
+        this.icon = 'src/en/novelight/icon.png';
+        this.site = 'https://novelight.net/';
+        this.hideLocked = storage_1.storage.get('hideLocked');
+        this.pluginSettings = {
+            hideLocked: {
+                value: '',
+                label: 'Hide locked chapters',
+                type: 'Switch',
+            },
+        };
+    }
+    Novelight.prototype.popularNovels = function (page) {
+        return __awaiter(this, void 0, void 0, function () {
+            var url, body, loadedCheerio, novels;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        url = "".concat(this.site, "catalog/?ordering=popularity&page=").concat(page);
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(url).then(function (r) { return r.text(); })];
+                    case 1:
+                        body = _a.sent();
+                        loadedCheerio = (0, cheerio_1.load)(body);
+                        novels = [];
+                        loadedCheerio('a.item').each(function (idx, ele) {
+                            var novelName = loadedCheerio(ele).find('div.title').text().trim();
+                            var novelUrl = ele.attribs.href;
+                            var bareNovelCover = loadedCheerio(ele).find('img').attr('src');
+                            var novelCover = bareNovelCover
+                                ? _this.site + bareNovelCover
+                                : defaultCover_1.defaultCover;
+                            if (!novelUrl)
+                                return;
+                            var novel = {
+                                name: novelName,
+                                cover: novelCover !== null && novelCover !== void 0 ? novelCover : defaultCover_1.defaultCover,
+                                path: novelUrl.replace('/', ''),
+                            };
+                            novels.push(novel);
+                        });
+                        return [2 /*return*/, novels];
+                }
+            });
+        });
+    };
+    Novelight.prototype.parseNovel = function (novelPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var body, loadedCheerio, novel, info, status, translation, _i, info_1, child, type;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + novelPath).then(function (r) { return r.text(); })];
+                    case 1:
+                        body = _a.sent();
+                        loadedCheerio = (0, cheerio_1.load)(body);
+                        novel = {
+                            path: novelPath,
+                            name: loadedCheerio('h1').text() || 'Untitled',
+                            cover: this.site + loadedCheerio('.poster > img').attr('src'),
+                            summary: loadedCheerio('section.text-info.section > p').text(),
+                            totalPages: loadedCheerio('#select-pagination-chapter > option').length,
+                            chapters: [],
+                        };
+                        info = loadedCheerio('div.mini-info > .item').toArray();
+                        status = '';
+                        translation = '';
+                        for (_i = 0, info_1 = info; _i < info_1.length; _i++) {
+                            child = info_1[_i];
+                            type = loadedCheerio(child).find('.sub-header').text().trim();
+                            if (type === 'Status') {
+                                status = loadedCheerio(child).find('div.info').text().trim();
+                            }
+                            if (type === 'Translation') {
+                                translation = loadedCheerio(child).find('div.info').text().trim();
+                            }
+                            if (type === 'Author') {
+                                novel.author = loadedCheerio(child).find('div.info').text().trim();
+                            }
+                            if (type === 'Genres') {
+                                novel.genres = loadedCheerio(child)
+                                    .find('div.info > a')
+                                    .map(function (i, el) { return loadedCheerio(el).text(); })
+                                    .toArray()
+                                    .join(', ');
+                            }
+                        }
+                        if (status === 'cancelled')
+                            novel.status = novelStatus_1.NovelStatus.Cancelled;
+                        else if (status === 'releasing' || translation === 'ongoing')
+                            novel.status = novelStatus_1.NovelStatus.Ongoing;
+                        else if (status === 'completed' && translation === 'completed')
+                            novel.status = novelStatus_1.NovelStatus.Completed;
+                        return [2 /*return*/, novel];
+                }
+            });
+        });
+    };
+    Novelight.prototype.parsePage = function (novelPath, page) {
+        return __awaiter(this, void 0, void 0, function () {
+            var rawBody, csrftoken, bookId, totalPages, chaptersRaw, chapter, chapters;
+            var _this = this;
+            var _a, _b, _c, _d, _e, _f;
+            return __generator(this, function (_g) {
+                switch (_g.label) {
+                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + novelPath).then(function (r) { return r.text(); })];
+                    case 1:
+                        rawBody = _g.sent();
+                        csrftoken = (_a = rawBody === null || rawBody === void 0 ? void 0 : rawBody.match(/window\.CSRF_TOKEN = "([^"]+)"/)) === null || _a === void 0 ? void 0 : _a[1];
+                        bookId = (_b = rawBody === null || rawBody === void 0 ? void 0 : rawBody.match(/const OBJECT_BY_COMMENT = ([0-9]+)/)) === null || _b === void 0 ? void 0 : _b[1];
+                        totalPages = parseInt((_f = (_e = (_d = (_c = rawBody === null || rawBody === void 0 ? void 0 : rawBody.match(/<option value="([0-9]+)"/g)) === null || _c === void 0 ? void 0 : _c.at(-1)) === null || _d === void 0 ? void 0 : _d.match(/([0-9]+)/)) === null || _e === void 0 ? void 0 : _e[1]) !== null && _f !== void 0 ? _f : '1');
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)("".concat(this.site, "/book/ajax/chapter-pagination?csrfmiddlewaretoken=").concat(csrftoken, "&book_id=").concat(bookId, "&page=").concat(totalPages - parseInt(page) + 1), {
+                                headers: {
+                                    'Host': this.site.replace('https://', '').replace('/', ''),
+                                    'Referer': this.site + novelPath,
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                },
+                            })
+                                .then(function (r) { return r.json(); })
+                                .then(function (r) { return r.html; })];
+                    case 2:
+                        chaptersRaw = _g.sent();
+                        chapter = [];
+                        (0, cheerio_1.load)('<html>' + chaptersRaw + '</html>')('a').each(function (idx, ele) {
+                            var title = (0, cheerio_1.load)(ele)('.title').text().trim();
+                            var isLocked = !!(0, cheerio_1.load)(ele)('.cost').text().trim();
+                            if (_this.hideLocked && isLocked)
+                                return;
+                            var date;
+                            try {
+                                date = (0, dayjs_1.default)((0, cheerio_1.load)(ele)('.date').text().trim(), 'DD.MM.YYYY').toISOString();
+                            }
+                            catch (error) { }
+                            var chapterName = isLocked ? '🔒 ' + title : title;
+                            var chapterUrl = ele.attribs.href;
+                            chapter.push({
+                                name: chapterName,
+                                path: chapterUrl,
+                                page: page,
+                                releaseTime: date,
+                            });
+                        });
+                        chapters = chapter.reverse();
+                        return [2 /*return*/, { chapters: chapters }];
+                }
+            });
+        });
+    };
+    Novelight.prototype.parseChapter = function (chapterPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var rawBody, csrftoken, chapterId, className, body, loadedCheerio, chapterText;
+            var _this = this;
+            var _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + chapterPath).then(function (r) {
+                            var res = r.text();
+                            return res;
+                        })];
+                    case 1:
+                        rawBody = _c.sent();
+                        csrftoken = (_a = rawBody === null || rawBody === void 0 ? void 0 : rawBody.match(/window\.CSRF_TOKEN = "([^"]+)"/)) === null || _a === void 0 ? void 0 : _a[1];
+                        chapterId = (_b = rawBody === null || rawBody === void 0 ? void 0 : rawBody.match(/const CHAPTER_ID = "([0-9]+)/)) === null || _b === void 0 ? void 0 : _b[1];
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + 'book/ajax/read-chapter/' + chapterId, {
+                                method: 'GET',
+                                headers: {
+                                    Cookie: 'csrftoken=' + csrftoken,
+                                    Referer: this.site + chapterPath,
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                },
+                            }).then(function (r) { return __awaiter(_this, void 0, void 0, function () {
+                                var res;
+                                return __generator(this, function (_a) {
+                                    switch (_a.label) {
+                                        case 0: return [4 /*yield*/, r.json()];
+                                        case 1:
+                                            res = _a.sent();
+                                            className = res.class;
+                                            return [2 /*return*/, res.content];
+                                    }
+                                });
+                            }); })];
+                    case 2:
+                        body = _c.sent();
+                        loadedCheerio = (0, cheerio_1.load)(body);
+                        chapterText = loadedCheerio('.' + className).html() || '';
+                        return [2 /*return*/, chapterText.replace(/class="advertisment"/g, 'style="display:none;"')];
+                }
+            });
+        });
+    };
+    Novelight.prototype.searchNovels = function (searchTerm) {
+        return __awaiter(this, void 0, void 0, function () {
+            var url, body, loadedCheerio, novels;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        url = "".concat(this.site, "catalog/?search=").concat(encodeURIComponent(searchTerm));
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(url).then(function (r) { return r.text(); })];
+                    case 1:
+                        body = _a.sent();
+                        loadedCheerio = (0, cheerio_1.load)(body);
+                        novels = [];
+                        loadedCheerio('a.item').each(function (idx, ele) {
+                            var novelName = loadedCheerio(ele).find('div.title').text().trim();
+                            var novelUrl = ele.attribs.href;
+                            var bareNovelCover = loadedCheerio(ele).find('img').attr('src');
+                            var novelCover = bareNovelCover
+                                ? _this.site + bareNovelCover
+                                : defaultCover_1.defaultCover;
+                            if (!novelUrl)
+                                return;
+                            var novel = {
+                                name: novelName,
+                                cover: novelCover !== null && novelCover !== void 0 ? novelCover : defaultCover_1.defaultCover,
+                                path: novelUrl.replace('/', ''),
+                            };
+                            novels.push(novel);
+                        });
+                        return [2 /*return*/, novels];
+                }
+            });
+        });
+    };
+    return Novelight;
+}());
+exports.default = new Novelight();

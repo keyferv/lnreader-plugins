@@ -1,1 +1,310 @@
-var e=this&&this.__awaiter||function(e,t,r,a){return new(r||(r=Promise))((function(n,l){function i(e){try{u(a.next(e))}catch(e){l(e)}}function o(e){try{u(a.throw(e))}catch(e){l(e)}}function u(e){var t;e.done?n(e.value):(t=e.value,t instanceof r?t:new r((function(e){e(t)}))).then(i,o)}u((a=a.apply(e,t||[])).next())}))},t=this&&this.__generator||function(e,t){var r,a,n,l={label:0,sent:function(){if(1&n[0])throw n[1];return n[1]},trys:[],ops:[]},i=Object.create(("function"==typeof Iterator?Iterator:Object).prototype);return i.next=o(0),i.throw=o(1),i.return=o(2),"function"==typeof Symbol&&(i[Symbol.iterator]=function(){return this}),i;function o(o){return function(u){return function(o){if(r)throw new TypeError("Generator is already executing.");for(;i&&(i=0,o[0]&&(l=0)),l;)try{if(r=1,a&&(n=2&o[0]?a.return:o[0]?a.throw||((n=a.return)&&n.call(a),0):a.next)&&!(n=n.call(a,o[1])).done)return n;switch(a=0,n&&(o=[2&o[0],n.value]),o[0]){case 0:case 1:n=o;break;case 4:return l.label++,{value:o[1],done:!1};case 5:l.label++,a=o[1],o=[0];continue;case 7:o=l.ops.pop(),l.trys.pop();continue;default:if(!(n=l.trys,(n=n.length>0&&n[n.length-1])||6!==o[0]&&2!==o[0])){l=0;continue}if(3===o[0]&&(!n||o[1]>n[0]&&o[1]<n[3])){l.label=o[1];break}if(6===o[0]&&l.label<n[1]){l.label=n[1],n=o;break}if(n&&l.label<n[2]){l.label=n[2],l.ops.push(o);break}n[2]&&l.ops.pop(),l.trys.pop();continue}o=t.call(e,l)}catch(e){o=[6,e],a=0}finally{r=n=0}if(5&o[0])throw o[1];return{value:o[0]?o[1]:void 0,done:!0}}([o,u])}}};Object.defineProperty(exports,"__esModule",{value:!0});var r=require("@libs/fetch"),a=require("cheerio"),n=require("@libs/filterInputs"),l=require("@libs/storage"),i=require("@libs/defaultCover"),o=function(){function o(){var e=this;this.id="fenrir",this.name="Fenrir Realm",this.icon="src/en/fenrirrealm/icon.png",this.site="https://fenrirealm.com",this.version="1.0.10",this.imageRequestInit=void 0,this.hideLocked=l.storage.get("hideLocked"),this.pluginSettings={hideLocked:{value:"",label:"Hide locked chapters",type:"Switch"}},this.resolveUrl=function(t,r){return e.site+"/series/"+t},this.filters={status:{type:n.FilterTypes.Picker,label:"Status",value:"any",options:[{label:"All",value:"any"},{label:"Ongoing",value:"ongoing"},{label:"Completed",value:"completed"}]},sort:{type:n.FilterTypes.Picker,label:"Sort",value:"popular",options:[{label:"Popular",value:"popular"},{label:"Latest",value:"latest"},{label:"Updated",value:"updated"}]},genres:{type:n.FilterTypes.CheckboxGroup,label:"Genres",value:[],options:[{label:"Action",value:"1"},{label:"Adult",value:"2"},{label:"Adventure",value:"3"},{label:"Comedy",value:"4"},{label:"Drama",value:"5"},{label:"Ecchi",value:"6"},{label:"Fantasy",value:"7"},{label:"Gender Bender",value:"8"},{label:"Harem",value:"9"},{label:"Historical",value:"10"},{label:"Horror",value:"11"},{label:"Josei",value:"12"},{label:"Martial Arts",value:"13"},{label:"Mature",value:"14"},{label:"Mecha",value:"15"},{label:"Mystery",value:"16"},{label:"Psychological",value:"17"},{label:"Romance",value:"18"},{label:"School Life",value:"19"},{label:"Sci-fi",value:"20"},{label:"Seinen",value:"21"},{label:"Shoujo",value:"22"},{label:"Shoujo Ai",value:"23"},{label:"Shounen",value:"24"},{label:"Shounen Ai",value:"25"},{label:"Slice of Life",value:"26"},{label:"Smut",value:"27"},{label:"Sports",value:"28"},{label:"Supernatural",value:"29"},{label:"Tragedy",value:"30"},{label:"Wuxia",value:"31"},{label:"Xianxia",value:"32"},{label:"Xuanhuan",value:"33"},{label:"Yaoi",value:"34"},{label:"Yuri",value:"35"}]}}}return o.prototype.popularNovels=function(a,n){return e(this,arguments,void 0,(function(e,a){var n,l,i=this,o=a.showLatestNovels,u=a.filters;return t(this,(function(t){switch(t.label){case 0:return n=u.sort.value,o&&(n="latest"),l=u.genres.value.map((function(e){return"&genres%5B%5D="+e})).join(""),[4,(0,r.fetchApi)("".concat(this.site,"/api/series/filter?page=").concat(e,"&per_page=20&status=").concat(u.status.value,"&order=").concat(n).concat(l)).then((function(e){return e.json()}))];case 1:return[2,t.sent().data.map((function(e){return i.parseNovelFromApi(e)}))]}}))}))},o.prototype.parseNovel=function(n){return e(this,void 0,void 0,(function(){var e,l,o,u,s;return t(this,(function(t){switch(t.label){case 0:return[4,(0,r.fetchApi)("".concat(this.site,"/series/").concat(n),{headers:{"User-Agent":""}}).then((function(e){return e.text()}))];case 1:return e=t.sent(),l=(0,a.load)(e),(o={path:n,name:l("h1.my-2").text(),summary:l("div.overflow-hidden.transition-all.max-h-\\[108px\\] p").map((function(e,t){return(0,a.load)(t).text()})).get().join("\n\n")}).author=l("div.flex-1 > div.mb-3 > a.inline-flex").text(),u=e.match(/,cover:"storage\/(.+?)",cover_data_url/),o.cover=u?this.site+"/storage/"+u[1]:i.defaultCover,o.genres=l("div.flex-1 > div.flex:not(.mb-3, .mt-5) > a").map((function(e,t){return(0,a.load)(t).text()})).toArray().join(","),o.status=l("div.flex-1 > div.mb-3 > span.rounded-md").first().text(),[4,(0,r.fetchApi)(this.site+"/api/novels/chapter-list/"+n).then((function(e){return e.json()}))];case 2:return s=t.sent(),this.hideLocked&&(s=s.filter((function(e){var t;return!(null===(t=e.locked)||void 0===t?void 0:t.price)}))),o.chapters=s.map((function(e){var t,r,a,l;return{name:((null===(t=e.locked)||void 0===t?void 0:t.price)?"🔒 ":"")+(null===(null===(r=e.group)||void 0===r?void 0:r.index)?"":"Vol "+e.group.index+" ")+"Chapter "+e.number+(e.title&&e.title.trim()!="Chapter "+e.number?" - "+e.title.replace(/^chapter [0-9]+ . /i,""):""),path:n+(null===(null===(a=e.group)||void 0===a?void 0:a.index)?"":"/"+e.group.slug)+"/chapter-"+e.number,releaseTime:e.created_at,chapterNumber:e.number+1e12*(null===(l=e.group)||void 0===l?void 0:l.index)}})).sort((function(e,t){return e.chapterNumber-t.chapterNumber})),[2,o]}}))}))},o.prototype.parseChapter=function(n){return e(this,void 0,void 0,(function(){var e;return t(this,(function(t){switch(t.label){case 0:return[4,(0,r.fetchApi)(this.site+"/series/"+n,{headers:{"User-Agent":""}}).then((function(e){return e.text()}))];case 1:return e=t.sent(),[2,(0,a.load)(e)("#reader-area").html()||""]}}))}))},o.prototype.searchNovels=function(a,n){return e(this,void 0,void 0,(function(){var e=this;return t(this,(function(t){switch(t.label){case 0:return[4,(0,r.fetchApi)("".concat(this.site,"/api/series/filter?page=").concat(n,"&per_page=20&search=").concat(encodeURIComponent(a))).then((function(e){return e.json()})).then((function(t){return t.data.map((function(t){return e.parseNovelFromApi(t)}))}))];case 1:return[2,t.sent()]}}))}))},o.prototype.parseNovelFromApi=function(e){return{name:e.title,path:e.slug,cover:this.site+"/"+e.cover,summary:e.description,status:e.status,genres:e.genres.map((function(e){return e.name})).join(",")}},o}();exports.default=new o;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var fetch_1 = require("@libs/fetch");
+var cheerio_1 = require("cheerio");
+var filterInputs_1 = require("@libs/filterInputs");
+var storage_1 = require("@libs/storage");
+var defaultCover_1 = require("@libs/defaultCover");
+var FenrirRealmPlugin = /** @class */ (function () {
+    function FenrirRealmPlugin() {
+        var _this = this;
+        this.id = 'fenrir';
+        this.name = 'Fenrir Realm';
+        this.icon = 'src/en/fenrirrealm/icon.png';
+        this.site = 'https://fenrirealm.com';
+        this.version = '1.0.10';
+        this.imageRequestInit = undefined;
+        this.hideLocked = storage_1.storage.get('hideLocked');
+        this.pluginSettings = {
+            hideLocked: {
+                value: '',
+                label: 'Hide locked chapters',
+                type: 'Switch',
+            },
+        };
+        this.resolveUrl = function (path, isNovel) {
+            return _this.site + '/series/' + path;
+        };
+        this.filters = {
+            status: {
+                type: filterInputs_1.FilterTypes.Picker,
+                label: 'Status',
+                value: 'any',
+                options: [
+                    { label: 'All', value: 'any' },
+                    { label: 'Ongoing', value: 'ongoing' },
+                    {
+                        label: 'Completed',
+                        value: 'completed',
+                    },
+                ],
+            },
+            sort: {
+                type: filterInputs_1.FilterTypes.Picker,
+                label: 'Sort',
+                value: 'popular',
+                options: [
+                    { label: 'Popular', value: 'popular' },
+                    { label: 'Latest', value: 'latest' },
+                    { label: 'Updated', value: 'updated' },
+                ],
+            },
+            genres: {
+                type: filterInputs_1.FilterTypes.CheckboxGroup,
+                label: 'Genres',
+                value: [],
+                options: [
+                    { 'label': 'Action', 'value': '1' },
+                    { 'label': 'Adult', 'value': '2' },
+                    {
+                        'label': 'Adventure',
+                        'value': '3',
+                    },
+                    { 'label': 'Comedy', 'value': '4' },
+                    { 'label': 'Drama', 'value': '5' },
+                    {
+                        'label': 'Ecchi',
+                        'value': '6',
+                    },
+                    { 'label': 'Fantasy', 'value': '7' },
+                    { 'label': 'Gender Bender', 'value': '8' },
+                    {
+                        'label': 'Harem',
+                        'value': '9',
+                    },
+                    { 'label': 'Historical', 'value': '10' },
+                    { 'label': 'Horror', 'value': '11' },
+                    {
+                        'label': 'Josei',
+                        'value': '12',
+                    },
+                    { 'label': 'Martial Arts', 'value': '13' },
+                    { 'label': 'Mature', 'value': '14' },
+                    {
+                        'label': 'Mecha',
+                        'value': '15',
+                    },
+                    { 'label': 'Mystery', 'value': '16' },
+                    { 'label': 'Psychological', 'value': '17' },
+                    {
+                        'label': 'Romance',
+                        'value': '18',
+                    },
+                    { 'label': 'School Life', 'value': '19' },
+                    { 'label': 'Sci-fi', 'value': '20' },
+                    {
+                        'label': 'Seinen',
+                        'value': '21',
+                    },
+                    { 'label': 'Shoujo', 'value': '22' },
+                    { 'label': 'Shoujo Ai', 'value': '23' },
+                    {
+                        'label': 'Shounen',
+                        'value': '24',
+                    },
+                    { 'label': 'Shounen Ai', 'value': '25' },
+                    { 'label': 'Slice of Life', 'value': '26' },
+                    {
+                        'label': 'Smut',
+                        'value': '27',
+                    },
+                    { 'label': 'Sports', 'value': '28' },
+                    { 'label': 'Supernatural', 'value': '29' },
+                    {
+                        'label': 'Tragedy',
+                        'value': '30',
+                    },
+                    { 'label': 'Wuxia', 'value': '31' },
+                    { 'label': 'Xianxia', 'value': '32' },
+                    {
+                        'label': 'Xuanhuan',
+                        'value': '33',
+                    },
+                    { 'label': 'Yaoi', 'value': '34' },
+                    { 'label': 'Yuri', 'value': '35' },
+                ],
+            },
+        };
+    }
+    FenrirRealmPlugin.prototype.popularNovels = function (pageNo_1, _a) {
+        return __awaiter(this, arguments, void 0, function (pageNo, _b) {
+            var sort, genresFilter, res;
+            var _this = this;
+            var showLatestNovels = _b.showLatestNovels, filters = _b.filters;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        sort = filters.sort.value;
+                        if (showLatestNovels)
+                            sort = 'latest';
+                        genresFilter = filters.genres.value
+                            .map(function (g) { return '&genres%5B%5D=' + g; })
+                            .join('');
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)("".concat(this.site, "/api/series/filter?page=").concat(pageNo, "&per_page=20&status=").concat(filters.status.value, "&order=").concat(sort).concat(genresFilter)).then(function (r) { return r.json(); })];
+                    case 1:
+                        res = _c.sent();
+                        return [2 /*return*/, res.data.map(function (r) { return _this.parseNovelFromApi(r); })];
+                }
+            });
+        });
+    };
+    FenrirRealmPlugin.prototype.parseNovel = function (novelPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var html, loadedCheerio, novel, coverMatch, chapters;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)("".concat(this.site, "/series/").concat(novelPath), {
+                            headers: {
+                                'User-Agent': '',
+                            },
+                        }).then(function (r) { return r.text(); })];
+                    case 1:
+                        html = _a.sent();
+                        loadedCheerio = (0, cheerio_1.load)(html);
+                        novel = {
+                            path: novelPath,
+                            name: loadedCheerio('h1.my-2').text(),
+                            summary: loadedCheerio('div.overflow-hidden.transition-all.max-h-\\[108px\\] p')
+                                .map(function (i, el) { return (0, cheerio_1.load)(el).text(); })
+                                .get()
+                                .join('\n\n'),
+                        };
+                        // novel.artist = '';
+                        novel.author = loadedCheerio('div.flex-1 > div.mb-3 > a.inline-flex').text();
+                        coverMatch = html.match(/,cover:"storage\/(.+?)",cover_data_url/);
+                        novel.cover = coverMatch
+                            ? this.site + '/storage/' + coverMatch[1]
+                            : defaultCover_1.defaultCover;
+                        novel.genres = loadedCheerio('div.flex-1 > div.flex:not(.mb-3, .mt-5) > a')
+                            .map(function (i, el) { return (0, cheerio_1.load)(el).text(); })
+                            .toArray()
+                            .join(',');
+                        novel.status = loadedCheerio('div.flex-1 > div.mb-3 > span.rounded-md')
+                            .first()
+                            .text();
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + '/api/novels/chapter-list/' + novelPath).then(function (r) { return r.json(); })];
+                    case 2:
+                        chapters = _a.sent();
+                        if (this.hideLocked) {
+                            chapters = chapters.filter(function (c) { var _a; return !((_a = c.locked) === null || _a === void 0 ? void 0 : _a.price); });
+                        }
+                        novel.chapters = chapters
+                            .map(function (c) {
+                            var _a, _b, _c, _d;
+                            return ({
+                                name: (((_a = c.locked) === null || _a === void 0 ? void 0 : _a.price) ? '🔒 ' : '') +
+                                    (((_b = c.group) === null || _b === void 0 ? void 0 : _b.index) === null ? '' : 'Vol ' + c.group.index + ' ') +
+                                    'Chapter ' +
+                                    c.number +
+                                    (c.title && c.title.trim() != 'Chapter ' + c.number
+                                        ? ' - ' + c.title.replace(/^chapter [0-9]+ . /i, '')
+                                        : ''),
+                                path: novelPath +
+                                    (((_c = c.group) === null || _c === void 0 ? void 0 : _c.index) === null ? '' : '/' + c.group.slug) +
+                                    '/chapter-' +
+                                    c.number,
+                                releaseTime: c.created_at,
+                                chapterNumber: c.number + ((_d = c.group) === null || _d === void 0 ? void 0 : _d.index) * 1000000000000,
+                            });
+                        })
+                            .sort(function (a, b) { return a.chapterNumber - b.chapterNumber; });
+                        return [2 /*return*/, novel];
+                }
+            });
+        });
+    };
+    FenrirRealmPlugin.prototype.parseChapter = function (chapterPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var page;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + '/series/' + chapterPath, {
+                            headers: {
+                                'User-Agent': '',
+                            },
+                        }).then(function (r) { return r.text(); })];
+                    case 1:
+                        page = _a.sent();
+                        return [2 /*return*/, (0, cheerio_1.load)(page)('#reader-area').html() || ''];
+                }
+            });
+        });
+    };
+    FenrirRealmPlugin.prototype.searchNovels = function (searchTerm, pageNo) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)("".concat(this.site, "/api/series/filter?page=").concat(pageNo, "&per_page=20&search=").concat(encodeURIComponent(searchTerm)))
+                            .then(function (r) { return r.json(); })
+                            .then(function (r) { return r.data.map(function (novel) { return _this.parseNovelFromApi(novel); }); })];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    FenrirRealmPlugin.prototype.parseNovelFromApi = function (apiData) {
+        return {
+            name: apiData.title,
+            path: apiData.slug,
+            cover: this.site + '/' + apiData.cover,
+            summary: apiData.description,
+            status: apiData.status,
+            genres: apiData.genres.map(function (g) { return g.name; }).join(','),
+        };
+    };
+    return FenrirRealmPlugin;
+}());
+exports.default = new FenrirRealmPlugin();
+//paste into console on site to load
+function getUpdatedGenres() {
+    return __awaiter(this, void 0, void 0, function () {
+        var data, genreData;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fetch('https://fenrirealm.com/api/novels/taxonomy/genres').then(function (d) { return d.json(); })];
+                case 1:
+                    data = _a.sent();
+                    genreData = data.map(function (g) { return ({ label: g.name, value: g.id.toString() }); });
+                    console.log(JSON.stringify(genreData));
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
