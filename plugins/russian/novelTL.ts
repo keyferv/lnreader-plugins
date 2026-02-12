@@ -17,7 +17,7 @@ class TL implements Plugin.PluginBase {
   id = 'TL';
   name = 'NovelTL';
   site = 'https://novel.tl';
-  version = '1.1.3';
+  version = '1.1.4';
   icon = 'src/ru/noveltl/icon.png';
 
   async fetchNovels(

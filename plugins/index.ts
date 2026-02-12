@@ -248,6 +248,7 @@ import p_245 from '@plugins/vietnamese/truyenchu';
 import p_246 from '@plugins/vietnamese/Truyenconect';
 import p_247 from '@plugins/vietnamese/truyenfull';
 import p_248 from '@plugins/english/lorenovels';
+import p_249 from '@plugins/spanish/devilnovels';
 
 const PLUGINS: Plugin.PluginBase[] = [
   p_0,
@@ -499,5 +500,6 @@ const PLUGINS: Plugin.PluginBase[] = [
   p_246,
   p_247,
   p_248,
+  p_249,
 ];
 export default PLUGINS;
