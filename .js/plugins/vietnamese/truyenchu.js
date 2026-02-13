@@ -1,1 +1,232 @@
-var t=this&&this.__awaiter||function(t,e,n,r){return new(n||(n=Promise))((function(a,i){function o(t){try{c(r.next(t))}catch(t){i(t)}}function s(t){try{c(r.throw(t))}catch(t){i(t)}}function c(t){var e;t.done?a(t.value):(e=t.value,e instanceof n?e:new n((function(t){t(e)}))).then(o,s)}c((r=r.apply(t,e||[])).next())}))},e=this&&this.__generator||function(t,e){var n,r,a,i={label:0,sent:function(){if(1&a[0])throw a[1];return a[1]},trys:[],ops:[]},o=Object.create(("function"==typeof Iterator?Iterator:Object).prototype);return o.next=s(0),o.throw=s(1),o.return=s(2),"function"==typeof Symbol&&(o[Symbol.iterator]=function(){return this}),o;function s(s){return function(c){return function(s){if(n)throw new TypeError("Generator is already executing.");for(;o&&(o=0,s[0]&&(i=0)),i;)try{if(n=1,r&&(a=2&s[0]?r.return:s[0]?r.throw||((a=r.return)&&a.call(r),0):r.next)&&!(a=a.call(r,s[1])).done)return a;switch(r=0,a&&(s=[2&s[0],a.value]),s[0]){case 0:case 1:a=s;break;case 4:return i.label++,{value:s[1],done:!1};case 5:i.label++,r=s[1],s=[0];continue;case 7:s=i.ops.pop(),i.trys.pop();continue;default:if(!(a=i.trys,(a=a.length>0&&a[a.length-1])||6!==s[0]&&2!==s[0])){i=0;continue}if(3===s[0]&&(!a||s[1]>a[0]&&s[1]<a[3])){i.label=s[1];break}if(6===s[0]&&i.label<a[1]){i.label=a[1],a=s;break}if(a&&i.label<a[2]){i.label=a[2],i.ops.push(s);break}a[2]&&i.ops.pop(),i.trys.pop();continue}s=e.call(t,i)}catch(t){s=[6,t],r=0}finally{n=a=0}if(5&s[0])throw s[1];return{value:s[0]?s[1]:void 0,done:!0}}([s,c])}}};Object.defineProperty(exports,"__esModule",{value:!0});var n=require("cheerio"),r=require("@libs/fetch"),a=require("@libs/novelStatus"),i=function(){function i(){this.id="truyenchu",this.name="Truyện Chữ",this.icon="src/vi/truyenchu/icon.png",this.site="https://truyenchu.vn",this.version="1.0.0"}return i.prototype.parseNovels=function(t){var e=this,n=[];return t(".list-truyen .row").each((function(r,a){var i=t(a).find("h3.truyen-title > a").text(),o=e.site+t(a).find("div[data-classname='cover']").attr("data-image"),s=t(a).find("h3.truyen-title > a").attr("href");s&&n.push({name:i,cover:o,path:s.replace(e.site,"")})})),n},i.prototype.parseChapters=function(t){var e,r=this,a=null===(e=t.match(/("list_chapter":\s?\\{0}"(.+)\\{0}"),/))||void 0===e?void 0:e[1];if(!a)throw new Error("Không tải được chương");var i=JSON.parse("{".concat(a,"}")),o=(0,n.load)(i.list_chapter),s=[];return o("ul > li > a").each((function(t,e){var n,a=e.attribs.href.replace(r.site,"");a&&s.push({name:e.attribs.title,path:a,chapterNumber:Number(null===(n=a.match(/\/chuong-(\d+)/))||void 0===n?void 0:n[1])})})),s},i.prototype.popularNovels=function(a){return t(this,void 0,void 0,(function(){var t,i,o;return e(this,(function(e){switch(e.label){case 0:return t="".concat(this.site,"/danh-sach/truyen-hot?page=").concat(a),[4,(0,r.fetchApi)(t)];case 1:return[4,e.sent().text()];case 2:return i=e.sent(),o=(0,n.load)(i),[2,this.parseNovels(o)]}}))}))},i.prototype.parseNovel=function(i){return t(this,void 0,void 0,(function(){var t,o,s,c,u,h,l;return e(this,(function(e){switch(e.label){case 0:return t=this.site+i,[4,(0,r.fetchApi)(t)];case 1:return[4,e.sent().text()];case 2:return o=e.sent(),s=(0,n.load)(o),c=1,u=new RegExp("".concat(i,"\\?page=\\d+"),"g"),null===(l=o.match(u))||void 0===l||l.forEach((function(t){var e,n=Number(null===(e=t.match(/\?page=(\d+)/))||void 0===e?void 0:e[1]);n&&n>c&&(c=n)})),(h={path:i,name:s("div.book > img").attr("alt")||"Không có tiêu đề",chapters:[],totalPages:c}).cover=this.site+s("div.book > img").attr("src"),h.summary=s("div.desc-text").text().trim(),h.author=s('h3:contains("Tác giả:")').parent().contents().text().replace("Tác giả:",""),h.genres=s('h3:contains("Thể loại")').siblings().map((function(t,e){return s(e).text()})).toArray().join(","),h.status=s('h3:contains("Trạng thái")').next().text(),"Full"===h.status?h.status=a.NovelStatus.Completed:"Đang ra"===h.status?h.status=a.NovelStatus.Ongoing:h.status=a.NovelStatus.Unknown,h.chapters=this.parseChapters(o),[2,h]}}))}))},i.prototype.parsePage=function(n,a){return t(this,void 0,void 0,(function(){var t,i;return e(this,(function(e){switch(e.label){case 0:return t="".concat(this.site).concat(n,"?page=").concat(a),[4,(0,r.fetchApi)(t)];case 1:return[4,e.sent().text()];case 2:return i=e.sent(),[2,{chapters:this.parseChapters(i)}]}}))}))},i.prototype.parseChapter=function(a){return t(this,void 0,void 0,(function(){var t,i;return e(this,(function(e){switch(e.label){case 0:return[4,(0,r.fetchApi)(this.site+a)];case 1:return[4,e.sent().text()];case 2:return t=e.sent(),i=(0,n.load)(t),[2,(i(".chapter-title").html()||"")+(i("#chapter-c").html()||"")]}}))}))},i.prototype.searchNovels=function(a,i){return t(this,void 0,void 0,(function(){var t,o,s;return e(this,(function(e){switch(e.label){case 0:return t="".concat(this.site,"/tim-kiem?tukhoa=").concat(a,"&page=").concat(i),[4,(0,r.fetchApi)(t)];case 1:return[4,e.sent().text()];case 2:return o=e.sent(),s=(0,n.load)(o),[2,this.parseNovels(s)]}}))}))},i}();exports.default=new i;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var cheerio_1 = require("cheerio");
+var fetch_1 = require("@libs/fetch");
+var novelStatus_1 = require("@libs/novelStatus");
+var TruyenFull = /** @class */ (function () {
+    function TruyenFull() {
+        this.id = 'truyenchu';
+        this.name = 'Truyện Chữ';
+        this.icon = 'src/vi/truyenchu/icon.png';
+        this.site = 'https://truyenchu.vn';
+        this.version = '1.0.0';
+    }
+    TruyenFull.prototype.parseNovels = function (loadedCheerio) {
+        var _this = this;
+        var novels = [];
+        loadedCheerio('.list-truyen .row').each(function (idx, ele) {
+            var novelName = loadedCheerio(ele).find('h3.truyen-title > a').text();
+            var novelCover = _this.site +
+                loadedCheerio(ele)
+                    .find("div[data-classname='cover']")
+                    .attr('data-image');
+            var novelUrl = loadedCheerio(ele)
+                .find('h3.truyen-title > a')
+                .attr('href');
+            if (novelUrl) {
+                novels.push({
+                    name: novelName,
+                    cover: novelCover,
+                    path: novelUrl.replace(_this.site, ''),
+                });
+            }
+        });
+        return novels;
+    };
+    TruyenFull.prototype.parseChapters = function (html) {
+        var _this = this;
+        var _a;
+        var listChapterHTML = (_a = html.match(/("list_chapter":\s?\\{0}"(.+)\\{0}"),/)) === null || _a === void 0 ? void 0 : _a[1];
+        if (!listChapterHTML)
+            throw new Error('Không tải được chương');
+        var listChapter = JSON.parse("{".concat(listChapterHTML, "}"));
+        var loadedChapterList = (0, cheerio_1.load)(listChapter.list_chapter);
+        var chapters = [];
+        loadedChapterList('ul > li > a').each(function (idx, ele) {
+            var _a;
+            var path = ele.attribs['href'].replace(_this.site, '');
+            if (path) {
+                chapters.push({
+                    name: ele.attribs['title'],
+                    path: path,
+                    chapterNumber: Number((_a = path.match(/\/chuong-(\d+)/)) === null || _a === void 0 ? void 0 : _a[1]),
+                });
+            }
+        });
+        return chapters;
+    };
+    TruyenFull.prototype.popularNovels = function (pageNo) {
+        return __awaiter(this, void 0, void 0, function () {
+            var url, result, body, loadedCheerio;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        url = "".concat(this.site, "/danh-sach/truyen-hot?page=").concat(pageNo);
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(url)];
+                    case 1:
+                        result = _a.sent();
+                        return [4 /*yield*/, result.text()];
+                    case 2:
+                        body = _a.sent();
+                        loadedCheerio = (0, cheerio_1.load)(body);
+                        return [2 /*return*/, this.parseNovels(loadedCheerio)];
+                }
+            });
+        });
+    };
+    TruyenFull.prototype.parseNovel = function (novelPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var url, result, body, loadedCheerio, lastPage, regex, novel;
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        url = this.site + novelPath;
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(url)];
+                    case 1:
+                        result = _b.sent();
+                        return [4 /*yield*/, result.text()];
+                    case 2:
+                        body = _b.sent();
+                        loadedCheerio = (0, cheerio_1.load)(body);
+                        lastPage = 1;
+                        regex = new RegExp("".concat(novelPath, "\\?page=\\d+"), 'g');
+                        (_a = body.match(regex)) === null || _a === void 0 ? void 0 : _a.forEach(function (v) {
+                            var _a;
+                            var page = Number((_a = v.match(/\?page=(\d+)/)) === null || _a === void 0 ? void 0 : _a[1]);
+                            if (page && page > lastPage) {
+                                lastPage = page;
+                            }
+                        });
+                        novel = {
+                            path: novelPath,
+                            name: loadedCheerio('div.book > img').attr('alt') || 'Không có tiêu đề',
+                            chapters: [],
+                            totalPages: lastPage,
+                        };
+                        novel.cover = this.site + loadedCheerio('div.book > img').attr('src');
+                        novel.summary = loadedCheerio('div.desc-text').text().trim();
+                        novel.author = loadedCheerio('h3:contains("Tác giả:")')
+                            .parent()
+                            .contents()
+                            .text()
+                            .replace('Tác giả:', '');
+                        novel.genres = loadedCheerio('h3:contains("Thể loại")')
+                            .siblings()
+                            .map(function (i, el) { return loadedCheerio(el).text(); })
+                            .toArray()
+                            .join(',');
+                        novel.status = loadedCheerio('h3:contains("Trạng thái")').next().text();
+                        if (novel.status === 'Full') {
+                            novel.status = novelStatus_1.NovelStatus.Completed;
+                        }
+                        else if (novel.status === 'Đang ra') {
+                            novel.status = novelStatus_1.NovelStatus.Ongoing;
+                        }
+                        else {
+                            novel.status = novelStatus_1.NovelStatus.Unknown;
+                        }
+                        novel.chapters = this.parseChapters(body);
+                        return [2 /*return*/, novel];
+                }
+            });
+        });
+    };
+    TruyenFull.prototype.parsePage = function (novelPath, page) {
+        return __awaiter(this, void 0, void 0, function () {
+            var url, result, body, chapters;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        url = "".concat(this.site).concat(novelPath, "?page=").concat(page);
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(url)];
+                    case 1:
+                        result = _a.sent();
+                        return [4 /*yield*/, result.text()];
+                    case 2:
+                        body = _a.sent();
+                        chapters = this.parseChapters(body);
+                        return [2 /*return*/, {
+                                chapters: chapters,
+                            }];
+                }
+            });
+        });
+    };
+    TruyenFull.prototype.parseChapter = function (chapterPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var result, body, loadedCheerio, chapterText;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + chapterPath)];
+                    case 1:
+                        result = _a.sent();
+                        return [4 /*yield*/, result.text()];
+                    case 2:
+                        body = _a.sent();
+                        loadedCheerio = (0, cheerio_1.load)(body);
+                        chapterText = (loadedCheerio('.chapter-title').html() || '') +
+                            (loadedCheerio('#chapter-c').html() || '');
+                        return [2 /*return*/, chapterText];
+                }
+            });
+        });
+    };
+    TruyenFull.prototype.searchNovels = function (searchTerm, pageNo) {
+        return __awaiter(this, void 0, void 0, function () {
+            var searchUrl, result, body, loadedCheerio;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        searchUrl = "".concat(this.site, "/tim-kiem?tukhoa=").concat(searchTerm, "&page=").concat(pageNo);
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(searchUrl)];
+                    case 1:
+                        result = _a.sent();
+                        return [4 /*yield*/, result.text()];
+                    case 2:
+                        body = _a.sent();
+                        loadedCheerio = (0, cheerio_1.load)(body);
+                        return [2 /*return*/, this.parseNovels(loadedCheerio)];
+                }
+            });
+        });
+    };
+    return TruyenFull;
+}());
+exports.default = new TruyenFull();

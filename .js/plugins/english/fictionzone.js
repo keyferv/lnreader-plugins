@@ -1,1 +1,268 @@
-var t=this&&this.__awaiter||function(t,e,n,r){return new(n||(n=Promise))((function(i,a){function o(t){try{c(r.next(t))}catch(t){a(t)}}function s(t){try{c(r.throw(t))}catch(t){a(t)}}function c(t){var e;t.done?i(t.value):(e=t.value,e instanceof n?e:new n((function(t){t(e)}))).then(o,s)}c((r=r.apply(t,e||[])).next())}))},e=this&&this.__generator||function(t,e){var n,r,i,a={label:0,sent:function(){if(1&i[0])throw i[1];return i[1]},trys:[],ops:[]},o=Object.create(("function"==typeof Iterator?Iterator:Object).prototype);return o.next=s(0),o.throw=s(1),o.return=s(2),"function"==typeof Symbol&&(o[Symbol.iterator]=function(){return this}),o;function s(s){return function(c){return function(s){if(n)throw new TypeError("Generator is already executing.");for(;o&&(o=0,s[0]&&(a=0)),a;)try{if(n=1,r&&(i=2&s[0]?r.return:s[0]?r.throw||((i=r.return)&&i.call(r),0):r.next)&&!(i=i.call(r,s[1])).done)return i;switch(r=0,i&&(s=[2&s[0],i.value]),s[0]){case 0:case 1:i=s;break;case 4:return a.label++,{value:s[1],done:!1};case 5:a.label++,r=s[1],s=[0];continue;case 7:s=a.ops.pop(),a.trys.pop();continue;default:if(!(i=a.trys,(i=i.length>0&&i[i.length-1])||6!==s[0]&&2!==s[0])){a=0;continue}if(3===s[0]&&(!i||s[1]>i[0]&&s[1]<i[3])){a.label=s[1];break}if(6===s[0]&&a.label<i[1]){a.label=i[1],i=s;break}if(i&&a.label<i[2]){a.label=i[2],a.ops.push(s);break}i[2]&&a.ops.pop(),a.trys.pop();continue}s=e.call(t,a)}catch(t){s=[6,t],r=0}finally{n=i=0}if(5&s[0])throw s[1];return{value:s[0]?s[1]:void 0,done:!0}}([s,c])}}},n=this&&this.__spreadArray||function(t,e,n){if(n||2===arguments.length)for(var r,i=0,a=e.length;i<a;i++)!r&&i in e||(r||(r=Array.prototype.slice.call(e,0,i)),r[i]=e[i]);return t.concat(r||Array.prototype.slice.call(e))},r=this&&this.__importDefault||function(t){return t&&t.__esModule?t:{default:t}};Object.defineProperty(exports,"__esModule",{value:!0});var i=require("@libs/fetch"),a=require("cheerio"),o=require("@libs/novelStatus"),s=r(require("dayjs")),c=function(){function r(){var t=this;this.id="fictionzone",this.name="Fiction Zone",this.icon="src/en/fictionzone/icon.png",this.site="https://fictionzone.net",this.version="1.0.1",this.filters=void 0,this.imageRequestInit=void 0,this.cachedNovelIds=new Map,this.resolveUrl=function(e,n){return t.site+"/"+e}}return r.prototype.popularNovels=function(n,r){return t(this,arguments,void 0,(function(t,n){n.showLatestNovels,n.filters;return e(this,(function(e){switch(e.label){case 0:return[4,this.getPage(this.site+"/library?page="+t)];case 1:return[2,e.sent()]}}))}))},r.prototype.getPage=function(n){return t(this,void 0,void 0,(function(){var t,r;return e(this,(function(e){switch(e.label){case 0:return[4,(0,i.fetchApi)(n)];case 1:return[4,e.sent().text()];case 2:return t=e.sent(),[2,(r=(0,a.load)(t))("div.novel-card").map((function(t,e){return{name:r(e).find("a > div.title > h1").text(),cover:r(e).find("img").attr("src"),path:r(e).find("a").attr("href").replace(/^\//,"").replace(/\/$/,"")}})).toArray()]}}))}))},r.prototype.parseNovel=function(r){return t(this,void 0,void 0,(function(){var t,s,c,u,l,h,p,d,f,v=this;return e(this,(function(e){switch(e.label){case 0:return[4,(0,i.fetchApi)(this.site+"/"+r)];case 1:return[4,e.sent().text()];case 2:for(t=e.sent(),s=(0,a.load)(t),(c={path:r,name:s("div.novel-title > h1").text(),totalPages:1}).author=s("div.novel-author > content").text(),c.cover=s("div.novel-img > img").attr("src"),c.genres=n(n([],s("div.genres > .items > span").map((function(t,e){return s(e).text()})).toArray(),!0),s("div.tags > .items > a").map((function(t,e){return s(e).text()})).toArray(),!0).join(","),"Ongoing"===s("div.novel-status > div.content").text().trim()&&(c.status=o.NovelStatus.Ongoing),c.summary=s("#synopsis > div.content").text(),u=s("script#__NUXT_DATA__").html(),l=JSON.parse(u),h=null,p=0,d=l;p<d.length&&("string"!=typeof(f=d[p])||!f.startsWith("novel_covers/"));p++)h=f;return this.cachedNovelIds.set(r,h.toString()),c.chapters=s("div.chapters > div.list-wrapper > div.items > a.chapter").map((function(t,e){var n,r=s(e).find("span.chapter-title").text(),i=null===(n=s(e).attr("href"))||void 0===n?void 0:n.replace(/^\//,"").replace(/\/$/,"");return{name:r,releaseTime:v.parseAgoDate(s(e).find("span.update-date").text()),path:null==i?void 0:i.replace(/^\//,"").replace(/\/$/,"")}})).toArray().filter((function(t){return!!t.path})),c.totalPages=parseInt(s("div.chapters ul.el-pager > li:last-child").text()),[2,c]}}))}))},r.prototype.parsePage=function(n,r){return t(this,void 0,void 0,(function(){var t;return e(this,(function(e){switch(e.label){case 0:return(t=this.cachedNovelIds.get(n))?[3,2]:[4,this.parseNovel(n)];case 1:e.sent(),t=this.cachedNovelIds.get(n),e.label=2;case 2:return[4,(0,i.fetchApi)(this.site+"/api/__api_party/api-v1",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({path:"/chapter/all/"+t,query:{page:parseInt(r)},headers:{"content-type":"application/json"},method:"get"})}).then((function(t){return t.json()}))];case 3:return[2,{chapters:e.sent()._data.map((function(t){return{name:t.title,releaseTime:new Date(t.created_at).toISOString(),path:n+"/"+t.slug}}))}]}}))}))},r.prototype.parseChapter=function(n){return t(this,void 0,void 0,(function(){var t;return e(this,(function(e){switch(e.label){case 0:return[4,(0,i.fetchApi)(this.site+"/"+n)];case 1:return[4,e.sent().text()];case 2:return t=e.sent(),[2,(0,a.load)(t)("div.chapter-content").html()||""]}}))}))},r.prototype.searchNovels=function(n,r){return t(this,void 0,void 0,(function(){return e(this,(function(t){switch(t.label){case 0:return[4,this.getPage(this.site+"/library?query="+encodeURIComponent(n)+"&page="+r+"&sort=views-all")];case 1:return[2,t.sent()]}}))}))},r.prototype.parseAgoDate=function(t){var e;if(null==t?void 0:t.includes("ago")){var n=(0,s.default)(new Date),r=(null===(e=t.match(/\d+/))||void 0===e?void 0:e[0])||"",i=parseInt(r,10);return r?((t.includes("hours ago")||t.includes("hour ago"))&&n.subtract(i,"hours"),(t.includes("days ago")||t.includes("day ago"))&&n.subtract(i,"days"),(t.includes("months ago")||t.includes("month ago"))&&n.subtract(i,"months"),(t.includes("years ago")||t.includes("year ago"))&&n.subtract(i,"years"),n.toISOString()):null}return null},r}();exports.default=new c;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var fetch_1 = require("@libs/fetch");
+var cheerio_1 = require("cheerio");
+var novelStatus_1 = require("@libs/novelStatus");
+var dayjs_1 = __importDefault(require("dayjs"));
+var FictionZonePlugin = /** @class */ (function () {
+    function FictionZonePlugin() {
+        var _this = this;
+        this.id = 'fictionzone';
+        this.name = 'Fiction Zone';
+        this.icon = 'src/en/fictionzone/icon.png';
+        this.site = 'https://fictionzone.net';
+        this.version = '1.0.1';
+        this.filters = undefined;
+        this.imageRequestInit = undefined;
+        this.cachedNovelIds = new Map();
+        this.resolveUrl = function (path, isNovel) { return _this.site + '/' + path; };
+    }
+    FictionZonePlugin.prototype.popularNovels = function (pageNo_1, _a) {
+        return __awaiter(this, arguments, void 0, function (pageNo, _b) {
+            var showLatestNovels = _b.showLatestNovels, filters = _b.filters;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0: return [4 /*yield*/, this.getPage(this.site + '/library?page=' + pageNo)];
+                    case 1: return [2 /*return*/, _c.sent()];
+                }
+            });
+        });
+    };
+    FictionZonePlugin.prototype.getPage = function (url) {
+        return __awaiter(this, void 0, void 0, function () {
+            var req, body, loadedCheerio;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(url)];
+                    case 1:
+                        req = _a.sent();
+                        return [4 /*yield*/, req.text()];
+                    case 2:
+                        body = _a.sent();
+                        loadedCheerio = (0, cheerio_1.load)(body);
+                        return [2 /*return*/, loadedCheerio('div.novel-card')
+                                .map(function (i, el) {
+                                var novelName = loadedCheerio(el).find('a > div.title > h1').text();
+                                var novelCover = loadedCheerio(el).find('img').attr('src');
+                                var novelUrl = loadedCheerio(el).find('a').attr('href');
+                                return {
+                                    name: novelName,
+                                    cover: novelCover,
+                                    path: novelUrl.replace(/^\//, '').replace(/\/$/, ''),
+                                };
+                            })
+                                .toArray()];
+                }
+            });
+        });
+    };
+    FictionZonePlugin.prototype.parseNovel = function (novelPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var req, body, loadedCheerio, novel, status, nuxtData, parsed, last, _i, parsed_1, a;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + '/' + novelPath)];
+                    case 1:
+                        req = _a.sent();
+                        return [4 /*yield*/, req.text()];
+                    case 2:
+                        body = _a.sent();
+                        loadedCheerio = (0, cheerio_1.load)(body);
+                        novel = {
+                            path: novelPath,
+                            name: loadedCheerio('div.novel-title > h1').text(),
+                            totalPages: 1,
+                        };
+                        // novel.artist = '';
+                        novel.author = loadedCheerio('div.novel-author > content').text();
+                        novel.cover = loadedCheerio('div.novel-img > img').attr('src');
+                        novel.genres = __spreadArray(__spreadArray([], loadedCheerio('div.genres > .items > span')
+                            .map(function (i, el) { return loadedCheerio(el).text(); })
+                            .toArray(), true), loadedCheerio('div.tags > .items > a')
+                            .map(function (i, el) { return loadedCheerio(el).text(); })
+                            .toArray(), true).join(',');
+                        status = loadedCheerio('div.novel-status > div.content')
+                            .text()
+                            .trim();
+                        if (status === 'Ongoing')
+                            novel.status = novelStatus_1.NovelStatus.Ongoing;
+                        novel.summary = loadedCheerio('#synopsis > div.content').text();
+                        nuxtData = loadedCheerio('script#__NUXT_DATA__').html();
+                        parsed = JSON.parse(nuxtData);
+                        last = null;
+                        for (_i = 0, parsed_1 = parsed; _i < parsed_1.length; _i++) {
+                            a = parsed_1[_i];
+                            if (typeof a === 'string' && a.startsWith('novel_covers/'))
+                                break;
+                            last = a;
+                        }
+                        this.cachedNovelIds.set(novelPath, last.toString());
+                        // @ts-ignore
+                        novel.chapters = loadedCheerio('div.chapters > div.list-wrapper > div.items > a.chapter')
+                            .map(function (i, el) {
+                            var _a;
+                            var chapterName = loadedCheerio(el).find('span.chapter-title').text();
+                            var chapterUrl = (_a = loadedCheerio(el)
+                                .attr('href')) === null || _a === void 0 ? void 0 : _a.replace(/^\//, '').replace(/\/$/, '');
+                            var uploadTime = _this.parseAgoDate(loadedCheerio(el).find('span.update-date').text());
+                            return {
+                                name: chapterName,
+                                releaseTime: uploadTime,
+                                path: chapterUrl === null || chapterUrl === void 0 ? void 0 : chapterUrl.replace(/^\//, '').replace(/\/$/, ''),
+                            };
+                        })
+                            .toArray()
+                            .filter(function (chap) { return !!chap.path; });
+                        novel.totalPages = parseInt(loadedCheerio('div.chapters ul.el-pager > li:last-child').text());
+                        return [2 /*return*/, novel];
+                }
+            });
+        });
+    };
+    FictionZonePlugin.prototype.parsePage = function (novelPath, page) {
+        return __awaiter(this, void 0, void 0, function () {
+            var id, data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        id = this.cachedNovelIds.get(novelPath);
+                        if (!!id) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.parseNovel(novelPath)];
+                    case 1:
+                        _a.sent();
+                        id = this.cachedNovelIds.get(novelPath);
+                        _a.label = 2;
+                    case 2: return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + '/api/__api_party/api-v1', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                'path': '/chapter/all/' + id,
+                                'query': { 'page': parseInt(page) },
+                                'headers': { 'content-type': 'application/json' },
+                                'method': 'get',
+                            }),
+                        }).then(function (r) { return r.json(); })];
+                    case 3:
+                        data = _a.sent();
+                        return [2 /*return*/, {
+                                chapters: data._data.map(function (c) { return ({
+                                    name: c.title,
+                                    releaseTime: new Date(c.created_at).toISOString(),
+                                    path: novelPath + '/' + c.slug,
+                                }); }),
+                            }];
+                }
+            });
+        });
+    };
+    FictionZonePlugin.prototype.parseChapter = function (chapterPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var req, body, loadedCheerio;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + '/' + chapterPath)];
+                    case 1:
+                        req = _a.sent();
+                        return [4 /*yield*/, req.text()];
+                    case 2:
+                        body = _a.sent();
+                        loadedCheerio = (0, cheerio_1.load)(body);
+                        return [2 /*return*/, loadedCheerio('div.chapter-content').html() || ''];
+                }
+            });
+        });
+    };
+    FictionZonePlugin.prototype.searchNovels = function (searchTerm, pageNo) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getPage(this.site +
+                            '/library?query=' +
+                            encodeURIComponent(searchTerm) +
+                            '&page=' +
+                            pageNo +
+                            '&sort=views-all')];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    FictionZonePlugin.prototype.parseAgoDate = function (date) {
+        var _a;
+        //parseMadaraDate
+        if (date === null || date === void 0 ? void 0 : date.includes('ago')) {
+            var dayJSDate = (0, dayjs_1.default)(new Date()); // today
+            var timeAgo = ((_a = date.match(/\d+/)) === null || _a === void 0 ? void 0 : _a[0]) || '';
+            var timeAgoInt = parseInt(timeAgo, 10);
+            if (!timeAgo)
+                return null; // there is no number!
+            if (date.includes('hours ago') || date.includes('hour ago')) {
+                dayJSDate.subtract(timeAgoInt, 'hours'); // go back N hours
+            }
+            if (date.includes('days ago') || date.includes('day ago')) {
+                dayJSDate.subtract(timeAgoInt, 'days'); // go back N days
+            }
+            if (date.includes('months ago') || date.includes('month ago')) {
+                dayJSDate.subtract(timeAgoInt, 'months'); // go back N months
+            }
+            if (date.includes('years ago') || date.includes('year ago')) {
+                dayJSDate.subtract(timeAgoInt, 'years'); // go back N years
+            }
+            return dayJSDate.toISOString();
+        }
+        return null; // there is no "ago" so give up
+    };
+    return FictionZonePlugin;
+}());
+exports.default = new FictionZonePlugin();

@@ -1,1 +1,385 @@
-var t=this&&this.__awaiter||function(t,e,r,i){return new(r||(r=Promise))((function(n,o){function a(t){try{c(i.next(t))}catch(t){o(t)}}function s(t){try{c(i.throw(t))}catch(t){o(t)}}function c(t){var e;t.done?n(t.value):(e=t.value,e instanceof r?e:new r((function(t){t(e)}))).then(a,s)}c((i=i.apply(t,e||[])).next())}))},e=this&&this.__generator||function(t,e){var r,i,n,o={label:0,sent:function(){if(1&n[0])throw n[1];return n[1]},trys:[],ops:[]},a=Object.create(("function"==typeof Iterator?Iterator:Object).prototype);return a.next=s(0),a.throw=s(1),a.return=s(2),"function"==typeof Symbol&&(a[Symbol.iterator]=function(){return this}),a;function s(s){return function(c){return function(s){if(r)throw new TypeError("Generator is already executing.");for(;a&&(a=0,s[0]&&(o=0)),o;)try{if(r=1,i&&(n=2&s[0]?i.return:s[0]?i.throw||((n=i.return)&&n.call(i),0):i.next)&&!(n=n.call(i,s[1])).done)return n;switch(i=0,n&&(s=[2&s[0],n.value]),s[0]){case 0:case 1:n=s;break;case 4:return o.label++,{value:s[1],done:!1};case 5:o.label++,i=s[1],s=[0];continue;case 7:s=o.ops.pop(),o.trys.pop();continue;default:if(!(n=o.trys,(n=n.length>0&&n[n.length-1])||6!==s[0]&&2!==s[0])){o=0;continue}if(3===s[0]&&(!n||s[1]>n[0]&&s[1]<n[3])){o.label=s[1];break}if(6===s[0]&&o.label<n[1]){o.label=n[1],n=s;break}if(n&&o.label<n[2]){o.label=n[2],o.ops.push(s);break}n[2]&&o.ops.pop(),o.trys.pop();continue}s=e.call(t,o)}catch(t){s=[6,t],i=0}finally{r=n=0}if(5&s[0])throw s[1];return{value:s[0]?s[1]:void 0,done:!0}}([s,c])}}};Object.defineProperty(exports,"__esModule",{value:!0});var r=require("cheerio"),i=require("@/lib/fetch"),n=require("@libs/defaultCover"),o=require("@libs/novelStatus"),a=function(t,e){if(t)try{return t.startsWith("//")?new URL(e).protocol+t:t.startsWith("http://")||t.startsWith("https://")?t:new URL(t,e).href}catch(t){return}},s=function(){function s(){this.id="novel543",this.name="Novel543",this.site="https://www.novel543.com/",this.version="1.0.0",this.icon="src/cn/novel543/icon.png",this.imageRequestInit={headers:{Referer:this.site}}}return s.prototype.popularNovels=function(o){return t(this,void 0,void 0,(function(){var t,s,c,l,u,h=this;return e(this,(function(e){switch(e.label){case 0:return o>1?[2,[]]:[4,(0,i.fetchApi)(this.site)];case 1:return(t=e.sent()).ok?(c=r.load,[4,t.text()]):[2,[]];case 2:return s=c.apply(void 0,[e.sent()]),l=[],u=new Set,s('ul.list > li.media, ul.list li > a[href^="/"][href$="/"]').each((function(t,e){var r,i,o,c,d,f,p,v,m=s(e);if(m.is("li.media")){var w=m.find(".media-content h3 a");f=null===(r=w.attr("href"))||void 0===r?void 0:r.trim(),p=w.text().trim(),v=null===(i=m.find(".media-left img").attr("src"))||void 0===i?void 0:i.trim()}else m.is("a")&&(f=null===(o=m.attr("href"))||void 0===o?void 0:o.trim(),p=m.find("h3, b, span").first().text().trim()||m.parent().find("h3").text().trim()||m.text().trim(),v=(null===(c=m.find("img").attr("src"))||void 0===c?void 0:c.trim())||(null===(d=m.parent().find("img").attr("src"))||void 0===d?void 0:d.trim()));f&&p&&f.match(/^\/\d+\/$/)&&!u.has(f)&&(l.push({name:p,path:f,cover:a(v,h.site)||n.defaultCover}),u.add(f))})),[2,l]}}))}))},s.prototype.parseNovel=function(s){return t(this,void 0,void 0,(function(){var t,c,l,u,h,d,f,p,v;return e(this,(function(e){switch(e.label){case 0:if(!(t=a(s,this.site)))throw new Error("Invalid novel URL");return[4,(0,i.fetchApi)(t)];case 1:if(!(c=e.sent()).ok)throw new Error("Failed to fetch novel");return u=r.load,[4,c.text()];case 2:return l=u.apply(void 0,[e.sent()]),h=l("section#detail div.media-content.info"),d=l("section#detail div.mod"),f={path:s,name:h.find("h1.title").text().trim()||"Untitled",cover:a(l("section#detail div.cover img").attr("src"),this.site)||n.defaultCover,summary:d.find("div.intro").text().trim()||void 0,author:h.find("p.meta span.author").text().trim()||void 0,genres:h.find('p.meta a[href*="/bookstack/"]').map((function(t,e){return l(e).text().trim()})).get().join(", ")||void 0,status:o.NovelStatus.Unknown,chapters:[]},(p=d.find('p.action.buttons a.button.is-info[href$="/dir"]').attr("href")||h.find('a.button.is-info[href$="/dir"]').attr("href"))?(v=f,[4,this.parseChapterList(p)]):[3,4];case 3:v.chapters=e.sent(),e.label=4;case 4:return[2,f]}}))}))},s.prototype.parseChapterList=function(n){return t(this,void 0,void 0,(function(){var t,o,s,c,l;return e(this,(function(e){switch(e.label){case 0:return(t=a(n,this.site))?[4,(0,i.fetchApi)(t)]:[2,[]];case 1:return(o=e.sent()).ok?(c=r.load,[4,o.text()]):[2,[]];case 2:return s=c.apply(void 0,[e.sent()]),l=[],s("div.chaplist ul.all li a").each((function(t,e){var r,i=s(e),n=i.text().trim(),o=null===(r=i.attr("href"))||void 0===r?void 0:r.trim();n&&o&&l.push({name:n,path:o,chapterNumber:t+1})})),"倒序"===s("div.chaplist .header button.reverse span").last().text().trim()&&(l.reverse(),l.forEach((function(t,e){return t.chapterNumber=e+1}))),[2,l]}}))}))},s.prototype.parseChapter=function(n){return t(this,void 0,void 0,(function(){var t,o,s,c,l,u;return e(this,(function(e){switch(e.label){case 0:if(!(t=a(n,this.site)))throw new Error("Invalid chapter URL");return[4,(0,i.fetchApi)(t)];case 1:if(!(o=e.sent()).ok)throw new Error("Failed to fetch chapter");return c=r.load,[4,o.text()];case 2:return s=c.apply(void 0,[e.sent()]),(l=s("div.content.py-5")).length?(l.find('script, style, ins, iframe, [class*="ads"], [id*="ads"], [class*="google"], [id*="google"], [class*="recommend"], div[align="center"], p:contains("推薦本書"), a[href*="javascript:"]').remove(),l.find("p").each((function(t,e){var r,i=s(e),n=i.text().trim();(n.includes("請記住本站域名")||n.includes("手機版閱讀網址")||n.includes("novel543")||n.includes("稷下書院")||n.includes("最快更新")||n.includes("最新章節")||n.includes("章節報錯")||n.match(/app|APP|下載|客户端|关注微信|公众号/i)||0===n.length||""===(null===(r=i.html())||void 0===r?void 0:r.replace(/&nbsp;/g,"").trim())&&0===i.find("img").length||n.includes("溫馨提示"))&&i.remove()})),l.contents().filter((function(){return"comment"===this.type})).remove(),(u=l.html())?(u=u.replace(/<\s*p[^>]*>/gi,"\n\n").replace(/<\s*br[^>]*>/gi,"\n"),[2,(u=(0,r.load)("<div>".concat(u,"</div>")).text()).replace(/[\t ]+/g," ").replace(/\n{3,}/g,"\n\n").trim()]):[2,"Error: Chapter content was empty"]):[2,"Error: Could not find chapter content"]}}))}))},s.prototype.searchNovels=function(o,s){return t(this,void 0,void 0,(function(){var t,c,l,u,h,d,f,p,v,m,w=this;return e(this,(function(e){switch(e.label){case 0:if(s>1)return[2,[]];if(!/^\d+$/.test(o))return[3,4];e.label=1;case 1:return e.trys.push([1,3,,4]),t="/".concat(o,"/"),[4,this.parseNovel(t)];case 2:return[2,[{name:(c=e.sent()).name,path:t,cover:c.cover}]];case 3:return e.sent(),[2,[]];case 4:l="".concat(this.site,"search/").concat(encodeURIComponent(o)),u="",e.label=5;case 5:return e.trys.push([5,8,,9]),[4,(0,i.fetchApi)(l)];case 6:if(!(h=e.sent()).ok){if(403===h.status||503===h.status)throw new Error("Cloudflare protection detected (HTTP error). Please try opening the plugin in WebView first to solve the challenge.");return[2,[]]}return[4,h.text()];case 7:if(u=e.sent(),d=(0,r.load)(u),(f=d("title").text().toLowerCase()).includes("attention required")||f.includes("just a moment")||f.includes("please wait")||f.includes("verifying")||u.includes("Verifying you are human")||u.includes("cf-browser-verification")||u.includes("cf_captcha_container"))throw new Error("Cloudflare protection detected. Please try opening the plugin in WebView first to solve the challenge.");return[3,9];case 8:if((p=e.sent())instanceof Error){if(p.message.includes("Cloudflare protection detected"))throw p;throw new Error("Failed to fetch search results: ".concat(p.message))}throw p;case 9:return v=(0,r.load)(u),m=[],v("div.search-list ul.list > li.media").each((function(t,e){var r,i,o=v(e),s=o.find(".media-content h3 a"),c=null===(r=s.attr("href"))||void 0===r?void 0:r.trim(),l=s.text().trim(),u=null===(i=o.find(".media-left img").attr("src"))||void 0===i?void 0:i.trim();c&&l&&c.match(/^\/\d+\/$/)&&m.push({name:l,path:c,cover:a(u,w.site)||n.defaultCover})})),[2,m]}}))}))},s}();exports.default=new s;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var cheerio_1 = require("cheerio");
+var fetch_1 = require("@/lib/fetch");
+var defaultCover_1 = require("@libs/defaultCover");
+var novelStatus_1 = require("@libs/novelStatus");
+var makeAbsolute = function (relativeUrl, baseUrl) {
+    if (!relativeUrl)
+        return undefined;
+    try {
+        if (relativeUrl.startsWith('//')) {
+            return new URL(baseUrl).protocol + relativeUrl;
+        }
+        if (relativeUrl.startsWith('http://') ||
+            relativeUrl.startsWith('https://')) {
+            return relativeUrl;
+        }
+        return new URL(relativeUrl, baseUrl).href;
+    }
+    catch (_a) {
+        return undefined;
+    }
+};
+var Novel543Plugin = /** @class */ (function () {
+    function Novel543Plugin() {
+        this.id = 'novel543';
+        this.name = 'Novel543';
+        this.site = 'https://www.novel543.com/';
+        this.version = '1.0.0';
+        this.icon = 'src/cn/novel543/icon.png';
+        this.imageRequestInit = {
+            headers: {
+                Referer: this.site,
+            },
+        };
+    }
+    Novel543Plugin.prototype.popularNovels = function (pageNo) {
+        return __awaiter(this, void 0, void 0, function () {
+            var result, $, _a, novels, processedPaths;
+            var _this = this;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        if (pageNo > 1)
+                            return [2 /*return*/, []];
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site)];
+                    case 1:
+                        result = _b.sent();
+                        if (!result.ok)
+                            return [2 /*return*/, []];
+                        _a = cheerio_1.load;
+                        return [4 /*yield*/, result.text()];
+                    case 2:
+                        $ = _a.apply(void 0, [_b.sent()]);
+                        novels = [];
+                        processedPaths = new Set();
+                        $('ul.list > li.media, ul.list li > a[href^="/"][href$="/"]').each(function (_i, el) {
+                            var _a, _b, _c, _d, _e;
+                            var $el = $(el);
+                            var novelPath;
+                            var novelName;
+                            var novelCover;
+                            if ($el.is('li.media')) {
+                                var $link = $el.find('.media-content h3 a');
+                                novelPath = (_a = $link.attr('href')) === null || _a === void 0 ? void 0 : _a.trim();
+                                novelName = $link.text().trim();
+                                novelCover = (_b = $el.find('.media-left img').attr('src')) === null || _b === void 0 ? void 0 : _b.trim();
+                            }
+                            else if ($el.is('a')) {
+                                novelPath = (_c = $el.attr('href')) === null || _c === void 0 ? void 0 : _c.trim();
+                                novelName =
+                                    $el.find('h3, b, span').first().text().trim() ||
+                                        $el.parent().find('h3').text().trim() ||
+                                        $el.text().trim();
+                                novelCover =
+                                    ((_d = $el.find('img').attr('src')) === null || _d === void 0 ? void 0 : _d.trim()) ||
+                                        ((_e = $el.parent().find('img').attr('src')) === null || _e === void 0 ? void 0 : _e.trim());
+                            }
+                            if (novelPath &&
+                                novelName &&
+                                novelPath.match(/^\/\d+\/$/) &&
+                                !processedPaths.has(novelPath)) {
+                                novels.push({
+                                    name: novelName,
+                                    path: novelPath,
+                                    cover: makeAbsolute(novelCover, _this.site) || defaultCover_1.defaultCover,
+                                });
+                                processedPaths.add(novelPath);
+                            }
+                        });
+                        return [2 /*return*/, novels];
+                }
+            });
+        });
+    };
+    Novel543Plugin.prototype.parseNovel = function (novelPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var novelUrl, result, $, _a, $infoSection, $modSection, novel, chapterListPath, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        novelUrl = makeAbsolute(novelPath, this.site);
+                        if (!novelUrl)
+                            throw new Error('Invalid novel URL');
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(novelUrl)];
+                    case 1:
+                        result = _c.sent();
+                        if (!result.ok)
+                            throw new Error('Failed to fetch novel');
+                        _a = cheerio_1.load;
+                        return [4 /*yield*/, result.text()];
+                    case 2:
+                        $ = _a.apply(void 0, [_c.sent()]);
+                        $infoSection = $('section#detail div.media-content.info');
+                        $modSection = $('section#detail div.mod');
+                        novel = {
+                            path: novelPath,
+                            name: $infoSection.find('h1.title').text().trim() || 'Untitled',
+                            cover: makeAbsolute($('section#detail div.cover img').attr('src'), this.site) || defaultCover_1.defaultCover,
+                            summary: $modSection.find('div.intro').text().trim() || undefined,
+                            author: $infoSection.find('p.meta span.author').text().trim() || undefined,
+                            genres: $infoSection
+                                .find('p.meta a[href*="/bookstack/"]')
+                                .map(function (_i, el) { return $(el).text().trim(); })
+                                .get()
+                                .join(', ') || undefined,
+                            status: novelStatus_1.NovelStatus.Unknown,
+                            chapters: [],
+                        };
+                        chapterListPath = $modSection
+                            .find('p.action.buttons a.button.is-info[href$="/dir"]')
+                            .attr('href') ||
+                            $infoSection.find('a.button.is-info[href$="/dir"]').attr('href');
+                        if (!chapterListPath) return [3 /*break*/, 4];
+                        _b = novel;
+                        return [4 /*yield*/, this.parseChapterList(chapterListPath)];
+                    case 3:
+                        _b.chapters = _c.sent();
+                        _c.label = 4;
+                    case 4: return [2 /*return*/, novel];
+                }
+            });
+        });
+    };
+    Novel543Plugin.prototype.parseChapterList = function (chapterListPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var chapterListUrl, result, $, _a, chapters, sortButtonText;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        chapterListUrl = makeAbsolute(chapterListPath, this.site);
+                        if (!chapterListUrl)
+                            return [2 /*return*/, []];
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(chapterListUrl)];
+                    case 1:
+                        result = _b.sent();
+                        if (!result.ok)
+                            return [2 /*return*/, []];
+                        _a = cheerio_1.load;
+                        return [4 /*yield*/, result.text()];
+                    case 2:
+                        $ = _a.apply(void 0, [_b.sent()]);
+                        chapters = [];
+                        $('div.chaplist ul.all li a').each(function (index, el) {
+                            var _a;
+                            var $el = $(el);
+                            var chapterName = $el.text().trim();
+                            var chapterUrl = (_a = $el.attr('href')) === null || _a === void 0 ? void 0 : _a.trim();
+                            if (chapterName && chapterUrl) {
+                                chapters.push({
+                                    name: chapterName,
+                                    path: chapterUrl,
+                                    chapterNumber: index + 1,
+                                });
+                            }
+                        });
+                        sortButtonText = $('div.chaplist .header button.reverse span')
+                            .last()
+                            .text()
+                            .trim();
+                        if (sortButtonText === '倒序') {
+                            chapters.reverse();
+                            chapters.forEach(function (chap, index) { return (chap.chapterNumber = index + 1); });
+                        }
+                        return [2 /*return*/, chapters];
+                }
+            });
+        });
+    };
+    Novel543Plugin.prototype.parseChapter = function (chapterPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var chapterUrl, result, $, _a, $content, chapterText;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        chapterUrl = makeAbsolute(chapterPath, this.site);
+                        if (!chapterUrl)
+                            throw new Error('Invalid chapter URL');
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(chapterUrl)];
+                    case 1:
+                        result = _b.sent();
+                        if (!result.ok)
+                            throw new Error('Failed to fetch chapter');
+                        _a = cheerio_1.load;
+                        return [4 /*yield*/, result.text()];
+                    case 2:
+                        $ = _a.apply(void 0, [_b.sent()]);
+                        $content = $('div.content.py-5');
+                        if (!$content.length)
+                            return [2 /*return*/, 'Error: Could not find chapter content'];
+                        $content
+                            .find('script, style, ins, iframe, [class*="ads"], [id*="ads"], [class*="google"], [id*="google"], [class*="recommend"], div[align="center"], p:contains("推薦本書"), a[href*="javascript:"]')
+                            .remove();
+                        $content.find('p').each(function (_i, el) {
+                            var _a;
+                            var $p = $(el);
+                            var pText = $p.text().trim();
+                            if (pText.includes('請記住本站域名') ||
+                                pText.includes('手機版閱讀網址') ||
+                                pText.includes('novel543') ||
+                                pText.includes('稷下書院') ||
+                                pText.includes('最快更新') ||
+                                pText.includes('最新章節') ||
+                                pText.includes('章節報錯') ||
+                                pText.match(/app|APP|下載|客户端|关注微信|公众号/i) ||
+                                pText.length === 0 ||
+                                (((_a = $p
+                                    .html()) === null || _a === void 0 ? void 0 : _a.replace(/&nbsp;/g, '').trim()) === '' &&
+                                    $p.find('img').length === 0) ||
+                                pText.includes('溫馨提示')) {
+                                $p.remove();
+                            }
+                        });
+                        $content
+                            .contents()
+                            .filter(function () {
+                            return this.type === 'comment';
+                        })
+                            .remove();
+                        chapterText = $content.html();
+                        if (!chapterText)
+                            return [2 /*return*/, 'Error: Chapter content was empty'];
+                        chapterText = chapterText
+                            .replace(/<\s*p[^>]*>/gi, '\n\n')
+                            .replace(/<\s*br[^>]*>/gi, '\n');
+                        chapterText = (0, cheerio_1.load)("<div>".concat(chapterText, "</div>")).text();
+                        return [2 /*return*/, chapterText
+                                .replace(/[\t ]+/g, ' ')
+                                .replace(/\n{3,}/g, '\n\n')
+                                .trim()];
+                }
+            });
+        });
+    };
+    Novel543Plugin.prototype.searchNovels = function (searchTerm, pageNo) {
+        return __awaiter(this, void 0, void 0, function () {
+            var novelPath, novel, _a, searchUrl, body, result, $_1, pageTitle, error_1, $, novels;
+            var _this = this;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        if (pageNo > 1)
+                            return [2 /*return*/, []];
+                        if (!/^\d+$/.test(searchTerm)) return [3 /*break*/, 4];
+                        _b.label = 1;
+                    case 1:
+                        _b.trys.push([1, 3, , 4]);
+                        novelPath = "/".concat(searchTerm, "/");
+                        return [4 /*yield*/, this.parseNovel(novelPath)];
+                    case 2:
+                        novel = _b.sent();
+                        return [2 /*return*/, [
+                                {
+                                    name: novel.name,
+                                    path: novelPath,
+                                    cover: novel.cover,
+                                },
+                            ]];
+                    case 3:
+                        _a = _b.sent();
+                        return [2 /*return*/, []];
+                    case 4:
+                        searchUrl = "".concat(this.site, "search/").concat(encodeURIComponent(searchTerm));
+                        body = '';
+                        _b.label = 5;
+                    case 5:
+                        _b.trys.push([5, 8, , 9]);
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(searchUrl)];
+                    case 6:
+                        result = _b.sent();
+                        if (!result.ok) {
+                            if (result.status === 403 || result.status === 503) {
+                                throw new Error('Cloudflare protection detected (HTTP error). Please try opening the plugin in WebView first to solve the challenge.');
+                            }
+                            return [2 /*return*/, []];
+                        }
+                        return [4 /*yield*/, result.text()];
+                    case 7:
+                        body = _b.sent();
+                        $_1 = (0, cheerio_1.load)(body);
+                        pageTitle = $_1('title').text().toLowerCase();
+                        // Check for various Cloudflare challenge indicators
+                        if (pageTitle.includes('attention required') ||
+                            pageTitle.includes('just a moment') ||
+                            pageTitle.includes('please wait') ||
+                            pageTitle.includes('verifying') ||
+                            body.includes('Verifying you are human') ||
+                            body.includes('cf-browser-verification') ||
+                            body.includes('cf_captcha_container')) {
+                            throw new Error('Cloudflare protection detected. Please try opening the plugin in WebView first to solve the challenge.');
+                        }
+                        return [3 /*break*/, 9];
+                    case 8:
+                        error_1 = _b.sent();
+                        if (error_1 instanceof Error) {
+                            // If it's already our custom error, re-throw it
+                            if (error_1.message.includes('Cloudflare protection detected')) {
+                                throw error_1;
+                            }
+                            // For other errors, throw a generic error
+                            throw new Error("Failed to fetch search results: ".concat(error_1.message));
+                        }
+                        throw error_1;
+                    case 9:
+                        $ = (0, cheerio_1.load)(body);
+                        novels = [];
+                        $('div.search-list ul.list > li.media').each(function (_i, el) {
+                            var _a, _b;
+                            var $el = $(el);
+                            var $link = $el.find('.media-content h3 a');
+                            var novelPath = (_a = $link.attr('href')) === null || _a === void 0 ? void 0 : _a.trim();
+                            var novelName = $link.text().trim();
+                            var novelCover = (_b = $el.find('.media-left img').attr('src')) === null || _b === void 0 ? void 0 : _b.trim();
+                            if (novelPath && novelName && novelPath.match(/^\/\d+\/$/)) {
+                                novels.push({
+                                    name: novelName,
+                                    path: novelPath,
+                                    cover: makeAbsolute(novelCover, _this.site) || defaultCover_1.defaultCover,
+                                });
+                            }
+                        });
+                        return [2 /*return*/, novels];
+                }
+            });
+        });
+    };
+    return Novel543Plugin;
+}());
+exports.default = new Novel543Plugin();
