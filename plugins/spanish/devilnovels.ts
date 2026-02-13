@@ -10,7 +10,7 @@ class DevilNovels implements Plugin.PluginBase {
   name = 'DevilNovels';
   icon = 'src/es/devilnovels/icon.png';
   site = 'https://devilnovels.com/';
-  version = '1.0.4';
+  version = '1.0.5';
 
   async popularNovels(
     page: number,
