@@ -14,10 +14,9 @@ class DevilNovels implements Plugin.PluginBase {
 
   async popularNovels(
     page: number,
-    {
-      showLatestNovels,
-      filters,
-    }: Plugin.PopularNovelsOptions<typeof this.filters>,
+    { showLatestNovels, filters }: Plugin.PopularNovelsOptions<
+      typeof this.filters
+    >,
   ): Promise<Plugin.NovelItem[]> {
     const novels: Plugin.NovelItem[] = [];
 
@@ -31,61 +30,79 @@ class DevilNovels implements Plugin.PluginBase {
     // Use a map to deduplicate by path
     const map = new Map<string, Plugin.NovelItem>();
 
-    // 1) Featured grid items
-    $('.pvc-featured-pages-grid .pvc-featured-page-item').each((i, el) => {
-      const item = $(el);
-      const a = item.find('a').first();
-      const href = a.attr('href') || '';
-      const img = item.find('img').attr('src') || defaultCover;
-      const title =
-        item.find('p.pvc-page-title a').text().trim() ||
-        a.attr('title') ||
-        a.text().trim();
-      const path = href.replace(this.site, '');
-      if (title) map.set(path || href, { name: title, path, cover: img });
-    });
+    if (showLatestNovels) {
+      // For latest novels, parse table rows which have latestChapter
+      $('table tbody tr').each((i, el) => {
+        const tds = $(el).find('td');
+        if (tds.length < 1) return;
+        const left = tds.first();
+        const right = tds.eq(1);
 
-    // 2) Any standalone titles (p.pvc-page-title a)
-    $('p.pvc-page-title a').each((i, el) => {
-      const a = $(el);
-      const href = a.attr('href') || '';
-      const title = a.text().trim();
-      const parent = a.closest('.pvc-featured-page-item');
-      const img =
-        parent && parent.length
-          ? parent.find('img').attr('src') || defaultCover
-          : defaultCover;
-      const path = href.replace(this.site, '');
-      if (title) map.set(path || href, { name: title, path, cover: img });
-    });
+        const titleA = left.find('a').first();
+        const href = titleA.attr('href') || '';
+        const name = titleA.text().trim();
+        const img = left.find('img').attr('src') || defaultCover;
+        const path = href.replace(this.site, '');
 
-    // 3) Fallback: parse table rows (some pages show a table of updates)
-    $('table tbody tr').each((i, el) => {
-      const tds = $(el).find('td');
-      if (tds.length < 1) return;
-      const left = tds.first();
-      const right = tds.eq(1);
-
-      const titleA = left.find('a').first();
-      const href = titleA.attr('href') || '';
-      const name = titleA.text().trim();
-      const img = left.find('img').attr('src') || defaultCover;
-      const path = href.replace(this.site, '');
-
-      // Try to capture the latest chapter from the second <td>
-      let latestChapter: { name: string; path: string } | undefined;
-      if (right && right.length) {
-        const latestA = right.find('a').first();
-        const lhref = latestA.attr('href') || '';
-        const lname = latestA.text().trim();
-        if (lname) {
-          latestChapter = { name: lname, path: lhref.replace(this.site, '') };
+        // Capture the latest chapter from the second <td>
+        let latestChapter: { name: string; path: string } | undefined;
+        if (right && right.length) {
+          const latestA = right.find('a').first();
+          const lhref = latestA.attr('href') || '';
+          const lname = latestA.text().trim();
+          if (lname) {
+            latestChapter = { name: lname, path: lhref.replace(this.site, '') };
+          }
         }
-      }
 
-      if (name)
-        map.set(path || href, { name, path, cover: img, latestChapter });
-    });
+        if (name)
+          map.set(path || href, { name, path, cover: img, latestChapter });
+      });
+    } else {
+      // For popular novels, use featured grid and standalone titles
+      // 1) Featured grid items
+      $('.pvc-featured-pages-grid .pvc-featured-page-item').each((i, el) => {
+        const item = $(el);
+        const a = item.find('a').first();
+        const href = a.attr('href') || '';
+        const img = item.find('img').attr('src') || defaultCover;
+        const title =
+          item.find('p.pvc-page-title a').text().trim() ||
+          a.attr('title') ||
+          a.text().trim();
+        const path = href.replace(this.site, '');
+        if (title) map.set(path || href, { name: title, path, cover: img });
+      });
+
+      // 2) Any standalone titles (p.pvc-page-title a)
+      $('p.pvc-page-title a').each((i, el) => {
+        const a = $(el);
+        const href = a.attr('href') || '';
+        const title = a.text().trim();
+        const parent = a.closest('.pvc-featured-page-item');
+        const img =
+          parent && parent.length
+            ? parent.find('img').attr('src') || defaultCover
+            : defaultCover;
+        const path = href.replace(this.site, '');
+        if (title) map.set(path || href, { name: title, path, cover: img });
+      });
+
+      // 3) Fallback: parse table rows (without latestChapter for popular)
+      $('table tbody tr').each((i, el) => {
+        const tds = $(el).find('td');
+        if (tds.length < 1) return;
+        const left = tds.first();
+
+        const titleA = left.find('a').first();
+        const href = titleA.attr('href') || '';
+        const name = titleA.text().trim();
+        const img = left.find('img').attr('src') || defaultCover;
+        const path = href.replace(this.site, '');
+
+        if (name) map.set(path || href, { name, path, cover: img });
+      });
+    }
 
     // Convert to array and support pagination (10 items per page)
     const all = Array.from(map.values());
