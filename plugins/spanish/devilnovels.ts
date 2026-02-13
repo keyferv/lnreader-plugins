@@ -10,7 +10,7 @@ class DevilNovels implements Plugin.PluginBase {
   name = 'DevilNovels';
   icon = 'src/es/devilnovels/icon.png';
   site = 'https://devilnovels.com/';
-  version = '1.0.5';
+  version = '1.0.6';
 
   async popularNovels(
     page: number,
@@ -21,47 +21,65 @@ class DevilNovels implements Plugin.PluginBase {
   ): Promise<Plugin.NovelItem[]> {
     const novels: Plugin.NovelItem[] = [];
 
-    // Prefer the listing page which contains the featured grid and titles
-    const url = this.site + 'listado-de-novelas/';
+    // Lógica diferenciada:
+    // - Recientes: Home (tabla)
+    // - Populares: Listado (grid)
+    const url = showLatestNovels
+      ? this.site
+      : this.site + 'listado-de-novelas/';
+
     const res = await fetchApi(url);
     if (!res.ok) return novels;
     const body = await res.text();
     const $ = parseHTML(body);
 
-    // Use a map to deduplicate by path
-    const map = new Map<string, Plugin.NovelItem>();
-
     if (showLatestNovels) {
-      // For latest novels, parse table rows which have latestChapter
+      // Parsear la tabla de la página de inicio para Recientes
       $('table tbody tr').each((i, el) => {
         const tds = $(el).find('td');
-        if (tds.length < 1) return;
+        // Aseguramos que haya columnas (la estructura mostrada tiene 2)
+        if (tds.length < 2) return;
+
+        // Columna 1: Imagen y Título de Novela
         const left = tds.first();
+        // Columna 2: Último Capítulo
         const right = tds.eq(1);
 
-        const titleA = left.find('a').first();
+        const titleA = left.find('a').last(); // El <a> después del div de la imagen
         const href = titleA.attr('href') || '';
         const name = titleA.text().trim();
+
+        // Imagen dentro del div
         const img = left.find('img').attr('src') || defaultCover;
         const path = href.replace(this.site, '');
 
-        // Capture the latest chapter from the second <td>
+        // Capturar último capítulo
         let latestChapter: { name: string; path: string } | undefined;
-        if (right && right.length) {
-          const latestA = right.find('a').first();
-          const lhref = latestA.attr('href') || '';
-          const lname = latestA.text().trim();
-          if (lname) {
-            latestChapter = { name: lname, path: lhref.replace(this.site, '') };
+        const chapterA = right.find('a').first();
+        if (chapterA.length) {
+          const cName = chapterA.text().trim();
+          const cHref = chapterA.attr('href') || '';
+          if (cName && cHref) {
+            latestChapter = {
+              name: cName,
+              path: cHref.replace(this.site, ''),
+            };
           }
         }
 
-        if (name)
-          map.set(path || href, { name, path, cover: img, latestChapter });
+        if (name && path) {
+          novels.push({
+            name,
+            path,
+            cover: img,
+            latestChapter,
+          });
+        }
       });
     } else {
-      // For popular novels, use featured grid and standalone titles
-      // 1) Featured grid items
+      // Lógica para Populares (mantiene el escrapeo del grid de 'listado-de-novelas')
+
+      // 1) Grid de destacados
       $('.pvc-featured-pages-grid .pvc-featured-page-item').each((i, el) => {
         const item = $(el);
         const a = item.find('a').first();
@@ -72,51 +90,27 @@ class DevilNovels implements Plugin.PluginBase {
           a.attr('title') ||
           a.text().trim();
         const path = href.replace(this.site, '');
-        if (title) map.set(path || href, { name: title, path, cover: img });
+        if (title) novels.push({ name: title, path, cover: img });
       });
 
-      // 2) Any standalone titles (p.pvc-page-title a)
-      $('p.pvc-page-title a').each((i, el) => {
-        const a = $(el);
-        const href = a.attr('href') || '';
-        const title = a.text().trim();
-        const parent = a.closest('.pvc-featured-page-item');
-        const img =
-          parent && parent.length
-            ? parent.find('img').attr('src') || defaultCover
-            : defaultCover;
-        const path = href.replace(this.site, '');
-        if (title) map.set(path || href, { name: title, path, cover: img });
-      });
-
-      // 3) Fallback: parse table rows (without latestChapter for popular)
-      $('table tbody tr').each((i, el) => {
-        const tds = $(el).find('td');
-        if (tds.length < 1) return;
-        const left = tds.first();
-
-        const titleA = left.find('a').first();
-        const href = titleA.attr('href') || '';
-        const name = titleA.text().trim();
-        const img = left.find('img').attr('src') || defaultCover;
-        const path = href.replace(this.site, '');
-
-        if (name) map.set(path || href, { name, path, cover: img });
-      });
+      // 2) Títulos sueltos si el grid falla o es diferente
+      if (novels.length === 0) {
+        $('p.pvc-page-title a').each((i, el) => {
+          const a = $(el);
+          const href = a.attr('href') || '';
+          const title = a.text().trim();
+          const parent = a.closest('.pvc-featured-page-item');
+          const img =
+            parent && parent.length
+              ? parent.find('img').attr('src') || defaultCover
+              : defaultCover;
+          const path = href.replace(this.site, '');
+          if (title) novels.push({ name: title, path, cover: img });
+        });
+      }
     }
 
-    // Convert to array and support pagination (10 items per page)
-    const all = Array.from(map.values());
-    const perPage = 10;
-    const pageNo = Math.max(1, page || 1);
-    const start = (pageNo - 1) * perPage;
-    const end = start + perPage;
-    const batch = all.slice(start, end);
-
-    // Slight pause to avoid hammering the site when iterating pages
-    await sleep(600);
-
-    return batch;
+    return novels;
   }
 
   async parseNovel(novelPath: string): Promise<Plugin.SourceNovel> {
@@ -138,25 +132,22 @@ class DevilNovels implements Plugin.PluginBase {
       chapters: [],
     };
 
-    // Extract and clean summary: remove known blocks that contain chapter lists, ads, iframes, etc.
+    // Limpieza y extracción del resumen
     const entry = $('.entry-content').first();
     if (entry && entry.length) {
       const clone = entry.clone();
-      // Remove blocks that should not be part of the summary
       clone
         .find(
           '.elementor-posts-container, .elementor-posts, .elementor-post, .elementor-pagination, .code-block, iframe, script, style, .ad, .adsbygoogle, .post-list, .chapter-list, [data-id="c7ecb4a"], .elementor-element-c7ecb4a',
         )
         .remove();
 
-      // Also remove common ad containers or shortcodes
       clone.find('[class*="ad-"]').remove();
 
       const cleanedText = clone.text().trim();
       if (cleanedText) {
         novel.summary = cleanedText;
       } else {
-        // Fallback: first non-empty paragraph
         const firstP = entry
           .find('p')
           .filter((i, el) => $(el).text().trim())
@@ -165,14 +156,15 @@ class DevilNovels implements Plugin.PluginBase {
       }
     }
 
-    // Attempt to collect chapter links if present (deduplicate)
+    // Coleccionar capítulos
     const seen = new Set<string>();
+
+    // Método 1: Enlaces directos en entry-content
     $('.entry-content a, .post a').each((i, el) => {
       const a = $(el);
       const href = a.attr('href') || '';
       const text = a.text().trim();
       if (!href || !text) return;
-      // basic heuristic: chapter links often contain 'chapter' or 'capitulo' or '/act/'
       if (/chapter|capitulo|cap|act/i.test(href)) {
         const path = href.replace(this.site, '');
         if (!seen.has(path)) {
@@ -182,8 +174,7 @@ class DevilNovels implements Plugin.PluginBase {
       }
     });
 
-    // Some themes (Elementor) list posts/articles as chapter links inside
-    // an elementor-posts grid — handle those too (h3.elementor-post__title a)
+    // Método 2: Grid de Elementor (común en este sitio)
     $('.elementor-posts-container article, .elementor-post').each((i, el) => {
       const block = $(el);
       const a = block
@@ -201,20 +192,17 @@ class DevilNovels implements Plugin.PluginBase {
       }
     });
 
-    // Handle pagination: gather page links from elementor pagination and fetch them
+    // Paginación de capítulos
     const pageLinks: string[] = $('.elementor-pagination a.page-numbers')
       .map((i, el) => $(el).attr('href') || '')
       .get()
       .filter(h => !!h);
 
-    // Remove duplicates and ensure we don't re-fetch the current page
     const uniquePageLinks = Array.from(new Set(pageLinks));
 
     for (const pageUrl of uniquePageLinks) {
-      // If the link is the same as the novel page, skip
       const normalizedPageUrl = pageUrl.replace(/#.*$/, '');
       if (!normalizedPageUrl) continue;
-      // Avoid refetching the main novel URL
       if (
         normalizedPageUrl === url ||
         normalizedPageUrl === this.site + novelPath
@@ -230,7 +218,6 @@ class DevilNovels implements Plugin.PluginBase {
         const pbody = await pres.text();
         const $$ = parseHTML(pbody);
 
-        // extract chapter links from this page (same selectors)
         $$('.elementor-posts-container article, .elementor-post').each(
           (i, el) => {
             const block = $$(el);
@@ -249,11 +236,8 @@ class DevilNovels implements Plugin.PluginBase {
             }
           },
         );
-
-        // small pause between page fetches
         await sleep(300);
       } catch (e) {
-        // ignore individual page fetch errors
         continue;
       }
     }
@@ -269,7 +253,6 @@ class DevilNovels implements Plugin.PluginBase {
     const body = await res.text();
     const $ = parseHTML(body);
 
-    // prefer main content area
     const content =
       $('.entry-content').first().html() || $('article').first().html() || '';
     return content;
@@ -280,8 +263,6 @@ class DevilNovels implements Plugin.PluginBase {
     page: number,
   ): Promise<Plugin.NovelItem[]> {
     const novels: Plugin.NovelItem[] = [];
-
-    // Use the pages search endpoint which returns page results
     const pageQuery = page && page > 1 ? `&paged=${page}` : '';
     const url = `${this.site}?post_type=page&s=${encodeURIComponent(searchTerm)}${pageQuery}`;
     const res = await fetchApi(url);
@@ -289,7 +270,6 @@ class DevilNovels implements Plugin.PluginBase {
     const body = await res.text();
     const $ = parseHTML(body);
 
-    // Each result is rendered as an article block with class 'ast-article-inner'
     $('.ast-article-inner').each((i, el) => {
       const block = $(el);
       const a = block.find('h2.entry-title a').first();
