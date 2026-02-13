@@ -14,9 +14,10 @@ class DevilNovels implements Plugin.PluginBase {
 
   async popularNovels(
     page: number,
-    { showLatestNovels, filters }: Plugin.PopularNovelsOptions<
-      typeof this.filters
-    >,
+    {
+      showLatestNovels,
+      filters,
+    }: Plugin.PopularNovelsOptions<typeof this.filters>,
   ): Promise<Plugin.NovelItem[]> {
     const novels: Plugin.NovelItem[] = [];
 
