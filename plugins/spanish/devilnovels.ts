@@ -113,9 +113,36 @@ class DevilNovels implements Plugin.PluginBase {
         $('h1').first().text().trim() ||
         '',
       cover: $('meta[property="og:image"]').attr('content') || defaultCover,
-      summary: $('.entry-content').first().text().trim() || undefined,
+      summary: undefined,
       chapters: [],
     };
+
+    // Extract and clean summary: remove known blocks that contain chapter lists, ads, iframes, etc.
+    const entry = $('.entry-content').first();
+    if (entry && entry.length) {
+      const clone = entry.clone();
+      // Remove blocks that should not be part of the summary
+      clone
+        .find(
+          '.elementor-posts-container, .elementor-posts, .elementor-post, .elementor-pagination, .code-block, iframe, script, style, .ad, .adsbygoogle, .post-list, .chapter-list',
+        )
+        .remove();
+
+      // Also remove common ad containers or shortcodes
+      clone.find('[class*="ad-"]').remove();
+
+      const cleanedText = clone.text().trim();
+      if (cleanedText) {
+        novel.summary = cleanedText;
+      } else {
+        // Fallback: first non-empty paragraph
+        const firstP = entry
+          .find('p')
+          .filter((i, el) => $(el).text().trim())
+          .first();
+        if (firstP && firstP.length) novel.summary = firstP.text().trim();
+      }
+    }
 
     // Attempt to collect chapter links if present (deduplicate)
     const seen = new Set<string>();
