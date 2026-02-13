@@ -1887,7 +1887,7 @@
 		"name": "DevilNovels",
 		"site": "https://devilnovels.com/",
 		"lang": "Español",
-		"version": "1.0.3",
+		"version": "1.0.4",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/spanish/devilnovels.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/es/devilnovels/icon.png"
 	},
