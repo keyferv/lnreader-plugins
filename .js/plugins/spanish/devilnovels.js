@@ -53,7 +53,7 @@ var DevilNovels = /** @class */ (function () {
         return __awaiter(this, arguments, void 0, function (page, _b) {
             var novels, url, res, body, $, map, all, perPage, pageNo, start, end, batch;
             var _this = this;
-            var filters = _b.filters;
+            var showLatestNovels = _b.showLatestNovels, filters = _b.filters;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:

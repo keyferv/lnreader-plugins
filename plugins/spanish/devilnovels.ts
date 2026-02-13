@@ -10,11 +10,14 @@ class DevilNovels implements Plugin.PluginBase {
   name = 'DevilNovels';
   icon = 'src/es/devilnovels/icon.png';
   site = 'https://devilnovels.com/';
-  version = '1.0.3';
+  version = '1.0.4';
 
   async popularNovels(
     page: number,
-    { filters }: Plugin.PopularNovelsOptions<typeof this.filters>,
+    {
+      showLatestNovels,
+      filters,
+    }: Plugin.PopularNovelsOptions<typeof this.filters>,
   ): Promise<Plugin.NovelItem[]> {
     const novels: Plugin.NovelItem[] = [];
 
