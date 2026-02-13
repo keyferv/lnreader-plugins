@@ -10,7 +10,7 @@ class DevilNovels implements Plugin.PluginBase {
   name = 'DevilNovels';
   icon = 'src/es/devilnovels/icon.png';
   site = 'https://devilnovels.com/';
-  version = '1.0.2';
+  version = '1.0.3';
 
   async popularNovels(
     page: number,
@@ -124,7 +124,7 @@ class DevilNovels implements Plugin.PluginBase {
       // Remove blocks that should not be part of the summary
       clone
         .find(
-          '.elementor-posts-container, .elementor-posts, .elementor-post, .elementor-pagination, .code-block, iframe, script, style, .ad, .adsbygoogle, .post-list, .chapter-list',
+          '.elementor-posts-container, .elementor-posts, .elementor-post, .elementor-pagination, .code-block, iframe, script, style, .ad, .adsbygoogle, .post-list, .chapter-list, [data-id="c7ecb4a"], .elementor-element-c7ecb4a',
         )
         .remove();
 
