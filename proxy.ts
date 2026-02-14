@@ -220,7 +220,7 @@ proxy.on('proxyRes', function (proxyRes, req, res) {
 
     // Initiate a new proxy request.
     proxyRequest(req, res);
-  return false;
+    return false;
   }
 
   const contentEncoding = proxyRes.headers['content-encoding'];

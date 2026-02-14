@@ -286,7 +286,6 @@ class Jaomix implements Plugin.PluginBase {
         { label: 'Wuxia', value: 'Wuxia' },
         { label: 'Xianxia', value: 'Xianxia' },
         { label: 'Xuanhuan', value: 'Xuanhuan' },
-
       ],
       type: FilterTypes.ExcludableCheckboxGroup,
     },

@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, ChevronLeft, ChevronRight, Copy, Zap, Download } from 'lucide-react';
+import {
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
+  Copy,
+  Zap,
+  Download,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { useEpubExport } from '@/hooks/useEpubExport';
 
@@ -445,8 +452,9 @@ export default function ParseNovelSection({
                       {chapters.map((chapter, index) => (
                         <tr
                           key={`${chapter.path}-${index}`}
-                          className={`border-b border-border hover:bg-muted/70 transition-colors ${index % 2 === 0 ? 'bg-background' : 'bg-muted/20'
-                            }`}
+                          className={`border-b border-border hover:bg-muted/70 transition-colors ${
+                            index % 2 === 0 ? 'bg-background' : 'bg-muted/20'
+                          }`}
                         >
                           <td className="py-2.5 px-4 text-muted-foreground text-xs">
                             {index}

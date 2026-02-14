@@ -25,20 +25,20 @@ export const useEpubExport = (
         try {
           // Add delay to prevent rate limiting
           if (i > 0) await new Promise(resolve => setTimeout(resolve, 500));
-          
+
           const content = await plugin.parseChapter(chapter.path);
           chapterContents.push({
             title: chapter.name,
             content: content,
           });
         } catch (e) {
-            console.error(`Failed to parse chapter ${chapter.name}`, e);
-            chapterContents.push({
-                title: chapter.name,
-                content: `<p>Failed to load content: ${e instanceof Error ? e.message : 'Unknown error'}</p>`
-            });
+          console.error(`Failed to parse chapter ${chapter.name}`, e);
+          chapterContents.push({
+            title: chapter.name,
+            content: `<p>Failed to load content: ${e instanceof Error ? e.message : 'Unknown error'}</p>`,
+          });
         } finally {
-            setExportProgress(((i + 1) / chapters.length) * 100);
+          setExportProgress(((i + 1) / chapters.length) * 100);
         }
       }
 

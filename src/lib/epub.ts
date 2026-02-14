@@ -8,14 +8,20 @@ interface ChapterContent {
 }
 
 const escapeXml = (unsafe: string) => {
-  return unsafe.replace(/[<>&'"]/g, (c) => {
+  return unsafe.replace(/[<>&'"]/g, c => {
     switch (c) {
-      case '<': return '&lt;';
-      case '>': return '&gt;';
-      case '&': return '&amp;';
-      case '\'': return '&apos;';
-      case '"': return '&quot;';
-      default: return c;
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+      case '&':
+        return '&amp;';
+      case "'":
+        return '&apos;';
+      case '"':
+        return '&quot;';
+      default:
+        return c;
     }
   });
 };
@@ -76,7 +82,7 @@ export const generateEpub = async (
   <h1>${escapeXml(chapter.title)}</h1>
   ${chapter.content}
 </body>
-</html>`
+</html>`,
     );
   });
 
@@ -126,17 +132,20 @@ export const generateEpub = async (
 
   if (novel.cover) {
     try {
-        const coverUrl = novel.cover.startsWith('/') ? novel.cover : '/' + novel.cover;
-        const response = await fetch(coverUrl);
-        const blob = await response.blob();
-        oebps?.file('cover.jpg', blob);
+      const coverUrl = novel.cover.startsWith('/')
+        ? novel.cover
+        : '/' + novel.cover;
+      const response = await fetch(coverUrl);
+      const blob = await response.blob();
+      oebps?.file('cover.jpg', blob);
     } catch (e) {
-      console.error("Failed to fetch cover", e);
+      console.error('Failed to fetch cover', e);
     }
   }
 
-  const content = await zip.generateAsync({ type: 'blob', mimeType: 'application/epub+zip' });
+  const content = await zip.generateAsync({
+    type: 'blob',
+    mimeType: 'application/epub+zip',
+  });
   saveAs(content, `${novel.name}.epub`);
 };
-
-

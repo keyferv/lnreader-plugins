@@ -212,9 +212,9 @@ for (let language in languages) {
     .forEach(fn => {
       console.error(
         language.toLocaleLowerCase() +
-        '/' +
-        fn.replace('.broken.ts', '') +
-        ' ❌',
+          '/' +
+          fn.replace('.broken.ts', '') +
+          ' ❌',
       );
     });
 }
