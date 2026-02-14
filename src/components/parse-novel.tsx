@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, ChevronLeft, ChevronRight, Copy, Zap } from 'lucide-react';
+import { BookOpen, ChevronLeft, ChevronRight, Copy, Zap, Download } from 'lucide-react';
 import { toast } from 'sonner';
+import { useEpubExport } from '@/hooks/useEpubExport';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -36,7 +37,13 @@ export default function ParseNovelSection({
   const [chapters, setChapters] = useState<Plugin.ChapterItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+
   const [fetchError, setFetchError] = useState('');
+
+  const { isExporting, exportProgress, exportEpub } = useEpubExport(
+    sourceNovel,
+    chapters,
+  );
 
   const fetchNovelByPath = async (path: string) => {
     if (plugin && path.trim()) {
@@ -213,7 +220,8 @@ export default function ParseNovelSection({
                   >
                     <img
                       src={
-                        sourceNovel.cover || '/static/coverNotAvailable.webp'
+                        (sourceNovel.cover ? '/' : '') + sourceNovel.cover ||
+                        '/static/coverNotAvailable.webp'
                       }
                       alt={sourceNovel.name}
                       className="w-32 h-48 rounded-lg object-cover hover:opacity-80 transition-opacity"
@@ -284,6 +292,18 @@ export default function ParseNovelSection({
                         <p>Copy novel path to clipboard</p>
                       </TooltipContent>
                     </Tooltip>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2 bg-transparent"
+                      onClick={exportEpub}
+                      disabled={isExporting}
+                    >
+                      <Download className="w-4 h-4" />
+                      {isExporting
+                        ? `Exporting ${Math.round(exportProgress)}%`
+                        : 'Export EPUB'}
+                    </Button>
                   </div>
                 </div>
 
@@ -425,9 +445,8 @@ export default function ParseNovelSection({
                       {chapters.map((chapter, index) => (
                         <tr
                           key={`${chapter.path}-${index}`}
-                          className={`border-b border-border hover:bg-muted/70 transition-colors ${
-                            index % 2 === 0 ? 'bg-background' : 'bg-muted/20'
-                          }`}
+                          className={`border-b border-border hover:bg-muted/70 transition-colors ${index % 2 === 0 ? 'bg-background' : 'bg-muted/20'
+                            }`}
                         >
                           <td className="py-2.5 px-4 text-muted-foreground text-xs">
                             {index}

@@ -1,0 +1,478 @@
+plugins/arabic/FreeKolNovel[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/arabic/KolNovel[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/arabic/NovelsParadise[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/arabic/rewayatclub.ts(56,31): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/arabic/rewayatclub.ts(57,29): error TS2339: Property 'forEach' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'forEach' does not exist on type 'string'.
+plugins/arabic/sunovels.ts(140,9): error TS2322: Type 'string | number' is not assignable to type 'number | undefined'.
+  Type 'string' is not assignable to type 'number'.
+plugins/arabic/sunovels.ts(172,29): error TS2769: No overload matches this call.
+  Overload 1 of 5, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string | number | Date'.
+      Type 'undefined' is not assignable to type 'string | number | Date'.
+  Overload 2 of 5, '(vd: VarDate): Date', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'VarDate'.
+      Type 'undefined' is not assignable to type 'VarDate'.
+  Overload 3 of 5, '(value: string | number): Date', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string | number'.
+      Type 'undefined' is not assignable to type 'string | number'.
+plugins/english/AllNovel[readnovelfull].ts(164,8): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/AllNovel[readnovelfull].ts(164,29): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/AllNovel[readnovelfull].ts(166,24): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/AllNovel[readnovelfull].ts(166,24): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/AllNovel[readnovelfull].ts(179,18): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/AllNovel[readnovelfull].ts(179,39): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/AllNovel[readnovelfull].ts(181,33): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/AllNovel[readnovelfull].ts(181,33): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/AllNovel[readnovelfull].ts(183,34): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/AllNovel[readnovelfull].ts(183,34): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/AllNovel[readnovelfull].ts(197,11): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/AllNovel[readnovelfull].ts(197,32): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/AllNovel[readnovelfull].ts(198,13): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/AllNovel[readnovelfull].ts(199,13): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/AllNovel[readnovelfull].ts(726,40): error TS2345: Argument of type 'RequestInit | undefined' is not assignable to parameter of type 'FetchInit | undefined'.
+  Type 'RequestInit' is not assignable to type 'FetchInit'.
+    Types of property 'headers' are incompatible.
+      Type 'HeadersInit | undefined' is not assignable to type 'Headers | Record<string, string | undefined> | undefined'.
+        Type '[string, string][]' is not assignable to type 'Headers | Record<string, string | undefined> | undefined'.
+          Type '[string, string][]' is not assignable to type 'Record<string, string | undefined>'.
+            Index signature for type 'string' is missing in type '[string, string][]'.
+plugins/english/AllNovelFull[readnovelfull].ts(164,8): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/AllNovelFull[readnovelfull].ts(164,29): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/AllNovelFull[readnovelfull].ts(166,24): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/AllNovelFull[readnovelfull].ts(166,24): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/AllNovelFull[readnovelfull].ts(179,18): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/AllNovelFull[readnovelfull].ts(179,39): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/AllNovelFull[readnovelfull].ts(181,33): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/AllNovelFull[readnovelfull].ts(181,33): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/AllNovelFull[readnovelfull].ts(183,34): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/AllNovelFull[readnovelfull].ts(183,34): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/AllNovelFull[readnovelfull].ts(197,11): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/AllNovelFull[readnovelfull].ts(197,32): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/AllNovelFull[readnovelfull].ts(198,13): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/AllNovelFull[readnovelfull].ts(199,13): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/AllNovelFull[readnovelfull].ts(726,40): error TS2345: Argument of type 'RequestInit | undefined' is not assignable to parameter of type 'FetchInit | undefined'.
+  Type 'RequestInit' is not assignable to type 'FetchInit'.
+    Types of property 'headers' are incompatible.
+      Type 'HeadersInit | undefined' is not assignable to type 'Headers | Record<string, string | undefined> | undefined'.
+        Type '[string, string][]' is not assignable to type 'Headers | Record<string, string | undefined> | undefined'.
+          Type '[string, string][]' is not assignable to type 'Record<string, string | undefined>'.
+            Index signature for type 'string' is missing in type '[string, string][]'.
+plugins/english/ao3.ts(64,36): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/ao3.ts(65,34): error TS2339: Property 'forEach' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'forEach' does not exist on type 'string'.
+plugins/english/ao3.ts(69,40): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/ao3.ts(70,38): error TS2339: Property 'forEach' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'forEach' does not exist on type 'string'.
+plugins/english/ArcaneTranslations[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/english/BoxNovel[readnovelfull].ts(164,8): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/BoxNovel[readnovelfull].ts(164,29): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/BoxNovel[readnovelfull].ts(166,24): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/BoxNovel[readnovelfull].ts(166,24): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/BoxNovel[readnovelfull].ts(179,18): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/BoxNovel[readnovelfull].ts(179,39): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/BoxNovel[readnovelfull].ts(181,33): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/BoxNovel[readnovelfull].ts(181,33): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/BoxNovel[readnovelfull].ts(183,34): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/BoxNovel[readnovelfull].ts(183,34): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/BoxNovel[readnovelfull].ts(197,11): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/BoxNovel[readnovelfull].ts(197,32): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/BoxNovel[readnovelfull].ts(198,13): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/BoxNovel[readnovelfull].ts(199,13): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/BoxNovel[readnovelfull].ts(726,40): error TS2345: Argument of type 'RequestInit | undefined' is not assignable to parameter of type 'FetchInit | undefined'.
+  Type 'RequestInit' is not assignable to type 'FetchInit'.
+    Types of property 'headers' are incompatible.
+      Type 'HeadersInit | undefined' is not assignable to type 'Headers | Record<string, string | undefined> | undefined'.
+        Type '[string, string][]' is not assignable to type 'Headers | Record<string, string | undefined> | undefined'.
+          Type '[string, string][]' is not assignable to type 'Record<string, string | undefined>'.
+            Index signature for type 'string' is missing in type '[string, string][]'.
+plugins/english/CPUnovel[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/english/DaoTranslate[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/english/divinedaolibrary.ts(3,32): error TS2305: Module '"@libs/filterInputs"' has no exported member 'FilterValueWithType'.
+plugins/english/ElloTL[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/english/FanNovel[readwn].ts(206,33): error TS2345: Argument of type '{ show: string; tempid: number; tbname: string; keyboard: string; }' is not assignable to parameter of type 'string | Record<string, string> | URLSearchParams | string[][] | undefined'.
+  Types of property 'tempid' are incompatible.
+    Type 'number' is not assignable to type 'string'.
+plugins/english/FansMTL[readwn].ts(206,33): error TS2345: Argument of type '{ show: string; tempid: number; tbname: string; keyboard: string; }' is not assignable to parameter of type 'string | Record<string, string> | URLSearchParams | string[][] | undefined'.
+  Types of property 'tempid' are incompatible.
+    Type 'number' is not assignable to type 'string'.
+plugins/english/FreeWebNovel[readnovelfull].ts(164,8): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/FreeWebNovel[readnovelfull].ts(164,29): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/FreeWebNovel[readnovelfull].ts(166,24): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/FreeWebNovel[readnovelfull].ts(166,24): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/FreeWebNovel[readnovelfull].ts(179,18): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/FreeWebNovel[readnovelfull].ts(179,39): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/FreeWebNovel[readnovelfull].ts(181,33): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/FreeWebNovel[readnovelfull].ts(181,33): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/FreeWebNovel[readnovelfull].ts(183,34): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/FreeWebNovel[readnovelfull].ts(183,34): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/FreeWebNovel[readnovelfull].ts(197,11): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/FreeWebNovel[readnovelfull].ts(197,32): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/FreeWebNovel[readnovelfull].ts(198,13): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/FreeWebNovel[readnovelfull].ts(199,13): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/FreeWebNovel[readnovelfull].ts(726,40): error TS2345: Argument of type 'RequestInit | undefined' is not assignable to parameter of type 'FetchInit | undefined'.
+  Type 'RequestInit' is not assignable to type 'FetchInit'.
+    Types of property 'headers' are incompatible.
+      Type 'HeadersInit | undefined' is not assignable to type 'Headers | Record<string, string | undefined> | undefined'.
+        Type '[string, string][]' is not assignable to type 'Headers | Record<string, string | undefined> | undefined'.
+          Type '[string, string][]' is not assignable to type 'Record<string, string | undefined>'.
+            Index signature for type 'string' is missing in type '[string, string][]'.
+plugins/english/Ippotranslations[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/english/KeopiTranslations[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/english/KnoxT[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/english/LazyGirlTranslations[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/english/LibRead[readnovelfull].ts(164,8): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/LibRead[readnovelfull].ts(164,29): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/LibRead[readnovelfull].ts(166,24): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/LibRead[readnovelfull].ts(166,24): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/LibRead[readnovelfull].ts(179,18): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/LibRead[readnovelfull].ts(179,39): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/LibRead[readnovelfull].ts(181,33): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/LibRead[readnovelfull].ts(181,33): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/LibRead[readnovelfull].ts(183,34): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/LibRead[readnovelfull].ts(183,34): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/LibRead[readnovelfull].ts(197,11): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/LibRead[readnovelfull].ts(197,32): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/LibRead[readnovelfull].ts(198,13): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/LibRead[readnovelfull].ts(199,13): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/LibRead[readnovelfull].ts(726,40): error TS2345: Argument of type 'RequestInit | undefined' is not assignable to parameter of type 'FetchInit | undefined'.
+  Type 'RequestInit' is not assignable to type 'FetchInit'.
+    Types of property 'headers' are incompatible.
+      Type 'HeadersInit | undefined' is not assignable to type 'Headers | Record<string, string | undefined> | undefined'.
+        Type '[string, string][]' is not assignable to type 'Headers | Record<string, string | undefined> | undefined'.
+          Type '[string, string][]' is not assignable to type 'Record<string, string | undefined>'.
+            Index signature for type 'string' is missing in type '[string, string][]'.
+plugins/english/LightNovelPlus[readnovelfull].ts(164,8): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/LightNovelPlus[readnovelfull].ts(164,29): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/LightNovelPlus[readnovelfull].ts(166,24): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/LightNovelPlus[readnovelfull].ts(166,24): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/LightNovelPlus[readnovelfull].ts(179,18): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/LightNovelPlus[readnovelfull].ts(179,39): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/LightNovelPlus[readnovelfull].ts(181,33): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/LightNovelPlus[readnovelfull].ts(181,33): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/LightNovelPlus[readnovelfull].ts(183,34): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/LightNovelPlus[readnovelfull].ts(183,34): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/LightNovelPlus[readnovelfull].ts(197,11): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/LightNovelPlus[readnovelfull].ts(197,32): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/LightNovelPlus[readnovelfull].ts(198,13): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/LightNovelPlus[readnovelfull].ts(199,13): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/LightNovelPlus[readnovelfull].ts(726,40): error TS2345: Argument of type 'RequestInit | undefined' is not assignable to parameter of type 'FetchInit | undefined'.
+  Type 'RequestInit' is not assignable to type 'FetchInit'.
+    Types of property 'headers' are incompatible.
+      Type 'HeadersInit | undefined' is not assignable to type 'Headers | Record<string, string | undefined> | undefined'.
+        Type '[string, string][]' is not assignable to type 'Headers | Record<string, string | undefined> | undefined'.
+          Type '[string, string][]' is not assignable to type 'Record<string, string | undefined>'.
+            Index signature for type 'string' is missing in type '[string, string][]'.
+plugins/english/lorenovels.ts(37,10): error TS2339: Property 'find' does not exist on type 'CheerioAPI | Cheerio<Element>'.
+  Property 'find' does not exist on type 'CheerioAPI'.
+plugins/english/lorenovels.ts(37,44): error TS7006: Parameter '_' implicitly has an 'any' type.
+plugins/english/lorenovels.ts(37,47): error TS7006: Parameter 'el' implicitly has an 'any' type.
+plugins/english/Ltnovel[readwn].ts(206,33): error TS2345: Argument of type '{ show: string; tempid: number; tbname: string; keyboard: string; }' is not assignable to parameter of type 'string | Record<string, string> | URLSearchParams | string[][] | undefined'.
+  Types of property 'tempid' are incompatible.
+    Type 'number' is not assignable to type 'string'.
+plugins/english/MoonlightNovels[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/english/mvlempyr.ts(90,15): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+plugins/english/mvlempyr.ts(91,13): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+plugins/english/mvlempyr.ts(92,11): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+plugins/english/mvlempyr.ts(97,8): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+plugins/english/mvlempyr.ts(97,20): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+plugins/english/mvlempyr.ts(97,68): error TS2737: BigInt literals are not available when targeting lower than ES2020.
+plugins/english/mvlempyr.ts(120,28): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+plugins/english/mvlempyr.ts(162,27): error TS2339: Property 'children' does not exist on type 'ChildNode'.
+  Property 'children' does not exist on type 'Text'.
+plugins/english/mvlempyr.ts(164,27): error TS2339: Property 'children' does not exist on type 'ChildNode'.
+  Property 'children' does not exist on type 'Text'.
+plugins/english/NobleMTL[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/english/NovelBin[readnovelfull].ts(164,8): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/NovelBin[readnovelfull].ts(164,29): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/NovelBin[readnovelfull].ts(166,24): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/NovelBin[readnovelfull].ts(166,24): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/NovelBin[readnovelfull].ts(179,18): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/NovelBin[readnovelfull].ts(179,39): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/NovelBin[readnovelfull].ts(181,33): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/NovelBin[readnovelfull].ts(181,33): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/NovelBin[readnovelfull].ts(183,34): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/NovelBin[readnovelfull].ts(183,34): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/NovelBin[readnovelfull].ts(197,11): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/NovelBin[readnovelfull].ts(197,32): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/NovelBin[readnovelfull].ts(198,13): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/NovelBin[readnovelfull].ts(199,13): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/NovelBin[readnovelfull].ts(726,40): error TS2345: Argument of type 'RequestInit | undefined' is not assignable to parameter of type 'FetchInit | undefined'.
+  Type 'RequestInit' is not assignable to type 'FetchInit'.
+    Types of property 'headers' are incompatible.
+      Type 'HeadersInit | undefined' is not assignable to type 'Headers | Record<string, string | undefined> | undefined'.
+        Type '[string, string][]' is not assignable to type 'Headers | Record<string, string | undefined> | undefined'.
+          Type '[string, string][]' is not assignable to type 'Record<string, string | undefined>'.
+            Index signature for type 'string' is missing in type '[string, string][]'.
+plugins/english/NovelFull[readnovelfull].ts(164,8): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/NovelFull[readnovelfull].ts(164,29): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/NovelFull[readnovelfull].ts(166,24): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/NovelFull[readnovelfull].ts(166,24): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/NovelFull[readnovelfull].ts(179,18): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/NovelFull[readnovelfull].ts(179,39): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/NovelFull[readnovelfull].ts(181,33): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/NovelFull[readnovelfull].ts(181,33): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/NovelFull[readnovelfull].ts(183,34): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/NovelFull[readnovelfull].ts(183,34): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/NovelFull[readnovelfull].ts(197,11): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/NovelFull[readnovelfull].ts(197,32): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/NovelFull[readnovelfull].ts(198,13): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/NovelFull[readnovelfull].ts(199,13): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/NovelFull[readnovelfull].ts(726,40): error TS2345: Argument of type 'RequestInit | undefined' is not assignable to parameter of type 'FetchInit | undefined'.
+  Type 'RequestInit' is not assignable to type 'FetchInit'.
+    Types of property 'headers' are incompatible.
+      Type 'HeadersInit | undefined' is not assignable to type 'Headers | Record<string, string | undefined> | undefined'.
+        Type '[string, string][]' is not assignable to type 'Headers | Record<string, string | undefined> | undefined'.
+          Type '[string, string][]' is not assignable to type 'Record<string, string | undefined>'.
+            Index signature for type 'string' is missing in type '[string, string][]'.
+plugins/english/novelight.ts(109,11): error TS2339: Property 'at' does not exist on type 'RegExpMatchArray'.
+plugins/english/NovelsKnight[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/english/PandaMachineTranslations[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/english/Ranobes[ranobes].ts(208,9): error TS2739: Type '{}' is missing the following properties from type 'ChapterItem': name, path
+plugins/english/Ranobes[ranobes].ts(325,13): error TS2739: Type '{}' is missing the following properties from type 'ChapterItem': name, path
+plugins/english/Ranobes[ranobes].ts(341,13): error TS2339: Property 'latestChapter' does not exist on type '{ genres?: string | undefined; summary?: string | undefined; author?: string | undefined; artist?: string | undefined; status?: string | undefined; rating?: number | undefined; chapters?: ChapterItem[] | undefined; } & NovelItem & { ...; }'.
+plugins/english/Ranobes[ranobes].ts(363,9): error TS2739: Type '{}' is missing the following properties from type 'ChapterItem': name, path
+plugins/english/Ranobes[ranobes].ts(398,11): error TS2739: Type '{}' is missing the following properties from type 'ChapterItem': name, path
+plugins/english/ReadNovelFull[readnovelfull].ts(164,8): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/ReadNovelFull[readnovelfull].ts(164,29): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/ReadNovelFull[readnovelfull].ts(166,24): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/ReadNovelFull[readnovelfull].ts(166,24): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/ReadNovelFull[readnovelfull].ts(179,18): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/ReadNovelFull[readnovelfull].ts(179,39): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/ReadNovelFull[readnovelfull].ts(181,33): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/ReadNovelFull[readnovelfull].ts(181,33): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/ReadNovelFull[readnovelfull].ts(183,34): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/ReadNovelFull[readnovelfull].ts(183,34): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/english/ReadNovelFull[readnovelfull].ts(197,11): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/ReadNovelFull[readnovelfull].ts(197,32): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/english/ReadNovelFull[readnovelfull].ts(198,13): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/ReadNovelFull[readnovelfull].ts(199,13): error TS18048: 'filters' is possibly 'undefined'.
+plugins/english/ReadNovelFull[readnovelfull].ts(726,40): error TS2345: Argument of type 'RequestInit | undefined' is not assignable to parameter of type 'FetchInit | undefined'.
+  Type 'RequestInit' is not assignable to type 'FetchInit'.
+    Types of property 'headers' are incompatible.
+      Type 'HeadersInit | undefined' is not assignable to type 'Headers | Record<string, string | undefined> | undefined'.
+        Type '[string, string][]' is not assignable to type 'Headers | Record<string, string | undefined> | undefined'.
+          Type '[string, string][]' is not assignable to type 'Record<string, string | undefined>'.
+            Index signature for type 'string' is missing in type '[string, string][]'.
+plugins/english/relibrary.ts(6,27): error TS2307: Cannot find module '../../test_web/static/js' or its corresponding type declarations.
+plugins/english/RequiemTranslations[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/english/SystemTranslation[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/english/TranslationWeaver[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/english/UniversalNovel[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/english/VandyTranslate[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/english/vynovel.ts(24,38): error TS2345: Argument of type '{ sort: string; page: number; }' is not assignable to parameter of type 'string | Record<string, string> | URLSearchParams | string[][] | undefined'.
+  Types of property 'page' are incompatible.
+    Type 'number' is not assignable to type 'string'.
+plugins/english/vynovel.ts(134,11): error TS2322: Type 'number' is not assignable to type 'string'.
+plugins/english/vynovel.ts(140,11): error TS2322: Type 'number' is not assignable to type 'string'.
+plugins/english/vynovel.ts(146,11): error TS2322: Type 'number' is not assignable to type 'string'.
+plugins/english/vynovel.ts(151,11): error TS2322: Type 'undefined' is not assignable to type 'string'.
+plugins/english/WhiteMoonlightNovels[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/english/Wuxiabox[readwn].ts(206,33): error TS2345: Argument of type '{ show: string; tempid: number; tbname: string; keyboard: string; }' is not assignable to parameter of type 'string | Record<string, string> | URLSearchParams | string[][] | undefined'.
+  Types of property 'tempid' are incompatible.
+    Type 'number' is not assignable to type 'string'.
+plugins/english/Wuxiafox[readwn].ts(206,33): error TS2345: Argument of type '{ show: string; tempid: number; tbname: string; keyboard: string; }' is not assignable to parameter of type 'string | Record<string, string> | URLSearchParams | string[][] | undefined'.
+  Types of property 'tempid' are incompatible.
+    Type 'number' is not assignable to type 'string'.
+plugins/english/WuxiaSpace[readwn].ts(206,33): error TS2345: Argument of type '{ show: string; tempid: number; tbname: string; keyboard: string; }' is not assignable to parameter of type 'string | Record<string, string> | URLSearchParams | string[][] | undefined'.
+  Types of property 'tempid' are incompatible.
+    Type 'number' is not assignable to type 'string'.
+plugins/english/WuxiaV[readwn].ts(206,33): error TS2345: Argument of type '{ show: string; tempid: number; tbname: string; keyboard: string; }' is not assignable to parameter of type 'string | Record<string, string> | URLSearchParams | string[][] | undefined'.
+  Types of property 'tempid' are incompatible.
+    Type 'number' is not assignable to type 'string'.
+plugins/french/LighNovelFR[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/french/noveldeglace.ts(92,10): error TS2339: Property 'nodeValue' does not exist on type 'string'.
+plugins/french/xiaowaz.ts(1,37): error TS2305: Module '"cheerio"' has no exported member 'Element'.
+plugins/index.ts(470,3): error TS2322: Type 'NovelasLigerasNet' is not assignable to type 'PluginBase'.
+  Types of property 'filters' are incompatible.
+    Type '{ category: { type: FilterTypes; label: string; value: string; options: { label: string; value: string; }[]; }; status: { type: FilterTypes; label: string; value: string; options: { ...; }[]; }; type: { ...; }; country: { ...; }; }' is not assignable to type 'Filters'.
+      Property 'category' is incompatible with index signature.
+        Type '{ type: FilterTypes; label: string; value: string; options: { label: string; value: string; }[]; }' is not assignable to type 'Filter<FilterTypes>'.
+          Type '{ type: FilterTypes; label: string; value: string; options: { label: string; value: string; }[]; }' is not assignable to type '({ label: string; } & TextFilter) | ({ label: string; } & PickerFilter)'.
+            Type '{ type: FilterTypes; label: string; value: string; options: { label: string; value: string; }[]; }' is not assignable to type '{ label: string; } & PickerFilter'.
+              Type '{ type: FilterTypes; label: string; value: string; options: { label: string; value: string; }[]; }' is not assignable to type 'PickerFilter'.
+                Types of property 'type' are incompatible.
+                  Type 'FilterTypes' is not assignable to type 'FilterTypes.Picker'.
+plugins/indonesian/archtranslation.ts(146,19): error TS2353: Object literal may only specify known properties, and 'volume' does not exist in type 'ChapterItem'.
+plugins/indonesian/BacaLightNovel[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/indonesian/SekteNovel[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/japanese/Syosetu.ts(50,9): error TS2353: Object literal may only specify known properties, and 'decodeEntities' does not exist in type 'CheerioOptions'.
+plugins/japanese/Syosetu.ts(75,20): error TS2503: Cannot find namespace 'cheerio'.
+plugins/japanese/Syosetu.ts(79,47): error TS7006: Parameter '_' implicitly has an 'any' type.
+plugins/japanese/Syosetu.ts(79,50): error TS7006: Parameter 'element' implicitly has an 'any' type.
+plugins/japanese/Syosetu.ts(107,47): error TS2353: Object literal may only specify known properties, and 'decodeEntities' does not exist in type 'CheerioOptions'.
+plugins/japanese/Syosetu.ts(186,53): error TS2353: Object literal may only specify known properties, and 'decodeEntities' does not exist in type 'CheerioOptions'.
+plugins/japanese/Syosetu.ts(219,7): error TS2353: Object literal may only specify known properties, and 'decodeEntities' does not exist in type 'CheerioOptions'.
+plugins/japanese/Syosetu.ts(247,48): error TS2353: Object literal may only specify known properties, and 'decodeEntities' does not exist in type 'CheerioOptions'.
+plugins/korean/Agitoon.ts(31,33): error TS2345: Argument of type '{ mode: string; novel_menu: string; np_day: number; np_rank: string; np_distributor: string; np_genre: string; np_order: string; np_genre_ex_1: string; np_genre_ex_2: string; list_limit: number; is_query_first: boolean; }' is not assignable to parameter of type 'string | Record<string, string> | URLSearchParams | string[][] | undefined'.
+  Types of property 'np_day' are incompatible.
+    Type 'number' is not assignable to type 'string'.
+plugins/korean/Agitoon.ts(69,47): error TS2353: Object literal may only specify known properties, and 'decodeEntities' does not exist in type 'CheerioOptions'.
+plugins/korean/Agitoon.ts(147,33): error TS2345: Argument of type '{ mode: string; search_novel: string; list_limit: number; }' is not assignable to parameter of type 'string | Record<string, string> | URLSearchParams | string[][] | undefined'.
+  Types of property 'list_limit' are incompatible.
+    Type 'number' is not assignable to type 'string'.
+plugins/multi/komga.ts(200,39): error TS2769: No overload matches this call.
+  Overload 2 of 4, '(this: Cheerio<AnyNode>, name: string, value?: string | ((this: Element, i: number, attrib: string) => string | null) | null | undefined): Cheerio<AnyNode>', gave the following error.
+    Argument of type '{ src: string; width: string | undefined; height: string | undefined; }' is not assignable to parameter of type 'string'.
+plugins/multi/komga.ts(205,45): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'AcceptedElems<AnyNode>'.
+  Type 'undefined' is not assignable to type 'AcceptedElems<AnyNode>'.
+plugins/multisrc/hotnovelpub/filter_refresh.ts(4,35): error TS2823: Import attributes are only supported when the '--module' option is set to 'esnext', 'nodenext', or 'preserve'.
+plugins/multisrc/lightnovelwp/template.ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/multisrc/ranobes/template.ts(208,9): error TS2739: Type '{}' is missing the following properties from type 'ChapterItem': name, path
+plugins/multisrc/ranobes/template.ts(325,13): error TS2739: Type '{}' is missing the following properties from type 'ChapterItem': name, path
+plugins/multisrc/ranobes/template.ts(341,13): error TS2339: Property 'latestChapter' does not exist on type '{ genres?: string | undefined; summary?: string | undefined; author?: string | undefined; artist?: string | undefined; status?: string | undefined; rating?: number | undefined; chapters?: ChapterItem[] | undefined; } & NovelItem & { ...; }'.
+plugins/multisrc/ranobes/template.ts(363,9): error TS2739: Type '{}' is missing the following properties from type 'ChapterItem': name, path
+plugins/multisrc/ranobes/template.ts(398,11): error TS2739: Type '{}' is missing the following properties from type 'ChapterItem': name, path
+plugins/multisrc/readnovelfull/template.ts(164,8): error TS18048: 'filters' is possibly 'undefined'.
+plugins/multisrc/readnovelfull/template.ts(164,29): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/multisrc/readnovelfull/template.ts(166,24): error TS18048: 'filters' is possibly 'undefined'.
+plugins/multisrc/readnovelfull/template.ts(166,24): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/multisrc/readnovelfull/template.ts(179,18): error TS18048: 'filters' is possibly 'undefined'.
+plugins/multisrc/readnovelfull/template.ts(179,39): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/multisrc/readnovelfull/template.ts(181,33): error TS18048: 'filters' is possibly 'undefined'.
+plugins/multisrc/readnovelfull/template.ts(181,33): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/multisrc/readnovelfull/template.ts(183,34): error TS18048: 'filters' is possibly 'undefined'.
+plugins/multisrc/readnovelfull/template.ts(183,34): error TS2345: Argument of type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/multisrc/readnovelfull/template.ts(197,11): error TS18048: 'filters' is possibly 'undefined'.
+plugins/multisrc/readnovelfull/template.ts(197,32): error TS2339: Property 'length' does not exist on type 'string | boolean | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }'.
+  Property 'length' does not exist on type 'false'.
+plugins/multisrc/readnovelfull/template.ts(198,13): error TS18048: 'filters' is possibly 'undefined'.
+plugins/multisrc/readnovelfull/template.ts(199,13): error TS18048: 'filters' is possibly 'undefined'.
+plugins/multisrc/readnovelfull/template.ts(726,40): error TS2345: Argument of type 'RequestInit | undefined' is not assignable to parameter of type 'FetchInit | undefined'.
+  Type 'RequestInit' is not assignable to type 'FetchInit'.
+    Types of property 'headers' are incompatible.
+      Type 'HeadersInit | undefined' is not assignable to type 'Headers | Record<string, string | undefined> | undefined'.
+        Type '[string, string][]' is not assignable to type 'Headers | Record<string, string | undefined> | undefined'.
+          Type '[string, string][]' is not assignable to type 'Record<string, string | undefined>'.
+            Index signature for type 'string' is missing in type '[string, string][]'.
+plugins/multisrc/readwn/template.ts(206,33): error TS2345: Argument of type '{ show: string; tempid: number; tbname: string; keyboard: string; }' is not assignable to parameter of type 'string | Record<string, string> | URLSearchParams | string[][] | undefined'.
+  Types of property 'tempid' are incompatible.
+    Type 'number' is not assignable to type 'string'.
+plugins/portuguese/BetterNovels[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/portuguese/CentralNovel[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/portuguese/LightNovelBrasil[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/russian/Ranobes(RU)[ranobes].ts(208,9): error TS2739: Type '{}' is missing the following properties from type 'ChapterItem': name, path
+plugins/russian/Ranobes(RU)[ranobes].ts(325,13): error TS2739: Type '{}' is missing the following properties from type 'ChapterItem': name, path
+plugins/russian/Ranobes(RU)[ranobes].ts(341,13): error TS2339: Property 'latestChapter' does not exist on type '{ genres?: string | undefined; summary?: string | undefined; author?: string | undefined; artist?: string | undefined; status?: string | undefined; rating?: number | undefined; chapters?: ChapterItem[] | undefined; } & NovelItem & { ...; }'.
+plugins/russian/Ranobes(RU)[ranobes].ts(363,9): error TS2739: Type '{}' is missing the following properties from type 'ChapterItem': name, path
+plugins/russian/Ranobes(RU)[ranobes].ts(398,11): error TS2739: Type '{}' is missing the following properties from type 'ChapterItem': name, path
+plugins/russian/ruvers.ts(105,70): error TS1501: This regular expression flag is only available when targeting 'es2018' or later.
+plugins/russian/topliba.ts(22,38): error TS2345: Argument of type '{ order_field: string; p: number; }' is not assignable to parameter of type 'string | Record<string, string> | URLSearchParams | string[][] | undefined'.
+  Types of property 'p' are incompatible.
+    Type 'number' is not assignable to type 'string'.
+plugins/russian/topliba.ts(33,5): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+plugins/russian/topliba.ts(125,7): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+plugins/spanish/AllNovelRead[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/spanish/devilnovels.ts(75,13): error TS2353: Object literal may only specify known properties, and 'latestChapter' does not exist in type 'NovelItem'.
+plugins/spanish/devilnovels.ts(153,12): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(this: Cheerio<Element>, match: (this: Element, index: number, value: Element) => value is Element): Cheerio<Element>', gave the following error.
+    Type 'string' is not assignable to type 'boolean'.
+  Overload 2 of 2, '(this: Cheerio<Element>, match: AcceptedFilters<Element>): Cheerio<Element>', gave the following error.
+    Argument of type '(this: Element, i: number, el: Element) => string' is not assignable to parameter of type 'AcceptedFilters<Element>'.
+      Type '(this: Element, i: number, el: Element) => string' is not assignable to type 'FilterFunction<Element>'.
+        Type 'string' is not assignable to type 'boolean'.
+plugins/spanish/novelasligerasnet.ts(43,3): error TS2416: Property 'filters' in type 'NovelasLigerasNet' is not assignable to the same property in base type 'PluginBase'.
+  Type '{ category: { type: FilterTypes; label: string; value: string; options: { label: string; value: string; }[]; }; status: { type: FilterTypes; label: string; value: string; options: { ...; }[]; }; type: { ...; }; country: { ...; }; }' is not assignable to type 'Filters'.
+    Property 'category' is incompatible with index signature.
+      Type '{ type: FilterTypes; label: string; value: string; options: { label: string; value: string; }[]; }' is not assignable to type 'Filter<FilterTypes>'.
+        Type '{ type: FilterTypes; label: string; value: string; options: { label: string; value: string; }[]; }' is not assignable to type '({ label: string; } & TextFilter) | ({ label: string; } & PickerFilter)'.
+          Type '{ type: FilterTypes; label: string; value: string; options: { label: string; value: string; }[]; }' is not assignable to type '{ label: string; } & PickerFilter'.
+            Type '{ type: FilterTypes; label: string; value: string; options: { label: string; value: string; }[]; }' is not assignable to type 'PickerFilter'.
+              Types of property 'type' are incompatible.
+                Type 'FilterTypes' is not assignable to type 'FilterTypes.Picker'.
+plugins/spanish/novelasligerasnet.ts(248,36): error TS2344: Type '{ category: { type: FilterTypes; label: string; value: string; options: { label: string; value: string; }[]; }; status: { type: FilterTypes; label: string; value: string; options: { ...; }[]; }; type: { ...; }; country: { ...; }; }' does not satisfy the constraint 'Filters'.
+  Property 'category' is incompatible with index signature.
+    Type '{ type: FilterTypes; label: string; value: string; options: { label: string; value: string; }[]; }' is not assignable to type 'Filter<FilterTypes>'.
+      Type '{ type: FilterTypes; label: string; value: string; options: { label: string; value: string; }[]; }' is not assignable to type '({ label: string; } & TextFilter) | ({ label: string; } & PickerFilter)'.
+        Type '{ type: FilterTypes; label: string; value: string; options: { label: string; value: string; }[]; }' is not assignable to type '{ label: string; } & PickerFilter'.
+          Type '{ type: FilterTypes; label: string; value: string; options: { label: string; value: string; }[]; }' is not assignable to type 'PickerFilter'.
+            Types of property 'type' are incompatible.
+              Type 'FilterTypes' is not assignable to type 'FilterTypes.Picker'.
+plugins/spanish/novelasligerasnet.ts(262,57): error TS2345: Argument of type 'string | true | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/spanish/novelasligerasnet.ts(264,55): error TS2345: Argument of type 'string | true | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/spanish/novelasligerasnet.ts(266,53): error TS2345: Argument of type 'string | true | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/spanish/novelasligerasnet.ts(268,53): error TS2345: Argument of type 'string | true | string[] | { include?: string[] | undefined; exclude?: string[] | undefined; }' is not assignable to parameter of type 'string'.
+  Type 'boolean' is not assignable to type 'string'.
+plugins/spanish/oasistranslations.ts(62,25): error TS2345: Argument of type 'this' is not assignable to parameter of type 'BasicAcceptedElems<AnyNode> | undefined'.
+  Type 'Oasis' is not assignable to type 'BasicAcceptedElems<AnyNode> | undefined'.
+    Type 'Oasis' is missing the following properties from type 'ProcessingInstruction': type, nodeType, data, nodeValue, and 9 more.
+      Type 'this' is not assignable to type 'ArrayLike<AnyNode>'.
+        Property 'length' is missing in type 'Oasis' but required in type 'ArrayLike<AnyNode>'.
+plugins/spanish/oasistranslations.ts(63,39): error TS2345: Argument of type 'this' is not assignable to parameter of type 'BasicAcceptedElems<AnyNode> | undefined'.
+  Type 'Oasis' is not assignable to type 'BasicAcceptedElems<AnyNode> | undefined'.
+    Type 'Oasis' is missing the following properties from type 'ProcessingInstruction': type, nodeType, data, nodeValue, and 9 more.
+      Type 'this' is not assignable to type 'ArrayLike<AnyNode>'.
+        Property 'length' is missing in type 'Oasis' but required in type 'ArrayLike<AnyNode>'.
+plugins/spanish/TC&Sega[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/spanish/tunovelaligera.ts(135,11): error TS2339: Property 'latestChapter' does not exist on type '{ genres?: string | undefined; summary?: string | undefined; author?: string | undefined; artist?: string | undefined; status?: string | undefined; rating?: number | undefined; chapters?: ChapterItem[] | undefined; } & NovelItem & { ...; }'.
+plugins/turkish/KodeksLibrary[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/turkish/Namevt[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.
+plugins/turkish/NovelTR[lightnovelwp].ts(424,21): error TS18048: 'novel.summary' is possibly 'undefined'.

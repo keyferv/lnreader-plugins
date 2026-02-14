@@ -27,6 +27,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/ar/dilartube/icon.png"
 	},
 	{
+		"id": "freekolnovel",
+		"name": "Free Kol Novel",
+		"site": "https://free.kolnovel.com/",
+		"lang": "‎العربية",
+		"version": "1.1.9",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/arabic/FreeKolNovel[lightnovelwp].js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/multisrc/lightnovelwp/freekolnovel/icon.png"
+	},
+	{
 		"id": "hizomanga",
 		"name": "HizoManga",
 		"site": "https://hizomanga.net/",
@@ -38,9 +47,9 @@
 	{
 		"id": "kolnovel",
 		"name": "Kol Novel",
-		"site": "https://kolnovel.site/",
+		"site": "https://kolnovel.com/",
 		"lang": "‎العربية",
-		"version": "1.1.18",
+		"version": "1.1.19",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/arabic/KolNovel[lightnovelwp].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/multisrc/lightnovelwp/kolnovel/icon.png"
 	},
@@ -166,7 +175,7 @@
 		"name": "Quanben",
 		"site": "https://www.quanben.io/",
 		"lang": "中文, 汉语, 漢語",
-		"version": "1.0.0",
+		"version": "1.0.1",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/chinese/Quanben.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/cn/quanben/icon.png"
 	},
@@ -286,6 +295,15 @@
 		"version": "1.1.9",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/english/CPUnovel[lightnovelwp].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/multisrc/lightnovelwp/cpunovel/icon.png"
+	},
+	{
+		"id": "crimsonscrolls",
+		"name": "Crimson Scrolls",
+		"site": "https://crimsonscrolls.net",
+		"lang": "English",
+		"version": "1.0.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/english/crimsonscrolls.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/en/crimsonscrolls/icon.png"
 	},
 	{
 		"id": "daoistquest",
@@ -427,7 +445,7 @@
 		"name": "Fenrir Realm",
 		"site": "https://fenrirealm.com",
 		"lang": "English",
-		"version": "1.0.10",
+		"version": "1.0.12",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/english/fenrirrealm.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/en/fenrirrealm/icon.png"
 	},
@@ -575,6 +593,15 @@
 		"version": "1.1.9",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/english/LazyGirlTranslations[lightnovelwp].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/multisrc/lightnovelwp/lazygirltranslations/icon.png"
+	},
+	{
+		"id": "LeafStudio",
+		"name": "LeafStudio",
+		"site": "https://leafstudio.site/",
+		"lang": "English",
+		"version": "1.0.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/english/leafstudio.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/en/leafstudio/icon.png"
 	},
 	{
 		"id": "libread",
@@ -759,9 +786,9 @@
 	{
 		"id": "mvlempyr.com",
 		"name": "MVLEMPYR",
-		"site": "https://www.mvlempyr.com/",
+		"site": "https://www.mvlempyr.io/",
 		"lang": "English",
-		"version": "1.0.9",
+		"version": "1.0.11",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/english/mvlempyr.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/en/mvlempyr/icon.png"
 	},
@@ -795,9 +822,9 @@
 	{
 		"id": "NO.net",
 		"name": "novelsOnline",
-		"site": "https://novelsonline.net",
+		"site": "https://novelsonline.org",
 		"lang": "English",
-		"version": "1.0.0",
+		"version": "1.0.1",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/english/NovelOnline.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/en/novelsonline/icon.png"
 	},
@@ -869,7 +896,7 @@
 		"name": "Novel Hall",
 		"site": "https://novelhall.com/",
 		"lang": "English",
-		"version": "1.0.2",
+		"version": "1.0.3",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/english/novelhall.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/en/novelhall/icon.png"
 	},
@@ -1734,7 +1761,7 @@
 		"name": "Jaomix",
 		"site": "https://jaomix.ru",
 		"lang": "Русский",
-		"version": "1.0.1",
+		"version": "1.0.2",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/russian/jaomix.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/ru/jaomix/icon.png"
 	},

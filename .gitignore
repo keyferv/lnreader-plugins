@@ -25,3 +25,5 @@ plugins/spanish/nova/
 # Allow generated plugin JS files to be tracked
 !.js/plugins/
 !.js/plugins/**
+
+broken-sites-report.json
