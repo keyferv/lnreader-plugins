@@ -223,7 +223,7 @@ var MadaraPlugin = /** @class */ (function () {
             var novel = {
                 name: novelName,
                 cover: novelCover,
-                path: novelUrl.replace(/https?:\/\/.*?\//, '/'),
+                path: novelUrl.replace(/https?:\/\/.*?\//, ''),
             };
             novels.push(novel);
         });
@@ -421,7 +421,7 @@ var MadaraPlugin = /** @class */ (function () {
                             if (chapterUrl && chapterUrl != '#' && !(locked && _this.hideLocked)) {
                                 chapters.push({
                                     name: chapterName,
-                                    path: chapterUrl.replace(/https?:\/\/.*?\//, '/'),
+                                    path: chapterUrl.replace(/https?:\/\/.*?\//, ''),
                                     releaseTime: releaseDate || null,
                                     chapterNumber: totalChapters - chapterIndex,
                                 });

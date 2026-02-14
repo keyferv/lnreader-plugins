@@ -35,175 +35,366 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var cheerio_1 = require("cheerio");
 var fetch_1 = require("@libs/fetch");
 var novelStatus_1 = require("@libs/novelStatus");
-var FictioneerPlugin = /** @class */ (function () {
-    function FictioneerPlugin(metadata) {
-        var _this = this;
-        var _a;
-        this.filters = undefined;
-        this.resolveUrl = function (path, isNovel) {
-            return _this.site + '/' + path + '/';
-        };
+var htmlparser2_1 = require("htmlparser2");
+var dayjs_1 = __importDefault(require("dayjs"));
+var IfreedomPlugin = /** @class */ (function () {
+    function IfreedomPlugin(metadata) {
         this.id = metadata.id;
         this.name = metadata.sourceName;
-        this.icon = "multisrc/fictioneer/".concat(metadata.id.toLowerCase(), "/icon.png");
+        this.icon = "multisrc/ifreedom/".concat(metadata.id.toLowerCase(), "/icon.png");
         this.site = metadata.sourceSite;
-        var versionIncrements = ((_a = metadata.options) === null || _a === void 0 ? void 0 : _a.versionIncrements) || 0;
-        this.version = "1.0.".concat(0 + versionIncrements);
-        this.options = metadata.options;
+        this.version = '1.1.0';
+        this.filters = metadata.filters;
     }
-    FictioneerPlugin.prototype.popularNovels = function (pageNo_1, _a) {
-        return __awaiter(this, arguments, void 0, function (pageNo, _b) {
-            var req, body, loadedCheerio;
-            var _this = this;
-            var showLatestNovels = _b.showLatestNovels, filters = _b.filters;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
-                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site +
-                            '/' +
-                            this.options.browsePage +
-                            '/' +
-                            (pageNo === 1 ? '' : 'page/' + pageNo + '/'))];
-                    case 1:
-                        req = _c.sent();
-                        return [4 /*yield*/, req.text()];
-                    case 2:
-                        body = _c.sent();
-                        loadedCheerio = (0, cheerio_1.load)(body);
-                        return [2 /*return*/, loadedCheerio('#featured-list > li > div > div, #list-of-stories > li > div > div')
-                                .map(function (i, el) {
-                                var novelName = loadedCheerio(el).find('h3 > a').text();
-                                var novelCover = loadedCheerio(el)
-                                    .find('a.cell-img:has(img)')
-                                    .attr('href');
-                                var novelUrl = loadedCheerio(el).find('h3 > a').attr('href');
-                                return {
-                                    name: novelName,
-                                    cover: novelCover,
-                                    path: novelUrl.replace(_this.site + '/', '').replace(/\/$/, ''),
-                                };
-                            })
-                                .toArray()];
-                }
+    IfreedomPlugin.prototype.parseNovels = function (url) {
+        var _this = this;
+        return (0, fetch_1.fetchApi)(url)
+            .then(function (res) { return res.text(); })
+            .then(function (html) {
+            var novels = [];
+            var tempNovel = {};
+            var isInsideNovelCard = false;
+            var site = _this.site;
+            var parser = new htmlparser2_1.Parser({
+                onopentag: function (name, attribs) {
+                    var className = attribs['class'] || '';
+                    if (name === 'div' &&
+                        (className.includes('one-book-home') ||
+                            className.includes('item-book-slide'))) {
+                        isInsideNovelCard = true;
+                    }
+                    if (isInsideNovelCard) {
+                        if (name === 'img') {
+                            tempNovel.cover = attribs['src'];
+                            if (attribs['alt'])
+                                tempNovel.name = attribs['alt'];
+                        }
+                        if (name === 'a' && attribs['href']) {
+                            tempNovel.path = attribs['href'].replace(site, '');
+                            if (attribs['title'])
+                                tempNovel.name = attribs['title'];
+                        }
+                    }
+                },
+                onclosetag: function (name) {
+                    if (name === 'div' && isInsideNovelCard) {
+                        isInsideNovelCard = false;
+                        if (tempNovel.path)
+                            novels.push(tempNovel);
+                        tempNovel = {};
+                    }
+                },
+            });
+            parser.write(html);
+            parser.end();
+            return novels;
+        });
+    };
+    IfreedomPlugin.prototype.popularNovels = function (page_1, _a) {
+        return __awaiter(this, arguments, void 0, function (page, _b) {
+            var url;
+            var _c;
+            var filters = _b.filters, showLatestNovels = _b.showLatestNovels;
+            return __generator(this, function (_d) {
+                url = "".concat(this.site, "/vse-knigi/?sort=").concat(showLatestNovels ? 'По дате обновления' : ((_c = filters === null || filters === void 0 ? void 0 : filters.sort) === null || _c === void 0 ? void 0 : _c.value) || 'По рейтингу');
+                Object.entries(filters || {}).forEach(function (_a) {
+                    var type = _a[0], value = _a[1].value;
+                    if (Array.isArray(value) && value.length) {
+                        url += "&".concat(type, "[]=").concat(value.join("&".concat(type, "[]=")));
+                    }
+                });
+                url += "&bpage=".concat(page);
+                return [2 /*return*/, this.parseNovels(url)];
             });
         });
     };
-    FictioneerPlugin.prototype.parseNovel = function (novelPath) {
+    IfreedomPlugin.prototype.parseNovel = function (novelPath) {
         return __awaiter(this, void 0, void 0, function () {
-            var req, body, loadedCheerio, novel, status;
-            var _this = this;
+            var html, novel, chapters, genres, site, isReadingName, isReadingSummary, isCoverContainer, metaContext, isMetaRow, isMetaValue, isInsideChapterRow, isReadingChapterName, isReadingChapterDate, tempChapter, parser;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + '/' + novelPath + '/')];
+                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + novelPath).then(function (res) { return res.text(); })];
                     case 1:
-                        req = _a.sent();
-                        return [4 /*yield*/, req.text()];
-                    case 2:
-                        body = _a.sent();
-                        loadedCheerio = (0, cheerio_1.load)(body);
+                        html = _a.sent();
                         novel = {
                             path: novelPath,
-                            name: loadedCheerio('h1.story__identity-title').text(),
+                            name: '',
+                            author: '',
+                            summary: '',
+                            status: novelStatus_1.NovelStatus.Unknown,
                         };
-                        // novel.artist = '';
-                        novel.author = loadedCheerio('div.story__identity-meta')
-                            .text()
-                            .split('|')[0]
-                            .replace('Author: ', '')
-                            .replace('by ', '')
-                            .trim();
-                        novel.cover = loadedCheerio('figure.story__thumbnail > a').attr('href');
-                        novel.genres = loadedCheerio('div.tag-group > a, section.tag-group > a')
-                            .map(function (i, el) { return loadedCheerio(el).text(); })
-                            .toArray()
-                            .join(',');
-                        novel.summary = loadedCheerio('section.story__summary').text();
-                        novel.chapters = loadedCheerio('li.chapter-group__list-item._publish')
-                            .filter(function (i, el) { return !el.attribs['class'].includes('_password'); })
-                            .filter(function (i, el) {
-                            return !loadedCheerio(el)
-                                .find('i')
-                                .first()
-                                .attr('class')
-                                .includes('fa-lock');
-                        })
-                            .map(function (i, el) {
-                            var _a;
-                            var chapterName = loadedCheerio(el).find('a').text();
-                            var chapterUrl = (_a = loadedCheerio(el)
-                                .find('a')
-                                .attr('href')) === null || _a === void 0 ? void 0 : _a.replace(_this.site + '/', '').replace(/\/$/, '');
-                            return {
-                                name: chapterName,
-                                path: chapterUrl,
-                            };
-                        })
-                            .toArray();
-                        status = loadedCheerio('span.story__status').text().trim();
-                        if (status === 'Ongoing')
-                            novel.status = novelStatus_1.NovelStatus.Ongoing;
-                        if (status === 'Completed')
-                            novel.status = novelStatus_1.NovelStatus.Completed;
-                        if (status === 'Cancelled')
-                            novel.status = novelStatus_1.NovelStatus.Cancelled;
-                        if (status === 'Hiatus')
-                            novel.status = novelStatus_1.NovelStatus.OnHiatus;
+                        chapters = [];
+                        genres = [];
+                        site = this.site;
+                        isReadingName = false;
+                        isReadingSummary = false;
+                        isCoverContainer = false;
+                        metaContext = null;
+                        isMetaRow = false;
+                        isMetaValue = false;
+                        isInsideChapterRow = false;
+                        isReadingChapterName = false;
+                        isReadingChapterDate = false;
+                        tempChapter = {};
+                        parser = new htmlparser2_1.Parser({
+                            onopentag: function (name, attribs) {
+                                var className = attribs['class'] || '';
+                                if (name === 'h1')
+                                    isReadingName = true;
+                                if (name === 'div') {
+                                    if (className.includes('block-book-slide-img') ||
+                                        className.includes('img-ranobe')) {
+                                        isCoverContainer = true;
+                                    }
+                                    if (className === 'descr-ranobe' ||
+                                        (className === 'active' && attribs['data-name'] === 'Описание')) {
+                                        isReadingSummary = true;
+                                    }
+                                }
+                                if (isReadingSummary &&
+                                    name === 'span' &&
+                                    className.includes('open-desc')) {
+                                    var onclick_1 = attribs['onclick'];
+                                    if (onclick_1) {
+                                        var match = onclick_1.match(/innerHTML\s*=\s*'([\s\S]+?)'/);
+                                        if (match && match[1]) {
+                                            var fullText = match[1];
+                                            fullText = fullText
+                                                .replace(/&lt;br&gt;/gi, '\n')
+                                                .replace(/<br\s*\/?>/gi, '\n')
+                                                .replace(/&quot;/g, '"')
+                                                .replace(/&#039;/g, "'")
+                                                .replace(/&amp;/g, '&');
+                                            novel.summary = fullText;
+                                            isReadingSummary = false;
+                                        }
+                                    }
+                                }
+                                if (name === 'img' && isCoverContainer && !novel.cover) {
+                                    novel.cover = attribs['src'];
+                                }
+                                if (name === 'div') {
+                                    if (className.includes('data-ranobe')) {
+                                        isMetaRow = true;
+                                        metaContext = null;
+                                    }
+                                    if (className.includes('data-value')) {
+                                        isMetaValue = true;
+                                    }
+                                    if (className.includes('book-info-list')) {
+                                        isMetaRow = true;
+                                        metaContext = null;
+                                    }
+                                    if (className.includes('genreslist')) {
+                                        metaContext = 'genre';
+                                    }
+                                }
+                                if (isMetaRow) {
+                                    if (name === 'span') {
+                                        if (className.includes('dashicons-book') &&
+                                            !className.includes('book-alt'))
+                                            metaContext = 'genre';
+                                        else if (className.includes('admin-users'))
+                                            metaContext = 'author';
+                                        else if (className.includes('megaphone'))
+                                            metaContext = 'status';
+                                    }
+                                    if (name === 'svg') {
+                                        if (className.includes('icon-tabler-tag'))
+                                            metaContext = 'genre';
+                                        else if (className.includes('mood-edit') ||
+                                            className.includes('icon-tabler-user'))
+                                            metaContext = 'author';
+                                        else if (className.includes('chart-infographic') ||
+                                            className.includes('megaphone'))
+                                            metaContext = 'status';
+                                    }
+                                }
+                                if (name === 'div' &&
+                                    (className === 'li-ranobe' || className === 'chapterinfo')) {
+                                    isInsideChapterRow = true;
+                                }
+                                if (name === 'a' && isInsideChapterRow) {
+                                    tempChapter.path = attribs['href'].replace(site, '');
+                                    isReadingChapterName = true;
+                                }
+                                if ((name === 'div' || name === 'span') &&
+                                    (className === 'li-col2-ranobe' || className === 'timechapter')) {
+                                    isReadingChapterDate = true;
+                                }
+                            },
+                            ontext: function (data) {
+                                var text = data.trim();
+                                if (!text)
+                                    return;
+                                if (isReadingName)
+                                    novel.name = text.replace(/®/g, '').trim();
+                                if (isReadingSummary && text !== 'Прочесть полностью') {
+                                    novel.summary += text + '\n';
+                                }
+                                if (metaContext) {
+                                    var shouldRead = isMetaValue || (isMetaRow && !isMetaValue);
+                                    if (shouldRead) {
+                                        if (metaContext === 'author') {
+                                            if (text !== 'Автор' &&
+                                                text !== 'Переводчик' &&
+                                                text !== 'Не указан' &&
+                                                !text.includes('Просмотров')) {
+                                                novel.author = text;
+                                            }
+                                        }
+                                        else if (metaContext === 'status') {
+                                            if (!text.includes('Статус'))
+                                                novel.status = parseStatus(text);
+                                        }
+                                        else if (metaContext === 'genre') {
+                                            if (text !== ',' && text !== 'Жанры')
+                                                genres.push(text);
+                                        }
+                                    }
+                                }
+                                if (isReadingChapterName)
+                                    tempChapter.name = text;
+                                if (isReadingChapterDate)
+                                    tempChapter.releaseTime = parseDate(text);
+                            },
+                            onclosetag: function (name) {
+                                if (name === 'h1')
+                                    isReadingName = false;
+                                if (name === 'div') {
+                                    if (isReadingSummary)
+                                        isReadingSummary = false;
+                                    if (isCoverContainer)
+                                        isCoverContainer = false;
+                                    if (isMetaValue)
+                                        isMetaValue = false;
+                                }
+                                if (name === 'a')
+                                    isReadingChapterName = false;
+                                if ((name === 'div' || name === 'span') && isReadingChapterDate) {
+                                    isReadingChapterDate = false;
+                                    if (tempChapter.path) {
+                                        chapters.push(tempChapter);
+                                    }
+                                    tempChapter = {};
+                                    isInsideChapterRow = false;
+                                }
+                            },
+                        });
+                        parser.write(html);
+                        parser.end();
+                        novel.genres = genres.join(',');
+                        novel.chapters = chapters.reverse();
                         return [2 /*return*/, novel];
                 }
             });
         });
     };
-    FictioneerPlugin.prototype.parseChapter = function (chapterPath) {
+    IfreedomPlugin.prototype.parseChapter = function (chapterPath) {
         return __awaiter(this, void 0, void 0, function () {
-            var req, body, loadedCheerio;
+            var body, startTag, endTag, chapterStart, chapterEnd, chapterText;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + '/' + chapterPath + '/')];
+                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + chapterPath).then(function (res) {
+                            return res.text();
+                        })];
                     case 1:
-                        req = _a.sent();
-                        return [4 /*yield*/, req.text()];
-                    case 2:
                         body = _a.sent();
-                        loadedCheerio = (0, cheerio_1.load)(body);
-                        return [2 /*return*/, loadedCheerio('section#chapter-content > div').html() || ''];
+                        startTag = this.id === 'bookhamster'
+                            ? '<div class="entry-content">'
+                            : '<div class="chapter-content">';
+                        endTag = this.id === 'bookhamster'
+                            ? '<!-- .entry-content -->'
+                            : '<div class="chapter-setting">';
+                        chapterStart = body.indexOf(startTag);
+                        if (chapterStart === -1)
+                            return [2 /*return*/, ''];
+                        chapterEnd = body.indexOf(endTag, chapterStart);
+                        chapterText = body.slice(chapterStart, chapterEnd !== -1 ? chapterEnd : undefined);
+                        chapterText = chapterText.replace(/<script[^>]*>[\s\S]*?<\/script>/gim, '');
+                        if (chapterText.includes('<img')) {
+                            chapterText = chapterText.replace(/srcset="([^"]+)"/g, function (match, src) {
+                                if (!src)
+                                    return match;
+                                var bestLink = src
+                                    .split(' ')
+                                    .filter(function (s) { return s.startsWith('http'); })
+                                    .pop();
+                                return bestLink ? "src=\"".concat(bestLink, "\"") : match;
+                            });
+                        }
+                        return [2 /*return*/, chapterText];
                 }
             });
         });
     };
-    FictioneerPlugin.prototype.searchNovels = function (searchTerm, pageNo) {
-        return __awaiter(this, void 0, void 0, function () {
-            var req, body, loadedCheerio;
-            var _this = this;
+    IfreedomPlugin.prototype.searchNovels = function (searchTerm_1) {
+        return __awaiter(this, arguments, void 0, function (searchTerm, page) {
+            var url;
+            if (page === void 0) { page = 1; }
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site +
-                            "/".concat(pageNo === 1 ? '' : 'page/' + pageNo + '/', "?s=").concat(encodeURIComponent(searchTerm), "&post_type=fcn_story"))];
-                    case 1:
-                        req = _a.sent();
-                        return [4 /*yield*/, req.text()];
-                    case 2:
-                        body = _a.sent();
-                        loadedCheerio = (0, cheerio_1.load)(body);
-                        return [2 /*return*/, loadedCheerio('#search-result-list > li > div > div')
-                                .map(function (i, el) {
-                                var novelName = loadedCheerio(el).find('h3 > a').text();
-                                var novelCover = loadedCheerio(el)
-                                    .find('a.cell-img:has(img)')
-                                    .attr('href');
-                                var novelUrl = loadedCheerio(el).find('h3 > a').attr('href');
-                                return {
-                                    name: novelName,
-                                    cover: novelCover,
-                                    path: novelUrl.replace(_this.site + '/', '').replace(/\/$/, ''),
-                                };
-                            })
-                                .toArray()];
-                }
+                url = "".concat(this.site, "/vse-knigi/?searchname=").concat(encodeURIComponent(searchTerm), "&bpage=").concat(page);
+                return [2 /*return*/, this.parseNovels(url)];
             });
         });
     };
-    return FictioneerPlugin;
+    return IfreedomPlugin;
 }());
+function parseStatus(statusString) {
+    var s = statusString.toLowerCase().trim();
+    if (s.includes('активен') ||
+        s.includes('продолжается') ||
+        s.includes('онгоинг')) {
+        return novelStatus_1.NovelStatus.Ongoing;
+    }
+    if (s.includes('завершен') || s.includes('конец') || s.includes('закончен')) {
+        return novelStatus_1.NovelStatus.Completed;
+    }
+    if (s.includes('приостановлен') || s.includes('заморожен')) {
+        return novelStatus_1.NovelStatus.OnHiatus;
+    }
+    return novelStatus_1.NovelStatus.Unknown;
+}
+function parseDate(dateString) {
+    if (dateString === void 0) { dateString = ''; }
+    var months = {
+        января: 1,
+        февраля: 2,
+        марта: 3,
+        апреля: 4,
+        мая: 5,
+        июня: 6,
+        июля: 7,
+        августа: 8,
+        сентября: 9,
+        октября: 10,
+        ноября: 11,
+        декабря: 12,
+    };
+    // Checking the format "X ч. назад"
+    var relativeTimeRegex = /(d+)s*ч.?s*назад/;
+    var match = dateString.match(relativeTimeRegex);
+    if (match) {
+        var hoursAgo = parseInt(match[1], 10);
+        return (0, dayjs_1.default)().subtract(hoursAgo, 'hour').format('LL');
+    }
+    if (dateString.includes('.')) {
+        var _a = dateString.split('.'), day = _a[0], month = _a[1], year = _a[2];
+        var fullYear = (year === null || year === void 0 ? void 0 : year.length) === 2 ? '20' + year : year;
+        return (0, dayjs_1.default)(fullYear + '-' + month + '-' + day).format('LL');
+    }
+    else if (dateString.includes(' ')) {
+        var _b = dateString.split(' '), day = _b[0], month = _b[1];
+        if (day && months[month]) {
+            var year = new Date().getFullYear();
+            return (0, dayjs_1.default)(year + '-' + months[month] + '-' + day).format('LL');
+        }
+    }
+    return dateString || null;
+}

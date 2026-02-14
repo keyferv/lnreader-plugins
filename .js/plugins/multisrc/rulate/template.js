@@ -41,195 +41,112 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var fetch_1 = require("@libs/fetch");
 var novelStatus_1 = require("@libs/novelStatus");
-var cheerio_1 = require("cheerio");
 var dayjs_1 = __importDefault(require("dayjs"));
+var headers = {
+    'User-Agent': 'RuLateApp Android',
+    'accept-encoding': 'gzip',
+};
 var RulatePlugin = /** @class */ (function () {
     function RulatePlugin(metadata) {
-        this.parseDate = function (dateString) {
-            if (dateString === void 0) { dateString = ''; }
-            var months = {
-                'янв.': 1,
-                'февр.': 2,
-                'мар.': 3,
-                'апр.': 4,
-                мая: 5,
-                'июн.': 6,
-                'июл.': 7,
-                'авг.': 8,
-                'сент.': 9,
-                'окт.': 10,
-                'нояб.': 11,
-                'дек.': 12,
-            };
-            var _a = dateString.split(' '), day = _a[0], month = _a[1], year = _a[2], time = _a[4];
-            if (day && months[month] && year && time) {
-                return (0, dayjs_1.default)(year + '-' + months[month] + '-' + day + ' ' + time).format('LLL');
-            }
-            return dateString || null;
+        var _this = this;
+        this.resolveUrl = function (path, isNovel) {
+            return _this.site + '/book/' + path + (isNovel ? '/' : '/ready_new');
         };
         this.id = metadata.id;
-        this.name = metadata.sourceName;
+        this.name = metadata.sourceName + ' (API)';
         this.icon = "multisrc/rulate/".concat(metadata.id.toLowerCase(), "/icon.png");
         this.site = metadata.sourceSite;
-        this.version = '1.0.' + (2 + metadata.versionIncrements);
+        this.version = '1.0.' + (0 + metadata.versionIncrements);
         this.filters = metadata.filters;
+        this.key = metadata.key;
     }
-    RulatePlugin.prototype.popularNovels = function (pageNo_1, _a) {
-        return __awaiter(this, arguments, void 0, function (pageNo, _b) {
-            var novels, url, body, loadedCheerio;
-            var _this = this;
-            var _c, _d, _e, _f, _g, _h, _j;
+    RulatePlugin.prototype.parseNovels = function (url) {
+        return (0, fetch_1.fetchApi)(url, { headers: headers })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+            var _a;
+            var novels = [];
+            if (data.status === 'success' && ((_a = data.response) === null || _a === void 0 ? void 0 : _a.length)) {
+                data.response.forEach(function (novel) {
+                    return novels.push({
+                        name: novel.t_title || novel.s_title,
+                        path: novel.id.toString(),
+                        cover: novel.img,
+                    });
+                });
+            }
+            return novels;
+        });
+    };
+    RulatePlugin.prototype.popularNovels = function (page_1, _a) {
+        return __awaiter(this, arguments, void 0, function (page, _b) {
+            var url;
+            var _c;
             var filters = _b.filters, showLatestNovels = _b.showLatestNovels;
-            return __generator(this, function (_k) {
-                switch (_k.label) {
-                    case 0:
-                        novels = [];
-                        url = this.site + '/search?t=';
-                        url += '&cat=' + (((_c = filters === null || filters === void 0 ? void 0 : filters.cat) === null || _c === void 0 ? void 0 : _c.value) || '0');
-                        url += '&s_lang=' + (((_d = filters === null || filters === void 0 ? void 0 : filters.s_lang) === null || _d === void 0 ? void 0 : _d.value) || '0');
-                        url += '&t_lang=' + (((_e = filters === null || filters === void 0 ? void 0 : filters.t_lang) === null || _e === void 0 ? void 0 : _e.value) || '0');
-                        url += '&type=' + (((_f = filters === null || filters === void 0 ? void 0 : filters.type) === null || _f === void 0 ? void 0 : _f.value) || '0');
-                        url += '&sort=' + (showLatestNovels ? '4' : ((_g = filters === null || filters === void 0 ? void 0 : filters.sort) === null || _g === void 0 ? void 0 : _g.value) || '6');
-                        url += '&atmosphere=' + (((_h = filters === null || filters === void 0 ? void 0 : filters.atmosphere) === null || _h === void 0 ? void 0 : _h.value) || '0');
-                        url += '&adult=' + (((_j = filters === null || filters === void 0 ? void 0 : filters.adult) === null || _j === void 0 ? void 0 : _j.value) || '0');
-                        Object.entries(filters || {}).forEach(function (_a) {
-                            var type = _a[0], value = _a[1].value;
-                            if (value instanceof Array && value.length) {
-                                url +=
-                                    '&' +
-                                        value
-                                            .map(function (val) { return (type == 'extra' ? val + '=1' : type + '[]=' + val); })
-                                            .join('&');
-                            }
-                        });
-                        url += '&Book_page=' + pageNo;
-                        return [4 /*yield*/, (0, fetch_1.fetchApi)(url).then(function (res) { return res.text(); })];
-                    case 1:
-                        body = _k.sent();
-                        loadedCheerio = (0, cheerio_1.load)(body);
-                        loadedCheerio('ul[class="search-results"] > li:not([class="ad_type_catalog"])').each(function (index, element) {
-                            loadedCheerio(element).find('p > a').text();
-                            var name = loadedCheerio(element).find('p > a').text();
-                            var cover = loadedCheerio(element).find('img').attr('src');
-                            var path = loadedCheerio(element).find('p > a').attr('href');
-                            if (!name || !path)
-                                return;
-                            novels.push({ name: name, cover: _this.site + cover, path: path });
-                        });
-                        return [2 /*return*/, novels];
-                }
+            return __generator(this, function (_d) {
+                url = this.site + '/api3/searchBooks?limit=40&page=' + page;
+                url += '&sort=' + (showLatestNovels ? '4' : ((_c = filters === null || filters === void 0 ? void 0 : filters.sort) === null || _c === void 0 ? void 0 : _c.value) || '6');
+                Object.entries(filters || {}).forEach(function (_a) {
+                    var type = _a[0], value = _a[1].value;
+                    if (value instanceof Array && value.length) {
+                        url += '&' + value.map(function (val) { return type + '[]=' + val; }).join('&');
+                    }
+                });
+                url += '&key=' + this.key;
+                return [2 /*return*/, this.parseNovels(url)];
+            });
+        });
+    };
+    RulatePlugin.prototype.searchNovels = function (searchTerm_1) {
+        return __awaiter(this, arguments, void 0, function (searchTerm, page) {
+            var url;
+            if (page === void 0) { page = 1; }
+            return __generator(this, function (_a) {
+                url = "".concat(this.site, "/api3/searchBooks?t=").concat(encodeURIComponent(searchTerm), "&limit=40&page=").concat(page, "&key=").concat(this.key);
+                return [2 /*return*/, this.parseNovels(url)];
             });
         });
     };
     RulatePlugin.prototype.parseNovel = function (novelPath) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, formData, body, loadedCheerio, novel, genres, chapters;
-            var _this = this;
-            var _a, _b;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
-                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + novelPath)];
+            var book, novel, chaptersData, chapters;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + '/api3/book?book_id=' + novelPath + '&key=' + this.key, { headers: headers }).then(function (res) { return res.json(); })];
                     case 1:
-                        result = _c.sent();
-                        if (!result.url.includes('mature?path=')) return [3 /*break*/, 3];
-                        formData = new FormData();
-                        formData.append('path', novelPath);
-                        formData.append('ok', 'Да');
-                        return [4 /*yield*/, (0, fetch_1.fetchApi)(result.url, {
-                                method: 'POST',
-                                body: formData,
-                            })];
-                    case 2:
-                        result = _c.sent();
-                        _c.label = 3;
-                    case 3: return [4 /*yield*/, result.text()];
-                    case 4:
-                        body = _c.sent();
-                        loadedCheerio = (0, cheerio_1.load)(body);
+                        book = _a.sent();
                         novel = {
+                            name: book.response.t_title || book.response.s_title,
                             path: novelPath,
-                            name: loadedCheerio('.span8 > h1, .book__title').text().trim(),
+                            cover: book.response.img,
+                            genres: [book.response.genres, book.response.tags]
+                                .flatMap(function (c) { var _a; return (_a = c === null || c === void 0 ? void 0 : c.map) === null || _a === void 0 ? void 0 : _a.call(c, function (g) { return g.title || g.name; }); })
+                                .join(','),
+                            summary: book.response.description,
+                            author: book.response.author,
+                            status: book.response.status === 'Завершён'
+                                ? novelStatus_1.NovelStatus.Completed
+                                : novelStatus_1.NovelStatus.Ongoing,
+                            rating: book.response.rate && book.response.rate.count > 0
+                                ? Number((book.response.rate.sum / book.response.rate.count).toFixed(2))
+                                : undefined,
                         };
-                        if ((_b = (_a = novel.name) === null || _a === void 0 ? void 0 : _a.includes) === null || _b === void 0 ? void 0 : _b.call(_a, '[')) {
-                            novel.name = novel.name.split('[')[0].trim();
-                        }
-                        novel.cover =
-                            this.site +
-                                loadedCheerio('div[class="images"] > div img, .book__cover > img').attr('src');
-                        novel.summary = loadedCheerio('#Info > div:nth-child(4) > p:nth-child(1), .book__description')
-                            .text()
-                            .trim();
-                        genres = [];
-                        loadedCheerio('div.span5 > p').each(function () {
-                            switch (loadedCheerio(this).find('strong').text()) {
-                                case 'Автор:':
-                                    novel.author = loadedCheerio(this).find('em > a').text().trim();
-                                    break;
-                                case 'Выпуск:':
-                                    novel.status =
-                                        loadedCheerio(this).find('em').text().trim() === 'продолжается'
-                                            ? novelStatus_1.NovelStatus.Ongoing
-                                            : novelStatus_1.NovelStatus.Completed;
-                                    break;
-                                case 'Тэги:':
-                                    loadedCheerio(this)
-                                        .find('em > a')
-                                        .each(function () {
-                                        genres.push(loadedCheerio(this).text());
-                                    });
-                                    break;
-                                case 'Жанры:':
-                                    loadedCheerio(this)
-                                        .find('em > a')
-                                        .each(function () {
-                                        genres.push(loadedCheerio(this).text());
-                                    });
-                                    break;
-                            }
-                        });
-                        if (genres.length) {
-                            novel.genres = genres.reverse().join(',');
-                        }
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site +
+                                '/api3/bookChapters?book_id=' +
+                                novelPath +
+                                '&key=' +
+                                this.key, { headers: headers }).then(function (res) { return res.json(); })];
+                    case 2:
+                        chaptersData = _a.sent();
                         chapters = [];
-                        if (this.id === 'rulate') {
-                            loadedCheerio('table > tbody > tr.chapter_row').each(function (chapterIndex, element) {
-                                var _a;
-                                var chapterName = loadedCheerio(element)
-                                    .find('td[class="t"] > a')
-                                    .text()
-                                    .trim();
-                                var releaseDate = (_a = loadedCheerio(element)
-                                    .find('td > span')
-                                    .attr('title')) === null || _a === void 0 ? void 0 : _a.trim();
-                                var chapterUrl = loadedCheerio(element)
-                                    .find('td[class="t"] > a')
-                                    .attr('href');
-                                if (!loadedCheerio(element).find('td > span[class="disabled"]')
-                                    .length &&
-                                    releaseDate &&
-                                    chapterUrl) {
+                        if (chaptersData.response && Array.isArray(chaptersData.response)) {
+                            chaptersData.response.forEach(function (chapter) {
+                                if (chapter.can_read && chapter.subscription === 0) {
                                     chapters.push({
-                                        name: chapterName,
-                                        path: chapterUrl,
-                                        releaseTime: _this.parseDate(releaseDate),
-                                        chapterNumber: chapterIndex + 1,
-                                    });
-                                }
-                            });
-                        }
-                        else {
-                            loadedCheerio('a.chapter').each(function (chapterIndex, element) {
-                                var chapterName = loadedCheerio(element)
-                                    .find('div:nth-child(1) > span:nth-child(2)')
-                                    .text()
-                                    .trim();
-                                var chapterUrl = loadedCheerio(element).attr('href');
-                                var isPaid = loadedCheerio(element).find('span[data-can-buy="true"]').length;
-                                if (!isPaid && chapterUrl) {
-                                    chapters.push({
-                                        name: chapterName,
-                                        path: chapterUrl,
-                                        chapterNumber: chapterIndex + 1,
+                                        name: chapter.title + (chapter.illustrated ? ' 🖼️' : ''),
+                                        path: novelPath + '/' + chapter.id,
+                                        releaseTime: (0, dayjs_1.default)(chapter.cdate * 1000).format('LLL'),
+                                        chapterNumber: chapter.ord,
                                     });
                                 }
                             });
@@ -242,57 +159,21 @@ var RulatePlugin = /** @class */ (function () {
     };
     RulatePlugin.prototype.parseChapter = function (chapterPath) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, formData, body, loadedCheerio, chapterText;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + chapterPath)];
-                    case 1:
-                        result = _a.sent();
-                        if (!result.url.includes('mature?path=')) return [3 /*break*/, 3];
-                        formData = new FormData();
-                        formData.append('path', chapterPath.split('/').slice(0, 3).join('/'));
-                        formData.append('ok', 'Да');
-                        return [4 /*yield*/, (0, fetch_1.fetchApi)(result.url, {
-                                method: 'POST',
-                                body: formData,
-                            })];
-                    case 2:
-                        result = _a.sent();
-                        _a.label = 3;
-                    case 3: return [4 /*yield*/, result.text()];
-                    case 4:
-                        body = _a.sent();
-                        loadedCheerio = (0, cheerio_1.load)(body);
-                        chapterText = loadedCheerio('.content-text, #read-text').html();
-                        return [2 /*return*/, chapterText || ''];
-                }
-            });
-        });
-    };
-    RulatePlugin.prototype.searchNovels = function (searchTerm) {
-        return __awaiter(this, void 0, void 0, function () {
-            var novels, result;
-            var _this = this;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var _a, book, chapter, body;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        novels = [];
+                        _a = chapterPath.split('/'), book = _a[0], chapter = _a[1];
                         return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site +
-                                '/search/autocomplete?query=' +
-                                encodeURIComponent(searchTerm)).then(function (res) { return res.json(); })];
+                                '/api3/chapter?book_id=' +
+                                book +
+                                '&chapter_id=' +
+                                chapter +
+                                '&key=' +
+                                this.key, { headers: headers }).then(function (res) { return res.json(); })];
                     case 1:
-                        result = _a.sent();
-                        result.forEach(function (novel) {
-                            var name = novel.title_one + ' / ' + novel.title_two;
-                            if (!novel.url)
-                                return;
-                            novels.push({
-                                name: name,
-                                cover: _this.site + novel.img,
-                                path: novel.url,
-                            });
-                        });
-                        return [2 /*return*/, novels];
+                        body = _b.sent();
+                        return [2 /*return*/, body.response.text];
                 }
             });
         });

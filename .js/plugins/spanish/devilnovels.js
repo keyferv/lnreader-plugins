@@ -1,1 +1,360 @@
-var t=this&&this.__awaiter||function(t,e,r,n){return new(r||(r=Promise))((function(a,i){function s(t){try{c(n.next(t))}catch(t){i(t)}}function o(t){try{c(n.throw(t))}catch(t){i(t)}}function c(t){var e;t.done?a(t.value):(e=t.value,e instanceof r?e:new r((function(t){t(e)}))).then(s,o)}c((n=n.apply(t,e||[])).next())}))},e=this&&this.__generator||function(t,e){var r,n,a,i={label:0,sent:function(){if(1&a[0])throw a[1];return a[1]},trys:[],ops:[]},s=Object.create(("function"==typeof Iterator?Iterator:Object).prototype);return s.next=o(0),s.throw=o(1),s.return=o(2),"function"==typeof Symbol&&(s[Symbol.iterator]=function(){return this}),s;function o(o){return function(c){return function(o){if(r)throw new TypeError("Generator is already executing.");for(;s&&(s=0,o[0]&&(i=0)),i;)try{if(r=1,n&&(a=2&o[0]?n.return:o[0]?n.throw||((a=n.return)&&a.call(n),0):n.next)&&!(a=a.call(n,o[1])).done)return a;switch(n=0,a&&(o=[2&o[0],a.value]),o[0]){case 0:case 1:a=o;break;case 4:return i.label++,{value:o[1],done:!1};case 5:i.label++,n=o[1],o=[0];continue;case 7:o=i.ops.pop(),i.trys.pop();continue;default:if(!(a=i.trys,(a=a.length>0&&a[a.length-1])||6!==o[0]&&2!==o[0])){i=0;continue}if(3===o[0]&&(!a||o[1]>a[0]&&o[1]<a[3])){i.label=o[1];break}if(6===o[0]&&i.label<a[1]){i.label=a[1],a=o;break}if(a&&i.label<a[2]){i.label=a[2],i.ops.push(o);break}a[2]&&i.ops.pop(),i.trys.pop();continue}o=e.call(t,i)}catch(t){o=[6,t],n=0}finally{r=a=0}if(5&o[0])throw o[1];return{value:o[0]?o[1]:void 0,done:!0}}([o,c])}}};Object.defineProperty(exports,"__esModule",{value:!0});var r=require("cheerio"),n=require("@libs/defaultCover"),a=require("@libs/fetch"),i=function(){function i(){this.id="DevilNovels",this.name="DevilNovels",this.icon="src/es/devilnovels/icon.png",this.site="https://devilnovels.com/",this.version="1.0.6",this.filters={}}return i.prototype.popularNovels=function(i,s){return t(this,arguments,void 0,(function(t,i){var s,o,c,l,u,p=this,h=i.showLatestNovels;i.filters;return e(this,(function(t){switch(t.label){case 0:return s=[],o=h?this.site:this.site+"listado-de-novelas/",[4,(0,a.fetchApi)(o)];case 1:return(c=t.sent()).ok?[4,c.text()]:[2,s];case 2:return l=t.sent(),u=(0,r.load)(l),h?u("table tbody tr").each((function(t,e){var r=u(e).find("td");if(!(r.length<2)){var a,i=r.first(),o=r.eq(1),c=i.find("a").last(),l=c.attr("href")||"",h=c.text().trim(),f=i.find("img").attr("src")||n.defaultCover,d=l.replace(p.site,""),m=o.find("a").first();if(m.length){var v=m.text().trim(),y=m.attr("href")||"";v&&y&&(a={name:v,path:y.replace(p.site,"")})}h&&d&&s.push({name:h,path:d,cover:f,latestChapter:a})}})):(u(".pvc-featured-pages-grid .pvc-featured-page-item").each((function(t,e){var r=u(e),a=r.find("a").first(),i=a.attr("href")||"",o=r.find("img").attr("src")||n.defaultCover,c=r.find("p.pvc-page-title a").text().trim()||a.attr("title")||a.text().trim(),l=i.replace(p.site,"");c&&s.push({name:c,path:l,cover:o})})),0===s.length&&u("p.pvc-page-title a").each((function(t,e){var r=u(e),a=r.attr("href")||"",i=r.text().trim(),o=r.closest(".pvc-featured-page-item"),c=o&&o.length&&o.find("img").attr("src")||n.defaultCover,l=a.replace(p.site,"");i&&s.push({name:i,path:l,cover:c})}))),[2,s]}}))}))},i.prototype.parseNovel=function(i){return t(this,void 0,void 0,(function(){var t,s,o,c,l,u,p,h,f,d,m,v,y,b,g,x,w=this;return e(this,(function(_){switch(_.label){case 0:return t=i.startsWith("http")?i:this.site+i,[4,(0,a.fetchApi)(t)];case 1:return[4,_.sent().text()];case 2:s=_.sent(),o=(0,r.load)(s),c={path:i,name:o('meta[property="og:title"]').attr("content")||o("h1").first().text().trim()||"",cover:o('meta[property="og:image"]').attr("content")||n.defaultCover,summary:void 0,chapters:[]},(l=o(".entry-content").first())&&l.length&&((u=l.clone()).find('.elementor-posts-container, .elementor-posts, .elementor-post, .elementor-pagination, .code-block, iframe, script, style, .ad, .adsbygoogle, .post-list, .chapter-list, [data-id="c7ecb4a"], .elementor-element-c7ecb4a').remove(),u.find('[class*="ad-"]').remove(),(p=u.text().trim())?c.summary=p:(h=l.find("p").filter((function(t,e){return o(e).text().trim()})).first())&&h.length&&(c.summary=h.text().trim())),f=new Set,o(".entry-content a, .post a").each((function(t,e){var r=o(e),n=r.attr("href")||"",a=r.text().trim();if(n&&a&&/chapter|capitulo|cap|act/i.test(n)){var i=n.replace(w.site,"");f.has(i)||(f.add(i),c.chapters.push({name:a,path:i}))}})),o(".elementor-posts-container article, .elementor-post").each((function(t,e){var r=o(e).find('h3.elementor-post__title a, h3.elementor-post__title > a, a[data-wpel-link="internal"]').first(),n=r.attr("href")||"",a=r.text().trim();if(n&&a){var i=n.replace(w.site,"");f.has(i)||(f.add(i),c.chapters.push({name:a,path:i}))}})),d=o(".elementor-pagination a.page-numbers").map((function(t,e){return o(e).attr("href")||""})).get().filter((function(t){return!!t})),m=Array.from(new Set(d)),v=function(n){var s,o,l,u,p;return e(this,(function(e){switch(e.label){case 0:if(!(s=n.replace(/#.*$/,"")))return[2,"continue"];if(s===t||s===y.site+i)return[2,"continue"];e.label=1;case 1:return e.trys.push([1,5,,6]),o=s.startsWith("http")?s:y.site+s.replace(/^\//,""),[4,(0,a.fetchApi)(o)];case 2:return(l=e.sent()).ok?[4,l.text()]:[2,"continue"];case 3:return u=e.sent(),(p=(0,r.load)(u))(".elementor-posts-container article, .elementor-post").each((function(t,e){var r=p(e).find('h3.elementor-post__title a, h3.elementor-post__title > a, a[data-wpel-link="internal"]').first(),n=r.attr("href")||"",a=r.text().trim();if(n&&a){var i=n.replace(w.site,"");f.has(i)||(f.add(i),c.chapters.push({name:a,path:i}))}})),[4,(h=300,new Promise((function(t){return setTimeout(t,h)})))];case 4:return e.sent(),[3,6];case 5:return e.sent(),[2,"continue"];case 6:return[2]}var h}))},y=this,b=0,g=m,_.label=3;case 3:return b<g.length?(x=g[b],[5,v(x)]):[3,6];case 4:_.sent(),_.label=5;case 5:return b++,[3,3];case 6:return[2,c]}}))}))},i.prototype.parseChapter=function(n){return t(this,void 0,void 0,(function(){var t,i,s;return e(this,(function(e){switch(e.label){case 0:return t=n.startsWith("http")?n:this.site+n,[4,(0,a.fetchApi)(t)];case 1:return[4,e.sent().text()];case 2:return i=e.sent(),s=(0,r.load)(i),[2,s(".entry-content").first().html()||s("article").first().html()||""]}}))}))},i.prototype.searchNovels=function(i,s){return t(this,void 0,void 0,(function(){var t,o,c,l,u,p,h=this;return e(this,(function(e){switch(e.label){case 0:return t=[],o=s&&s>1?"&paged=".concat(s):"",c="".concat(this.site,"?post_type=page&s=").concat(encodeURIComponent(i)).concat(o),[4,(0,a.fetchApi)(c)];case 1:return(l=e.sent()).ok?[4,l.text()]:[2,t];case 2:return u=e.sent(),(p=(0,r.load)(u))(".ast-article-inner").each((function(e,r){var a=p(r),i=a.find("h2.entry-title a").first(),s=i.attr("href")||"",o=i.text().trim(),c=a.find(".post-thumb img").attr("src")||n.defaultCover,l=s.replace(h.site,"");o&&t.push({name:o,path:l,cover:c})})),[2,t]}}))}))},i}();exports.default=new i;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var cheerio_1 = require("cheerio");
+var defaultCover_1 = require("@libs/defaultCover");
+var fetch_1 = require("@libs/fetch");
+var sleep = function (ms) { return new Promise(function (res) { return setTimeout(res, ms); }); };
+var DevilNovels = /** @class */ (function () {
+    function DevilNovels() {
+        this.id = 'DevilNovels';
+        this.name = 'DevilNovels';
+        this.icon = 'src/es/devilnovels/icon.png';
+        this.site = 'https://devilnovels.com/';
+        this.version = '1.0.6';
+        this.filters = {};
+    }
+    DevilNovels.prototype.popularNovels = function (page_1, _a) {
+        return __awaiter(this, arguments, void 0, function (page, _b) {
+            var novels, url, res, body, $;
+            var _this = this;
+            var showLatestNovels = _b.showLatestNovels, filters = _b.filters;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        novels = [];
+                        url = showLatestNovels
+                            ? this.site
+                            : this.site + 'listado-de-novelas/';
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(url)];
+                    case 1:
+                        res = _c.sent();
+                        if (!res.ok)
+                            return [2 /*return*/, novels];
+                        return [4 /*yield*/, res.text()];
+                    case 2:
+                        body = _c.sent();
+                        $ = (0, cheerio_1.load)(body);
+                        if (showLatestNovels) {
+                            // Parsear la tabla de la página de inicio para Recientes
+                            $('table tbody tr').each(function (i, el) {
+                                var tds = $(el).find('td');
+                                // Aseguramos que haya columnas (la estructura mostrada tiene 2)
+                                if (tds.length < 2)
+                                    return;
+                                // Columna 1: Imagen y Título de Novela
+                                var left = tds.first();
+                                // Columna 2: Último Capítulo
+                                var right = tds.eq(1);
+                                var titleA = left.find('a').last(); // El <a> después del div de la imagen
+                                var href = titleA.attr('href') || '';
+                                var name = titleA.text().trim();
+                                // Imagen dentro del div
+                                var img = left.find('img').attr('src') || defaultCover_1.defaultCover;
+                                var path = href.replace(_this.site, '');
+                                // Capturar último capítulo
+                                var latestChapter;
+                                var chapterA = right.find('a').first();
+                                if (chapterA.length) {
+                                    var cName = chapterA.text().trim();
+                                    var cHref = chapterA.attr('href') || '';
+                                    if (cName && cHref) {
+                                        latestChapter = {
+                                            name: cName,
+                                            path: cHref.replace(_this.site, ''),
+                                        };
+                                    }
+                                }
+                                if (name && path) {
+                                    novels.push({
+                                        name: name,
+                                        path: path,
+                                        cover: img,
+                                        latestChapter: latestChapter,
+                                    });
+                                }
+                            });
+                        }
+                        else {
+                            // Lógica para Populares (mantiene el escrapeo del grid de 'listado-de-novelas')
+                            // 1) Grid de destacados
+                            $('.pvc-featured-pages-grid .pvc-featured-page-item').each(function (i, el) {
+                                var item = $(el);
+                                var a = item.find('a').first();
+                                var href = a.attr('href') || '';
+                                var img = item.find('img').attr('src') || defaultCover_1.defaultCover;
+                                var title = item.find('p.pvc-page-title a').text().trim() ||
+                                    a.attr('title') ||
+                                    a.text().trim();
+                                var path = href.replace(_this.site, '');
+                                if (title)
+                                    novels.push({ name: title, path: path, cover: img });
+                            });
+                            // 2) Títulos sueltos si el grid falla o es diferente
+                            if (novels.length === 0) {
+                                $('p.pvc-page-title a').each(function (i, el) {
+                                    var a = $(el);
+                                    var href = a.attr('href') || '';
+                                    var title = a.text().trim();
+                                    var parent = a.closest('.pvc-featured-page-item');
+                                    var img = parent && parent.length
+                                        ? parent.find('img').attr('src') || defaultCover_1.defaultCover
+                                        : defaultCover_1.defaultCover;
+                                    var path = href.replace(_this.site, '');
+                                    if (title)
+                                        novels.push({ name: title, path: path, cover: img });
+                                });
+                            }
+                        }
+                        return [2 /*return*/, novels];
+                }
+            });
+        });
+    };
+    DevilNovels.prototype.parseNovel = function (novelPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var url, res, body, $, novel, entry, clone, cleanedText, firstP, seen, pageLinks, uniquePageLinks, _loop_1, this_1, _i, uniquePageLinks_1, pageUrl;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        url = novelPath.startsWith('http')
+                            ? novelPath
+                            : this.site + novelPath;
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(url)];
+                    case 1:
+                        res = _a.sent();
+                        return [4 /*yield*/, res.text()];
+                    case 2:
+                        body = _a.sent();
+                        $ = (0, cheerio_1.load)(body);
+                        novel = {
+                            path: novelPath,
+                            name: $('meta[property="og:title"]').attr('content') ||
+                                $('h1').first().text().trim() ||
+                                '',
+                            cover: $('meta[property="og:image"]').attr('content') || defaultCover_1.defaultCover,
+                            summary: undefined,
+                            chapters: [],
+                        };
+                        entry = $('.entry-content').first();
+                        if (entry && entry.length) {
+                            clone = entry.clone();
+                            clone
+                                .find('.elementor-posts-container, .elementor-posts, .elementor-post, .elementor-pagination, .code-block, iframe, script, style, .ad, .adsbygoogle, .post-list, .chapter-list, [data-id="c7ecb4a"], .elementor-element-c7ecb4a')
+                                .remove();
+                            clone.find('[class*="ad-"]').remove();
+                            cleanedText = clone.text().trim();
+                            if (cleanedText) {
+                                novel.summary = cleanedText;
+                            }
+                            else {
+                                firstP = entry
+                                    .find('p')
+                                    .filter(function (i, el) { return $(el).text().trim(); })
+                                    .first();
+                                if (firstP && firstP.length)
+                                    novel.summary = firstP.text().trim();
+                            }
+                        }
+                        seen = new Set();
+                        // Método 1: Enlaces directos en entry-content
+                        $('.entry-content a, .post a').each(function (i, el) {
+                            var a = $(el);
+                            var href = a.attr('href') || '';
+                            var text = a.text().trim();
+                            if (!href || !text)
+                                return;
+                            if (/chapter|capitulo|cap|act/i.test(href)) {
+                                var path = href.replace(_this.site, '');
+                                if (!seen.has(path)) {
+                                    seen.add(path);
+                                    novel.chapters.push({ name: text, path: path });
+                                }
+                            }
+                        });
+                        // Método 2: Grid de Elementor (común en este sitio)
+                        $('.elementor-posts-container article, .elementor-post').each(function (i, el) {
+                            var block = $(el);
+                            var a = block
+                                .find('h3.elementor-post__title a, h3.elementor-post__title > a, a[data-wpel-link="internal"]')
+                                .first();
+                            var href = a.attr('href') || '';
+                            var text = a.text().trim();
+                            if (!href || !text)
+                                return;
+                            var path = href.replace(_this.site, '');
+                            if (!seen.has(path)) {
+                                seen.add(path);
+                                novel.chapters.push({ name: text, path: path });
+                            }
+                        });
+                        pageLinks = $('.elementor-pagination a.page-numbers')
+                            .map(function (i, el) { return $(el).attr('href') || ''; })
+                            .get()
+                            .filter(function (h) { return !!h; });
+                        uniquePageLinks = Array.from(new Set(pageLinks));
+                        _loop_1 = function (pageUrl) {
+                            var normalizedPageUrl, abs, pres, pbody, $$_1, e_1;
+                            return __generator(this, function (_b) {
+                                switch (_b.label) {
+                                    case 0:
+                                        normalizedPageUrl = pageUrl.replace(/#.*$/, '');
+                                        if (!normalizedPageUrl)
+                                            return [2 /*return*/, "continue"];
+                                        if (normalizedPageUrl === url ||
+                                            normalizedPageUrl === this_1.site + novelPath)
+                                            return [2 /*return*/, "continue"];
+                                        _b.label = 1;
+                                    case 1:
+                                        _b.trys.push([1, 5, , 6]);
+                                        abs = normalizedPageUrl.startsWith('http')
+                                            ? normalizedPageUrl
+                                            : this_1.site + normalizedPageUrl.replace(/^\//, '');
+                                        return [4 /*yield*/, (0, fetch_1.fetchApi)(abs)];
+                                    case 2:
+                                        pres = _b.sent();
+                                        if (!pres.ok)
+                                            return [2 /*return*/, "continue"];
+                                        return [4 /*yield*/, pres.text()];
+                                    case 3:
+                                        pbody = _b.sent();
+                                        $$_1 = (0, cheerio_1.load)(pbody);
+                                        $$_1('.elementor-posts-container article, .elementor-post').each(function (i, el) {
+                                            var block = $$_1(el);
+                                            var a = block
+                                                .find('h3.elementor-post__title a, h3.elementor-post__title > a, a[data-wpel-link="internal"]')
+                                                .first();
+                                            var href = a.attr('href') || '';
+                                            var text = a.text().trim();
+                                            if (!href || !text)
+                                                return;
+                                            var path = href.replace(_this.site, '');
+                                            if (!seen.has(path)) {
+                                                seen.add(path);
+                                                novel.chapters.push({ name: text, path: path });
+                                            }
+                                        });
+                                        return [4 /*yield*/, sleep(300)];
+                                    case 4:
+                                        _b.sent();
+                                        return [3 /*break*/, 6];
+                                    case 5:
+                                        e_1 = _b.sent();
+                                        return [2 /*return*/, "continue"];
+                                    case 6: return [2 /*return*/];
+                                }
+                            });
+                        };
+                        this_1 = this;
+                        _i = 0, uniquePageLinks_1 = uniquePageLinks;
+                        _a.label = 3;
+                    case 3:
+                        if (!(_i < uniquePageLinks_1.length)) return [3 /*break*/, 6];
+                        pageUrl = uniquePageLinks_1[_i];
+                        return [5 /*yield**/, _loop_1(pageUrl)];
+                    case 4:
+                        _a.sent();
+                        _a.label = 5;
+                    case 5:
+                        _i++;
+                        return [3 /*break*/, 3];
+                    case 6: return [2 /*return*/, novel];
+                }
+            });
+        });
+    };
+    DevilNovels.prototype.parseChapter = function (chapterPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var url, res, body, $, content;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        url = chapterPath.startsWith('http')
+                            ? chapterPath
+                            : this.site + chapterPath;
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(url)];
+                    case 1:
+                        res = _a.sent();
+                        return [4 /*yield*/, res.text()];
+                    case 2:
+                        body = _a.sent();
+                        $ = (0, cheerio_1.load)(body);
+                        content = $('.entry-content').first().html() || $('article').first().html() || '';
+                        return [2 /*return*/, content];
+                }
+            });
+        });
+    };
+    DevilNovels.prototype.searchNovels = function (searchTerm, page) {
+        return __awaiter(this, void 0, void 0, function () {
+            var novels, pageQuery, url, res, body, $;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        novels = [];
+                        pageQuery = page && page > 1 ? "&paged=".concat(page) : '';
+                        url = "".concat(this.site, "?post_type=page&s=").concat(encodeURIComponent(searchTerm)).concat(pageQuery);
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(url)];
+                    case 1:
+                        res = _a.sent();
+                        if (!res.ok)
+                            return [2 /*return*/, novels];
+                        return [4 /*yield*/, res.text()];
+                    case 2:
+                        body = _a.sent();
+                        $ = (0, cheerio_1.load)(body);
+                        $('.ast-article-inner').each(function (i, el) {
+                            var block = $(el);
+                            var a = block.find('h2.entry-title a').first();
+                            var href = a.attr('href') || '';
+                            var title = a.text().trim();
+                            var img = block.find('.post-thumb img').attr('src') || defaultCover_1.defaultCover;
+                            var path = href.replace(_this.site, '');
+                            if (title)
+                                novels.push({ name: title, path: path, cover: img });
+                        });
+                        return [2 /*return*/, novels];
+                }
+            });
+        });
+    };
+    return DevilNovels;
+}());
+exports.default = new DevilNovels();
