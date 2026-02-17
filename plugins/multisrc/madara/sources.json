@@ -247,16 +247,6 @@
     }
   },
   {
-    "id": "panchotranslations",
-    "sourceSite": "https://panchonovels.online/",
-    "sourceName": "Pancho Translations",
-    "options": {
-      "useNewChapterEndpoint": true,
-      "lang": "Spanish",
-      "versionIncrements": 1
-    }
-  },
-  {
     "id": "salmonlatte",
     "sourceSite": "https://salmonlatte.com/",
     "sourceName": "Salmon Latte",
