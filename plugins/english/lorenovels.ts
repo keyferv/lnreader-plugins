@@ -7,7 +7,7 @@ class LoreNovels implements Plugin.PluginBase {
   name = 'Lore Novels';
   icon = 'src/en/lorenovels/icon.png';
   site = 'https://lorenovels.com';
-  version = '1.0.1';
+  version = '1.0.2';
 
   private resolvePath(href?: string | null): string | undefined {
     if (!href) return undefined;
@@ -73,7 +73,7 @@ class LoreNovels implements Plugin.PluginBase {
     const body = await fetchApi(this.site + novelPath).then(res => res.text());
     const loadedCheerio = parseHTML(body);
 
-    const name = loadedCheerio('h1.entry-title, h1.wp-block-post-title, h1')
+    let name = loadedCheerio('h1.entry-title, h1.wp-block-post-title, h1')
       .first()
       .text()
       .trim();
@@ -81,13 +81,20 @@ class LoreNovels implements Plugin.PluginBase {
     const postImg = loadedCheerio('img.wp-post-image').first();
     const blockImg = loadedCheerio('.wp-block-image img').first();
     const figImg = loadedCheerio('figure img').first();
+    const contentImg = loadedCheerio('div.entry-content img[class*="wp-image-"]').first();
+    const firstImg = loadedCheerio('div.entry-content img').first();
+
     const cover = this.resolveCover(
       postImg.attr('data-src') ||
         postImg.attr('src') ||
         blockImg.attr('data-src') ||
         blockImg.attr('src') ||
         figImg.attr('data-src') ||
-        figImg.attr('src'),
+        figImg.attr('src') ||
+        contentImg.attr('data-src') ||
+        contentImg.attr('src') ||
+        firstImg.attr('data-src') ||
+        firstImg.attr('src'),
     );
 
     // Extract metadata from labeled wp-block-group sections
@@ -114,7 +121,11 @@ class LoreNovels implements Plugin.PluginBase {
         group.find('.wp-block-button__link').first().text().trim();
       if (!value) return;
 
-      if (label === 'author:') author = value;
+      if (label === 'title:') {
+        if (!name || name === 'Untitled') {
+          name = value;
+        }
+      } else if (label === 'author:') author = value;
       else if (label === 'genre:' || label === 'genres:') genres = value;
       else if (label === 'status:') status = value;
       else if (label === 'artist:') artist = value;
