@@ -25,7 +25,6 @@ const results = {
 let totalSites = 0;
 let checkedSites = 0;
 
-
 function checkSite(url, pluginInfo) {
   return new Promise(resolve => {
     const parsedUrl = new URL(url);
@@ -116,7 +115,6 @@ async function processSites(sites) {
       return;
     }
 
-
     const { url, pluginInfo } = queue.shift();
 
     try {
@@ -150,7 +148,6 @@ async function processSites(sites) {
         `\r✗ ${checkedSites}/${totalSites} - ${pluginInfo.name || url} (Error)`,
       );
     } finally {
-
       await processNext();
     }
   }
@@ -339,5 +336,3 @@ main().catch(error => {
   console.error('Fatal error:', error);
   process.exit(1);
 });
-
-

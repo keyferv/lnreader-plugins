@@ -14,9 +14,7 @@ class DevilNovels implements Plugin.PluginBase {
 
   async popularNovels(
     page: number,
-    {
-      showLatestNovels,
-    }: Plugin.PopularNovelsOptions<typeof this.filters>,
+    { showLatestNovels }: Plugin.PopularNovelsOptions<typeof this.filters>,
   ): Promise<Plugin.NovelItem[]> {
     const novels: Plugin.NovelItem[] = [];
 
@@ -43,7 +41,6 @@ class DevilNovels implements Plugin.PluginBase {
         const left = tds.first();
         // Columna 2: Último Capítulo
 
-
         const titleA = left.find('a').last(); // El <a> después del div de la imagen
         const href = titleA.attr('href') || '';
         const name = titleA.text().trim();
@@ -51,8 +48,6 @@ class DevilNovels implements Plugin.PluginBase {
         // Imagen dentro del div
         const img = left.find('img').attr('src') || defaultCover;
         const path = href.replace(this.site, '');
-
-
 
         if (name && path) {
           novels.push({

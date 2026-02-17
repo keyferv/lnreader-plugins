@@ -167,7 +167,7 @@ type SearchResponse = {
     id: number;
     img: string;
   }[];
-}
+};
 
 type BookResponse = {
   response: {
@@ -182,7 +182,7 @@ type BookResponse = {
     status: string;
     rate?: { sum: number; count: number };
   };
-}
+};
 
 type ChaptersResponse = {
   response: {
@@ -194,10 +194,10 @@ type ChaptersResponse = {
     can_read: boolean;
     illustrated?: boolean;
   }[];
-}
+};
 
 type ChapterTextResponse = {
   response: {
     text: string;
   };
-}
+};

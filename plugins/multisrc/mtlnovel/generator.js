@@ -43,4 +43,3 @@ export default plugin;
     pluginScript,
   };
 };
-

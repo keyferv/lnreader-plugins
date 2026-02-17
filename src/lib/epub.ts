@@ -5,7 +5,7 @@ import { Plugin } from '@/types/plugin';
 type ChapterContent = {
   title: string;
   content: string;
-}
+};
 
 const escapeXml = (unsafe: string) => {
   return unsafe.replace(/[<>&'"]/g, c => {

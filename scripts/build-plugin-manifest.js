@@ -237,5 +237,3 @@ for (const language of Object.keys(languages)) {
 }
 console.warn('|----------|------------------------|');
 console.warn(`| Total | ${totalPlugins} (${totalPluginsWithFilter}) |`);
-
-

@@ -127,7 +127,8 @@ class CrimsonScrollsPlugin implements Plugin.PluginBase {
       novelInfo
         .find('.single-novel-meta strong')
         .filter(
-          (i, el) => loadedCheerio(el).text().toLowerCase().search('genre') >= 0,
+          (i, el) =>
+            loadedCheerio(el).text().toLowerCase().search('genre') >= 0,
         )[0] as any
     ).next?.data
       ?.split(',')

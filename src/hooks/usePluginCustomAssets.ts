@@ -6,7 +6,7 @@ type UsePluginCustomAssetsReturn = {
   customJSLoaded: boolean;
   customCSSError: boolean;
   customJSError: boolean;
-}
+};
 
 /**
  * Custom hook to load and manage plugin custom CSS and JS assets

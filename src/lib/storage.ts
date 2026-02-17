@@ -15,7 +15,8 @@ class Storage {
    * @param {any} value - The value to set.
    * @param {Date | number} [expires] - Optional expiry date or time in milliseconds.
    */
-  set(key: string, value: any, expires?: Date | number): void { // eslint-disable-line @typescript-eslint/no-explicit-any
+  set(key: string, value: any, expires?: Date | number): void {
+    // eslint-disable-line @typescript-eslint/no-explicit-any
     this.db[key] = {
       created: new Date(),
       value,
@@ -30,7 +31,8 @@ class Storage {
    * @param {boolean} [raw] - Optional flag to return the raw stored item.
    * @returns {any} The stored value or undefined if key is not found.
    */
-  get(key: string, raw?: boolean): any { // eslint-disable-line @typescript-eslint/no-explicit-any
+  get(key: string, raw?: boolean): any {
+    // eslint-disable-line @typescript-eslint/no-explicit-any
     const item = this.db[key];
     if (item?.expires && Date.now() > item.expires) {
       this.delete(key);
