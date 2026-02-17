@@ -18,7 +18,7 @@ class PanchoPlugin implements Plugin.PluginBase {
     this.name = 'Pancho Translations';
     this.icon = `multisrc/madara/panchotranslations/icon.png`;
     this.site = 'https://panchonovels.online/';
-    this.version = '1.1.2';
+    this.version = '1.1.3';
   }
 
   private decodeHtmlEntities(value: string): string {
