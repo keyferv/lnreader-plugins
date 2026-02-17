@@ -1,1 +1,325 @@
-var t=this&&this.__awaiter||function(t,e,r,n){return new(r||(r=Promise))((function(i,o){function s(t){try{a(n.next(t))}catch(t){o(t)}}function u(t){try{a(n.throw(t))}catch(t){o(t)}}function a(t){var e;t.done?i(t.value):(e=t.value,e instanceof r?e:new r((function(t){t(e)}))).then(s,u)}a((n=n.apply(t,e||[])).next())}))},e=this&&this.__generator||function(t,e){var r,n,i,o={label:0,sent:function(){if(1&i[0])throw i[1];return i[1]},trys:[],ops:[]},s=Object.create(("function"==typeof Iterator?Iterator:Object).prototype);return s.next=u(0),s.throw=u(1),s.return=u(2),"function"==typeof Symbol&&(s[Symbol.iterator]=function(){return this}),s;function u(u){return function(a){return function(u){if(r)throw new TypeError("Generator is already executing.");for(;s&&(s=0,u[0]&&(o=0)),o;)try{if(r=1,n&&(i=2&u[0]?n.return:u[0]?n.throw||((i=n.return)&&i.call(n),0):n.next)&&!(i=i.call(n,u[1])).done)return i;switch(n=0,i&&(u=[2&u[0],i.value]),u[0]){case 0:case 1:i=u;break;case 4:return o.label++,{value:u[1],done:!1};case 5:o.label++,n=u[1],u=[0];continue;case 7:u=o.ops.pop(),o.trys.pop();continue;default:if(!(i=o.trys,(i=i.length>0&&i[i.length-1])||6!==u[0]&&2!==u[0])){o=0;continue}if(3===u[0]&&(!i||u[1]>i[0]&&u[1]<i[3])){o.label=u[1];break}if(6===u[0]&&o.label<i[1]){o.label=i[1],i=u;break}if(i&&o.label<i[2]){o.label=i[2],o.ops.push(u);break}i[2]&&o.ops.pop(),o.trys.pop();continue}u=e.call(t,o)}catch(t){u=[6,t],n=0}finally{r=i=0}if(5&u[0])throw u[1];return{value:u[0]?u[1]:void 0,done:!0}}([u,a])}}};Object.defineProperty(exports,"__esModule",{value:!0});var r=require("cheerio"),n=require("@libs/fetch"),i=require("@libs/defaultCover"),o=require("@libs/novelStatus"),s=function(){function s(){this.id="kisswood",this.name="KissWood",this.icon="src/fr/kisswood/icon.png",this.site="https://kisswood.eu",this.version="1.0.0",this.regexAuthors=[/Auteur :([^\n]*)/,/Auteur\u00A0:([^\n]*)/]}return s.prototype.getCheerio=function(i){return t(this,void 0,void 0,(function(){var t;return e(this,(function(e){switch(e.label){case 0:return[4,(0,n.fetchApi)(i)];case 1:return[4,e.sent().text()];case 2:return t=e.sent(),[2,(0,r.load)(t)]}}))}))},s.prototype.getNovelsCovers=function(r,n){return t(this,void 0,void 0,(function(){var i=this;return e(this,(function(o){switch(o.label){case 0:return[4,Promise.all(r.map((function(r,o){return t(i,void 0,void 0,(function(){var t,i,s;return e(this,(function(e){switch(e.label){case 0:return(t=n[o])?(i=r,s=this.findCoverImage,[4,this.getCheerio(t)]):[3,2];case 1:i.cover=s.apply(this,[e.sent()]),e.label=2;case 2:return[2]}}))}))})))];case 1:return o.sent(),[2,r]}}))}))},s.prototype.getNovelInfo=function(r,n){return t(this,void 0,void 0,(function(){var t,i,o;return e(this,(function(e){switch(e.label){case 0:return[4,this.getCheerio(n)];case 1:return t=e.sent(),i=t(".entry-content p").map((function(e,r){return t(r).text().trim()})).get().join("\n").split("\n"),o=i.findIndex((function(t){return["Traducteur Anglais- Français","Titre en français","———","Titre :","Lien vers le premier chapitre","____________","Auteur : "].some((function(e){return t.includes(e)}))})),r.summary=(-1!==o?i.slice(0,o):i).join("\n").replace("Synopsis :",""),r.author=this.extractInfo(i.join("\n"),this.regexAuthors),r.cover=this.findCoverImage(t),[2,r]}}))}))},s.prototype.findCoverImage=function(t){return t("div p img").first().attr("src")||t("figure a img").first().attr("src")||t("figure img").first().attr("src")||i.defaultCover},s.prototype.extractInfo=function(t,e){for(var r=0,n=e;r<n.length;r++){var i=n[r].exec(t);if(null!==i)return i[1].trim()}return""},s.prototype.popularNovels=function(r){return t(this,void 0,void 0,(function(){var t,n,o,s=this;return e(this,(function(e){switch(e.label){case 0:return r>1?[2,[]]:(t=[],[4,this.getCheerio(this.site)]);case 1:return n=e.sent(),o=[],n("nav div div ul li ul li").each((function(e,r){if("Sommaire"===n(r).text().trim()){var u=n(r).closest("ul").siblings("a").first().text().trim(),a=n(r).find("a").attr("href");if(a&&u){var c=n(r).parent().find("a").attr("href");c?o.push(c):o.push("");var l={name:u,path:a.replace(s.site,""),cover:i.defaultCover};t.push(l)}}})),[4,this.getNovelsCovers(t,o)];case 2:return[2,e.sent()]}}))}))},s.prototype.parseNovel=function(r){return t(this,void 0,void 0,(function(){var t,n,i,s,u,a=this;return e(this,(function(e){switch(e.label){case 0:return t={path:r,name:"Sans titre",status:o.NovelStatus.Ongoing},[4,this.getCheerio(this.site+r)];case 1:return n=e.sent(),i=null,n("nav div div ul li ul li").each((function(e,o){if(n(o).find("a").attr("href")===a.site+r)return i=n(o).parent().find("a").first().attr("href"),void(t.name=n(o).closest("ul").siblings("a").first().text().trim())})),i?[4,this.getNovelInfo(t,i)]:[3,3];case 2:t=e.sent(),e.label=3;case 3:return s=[".entry-content ul li a",".entry-content ul li ul li a",".entry-content p a",".entry-content li a",".entry-content blockquote a"].join(", "),u=[],n(s).each((function(t,e){var r,i=n(e).text().trim(),o=null===(r=n(e).attr("href"))||void 0===r?void 0:r.replace("http://","https://");!(o&&i&&o.includes(a.site))||o.includes("share=facebook")||o.includes("share=x")||o.includes("/category/traductions/")||o.includes("/category/tour-des-mondes/")||u.some((function(t){return a.site+t.path===o}))||u.push({name:i,path:o.replace(a.site,"")})})),t.chapters=u,[2,t]}}))}))},s.prototype.parseChapter=function(r){return t(this,void 0,void 0,(function(){var t,n,i;return e(this,(function(e){switch(e.label){case 0:return[4,this.getCheerio(this.site+r)];case 1:return t=e.sent(),n=t(".entry-content").contents().map((function(e,r){return t.html(r)})).get(),0===(i=n.map((function(t,e){return t.includes("<hr>")?e:-1})).filter((function(t){return-1!==t}))).length?i=[0,n.findIndex((function(t){return t.includes("https://fr.tipeee.com/kisswood/")||t.includes(">Sommaire</a>")||t.includes(">Chapitre Suivant</a>")||t.includes("———————————————————————————-")||t.includes("share=facebook")}))]:1===i.length?i.unshift(0):i[0]+=1,[2,n.slice(i[0],i[1]).join("\n")]}}))}))},s.prototype.searchNovels=function(r,n){return t(this,void 0,void 0,(function(){return e(this,(function(t){switch(t.label){case 0:return 1!==n?[2,[]]:[4,this.popularNovels(1)];case 1:return[2,t.sent().filter((function(t){return t.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().includes(r.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim())}))]}}))}))},s}();exports.default=new s;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var cheerio_1 = require("cheerio");
+var fetch_1 = require("@libs/fetch");
+var defaultCover_1 = require("@libs/defaultCover");
+var novelStatus_1 = require("@libs/novelStatus");
+var KissWoodPlugin = /** @class */ (function () {
+    function KissWoodPlugin() {
+        this.id = 'kisswood';
+        this.name = 'KissWood';
+        this.icon = 'src/fr/kisswood/icon.png';
+        this.site = 'https://kisswood.eu';
+        this.version = '1.0.0';
+        this.regexAuthors = [/Auteur :([^\n]*)/, /Auteur\u00A0:([^\n]*)/];
+    }
+    KissWoodPlugin.prototype.getCheerio = function (url) {
+        return __awaiter(this, void 0, void 0, function () {
+            var r, body, $;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(url)];
+                    case 1:
+                        r = _a.sent();
+                        return [4 /*yield*/, r.text()];
+                    case 2:
+                        body = _a.sent();
+                        $ = (0, cheerio_1.load)(body);
+                        return [2 /*return*/, $];
+                }
+            });
+        });
+    };
+    KissWoodPlugin.prototype.getNovelsCovers = function (novels, listUrlCover) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Promise.all(novels.map(function (novel, index) { return __awaiter(_this, void 0, void 0, function () {
+                            var urlCover, _a, _b;
+                            return __generator(this, function (_c) {
+                                switch (_c.label) {
+                                    case 0:
+                                        urlCover = listUrlCover[index];
+                                        if (!urlCover) return [3 /*break*/, 2];
+                                        _a = novel;
+                                        _b = this.findCoverImage;
+                                        return [4 /*yield*/, this.getCheerio(urlCover)];
+                                    case 1:
+                                        _a.cover = _b.apply(this, [_c.sent()]);
+                                        _c.label = 2;
+                                    case 2: return [2 /*return*/];
+                                }
+                            });
+                        }); }))];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/, novels];
+                }
+            });
+        });
+    };
+    KissWoodPlugin.prototype.getNovelInfo = function (novel, url) {
+        return __awaiter(this, void 0, void 0, function () {
+            var $, textArray, index;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getCheerio(url)];
+                    case 1:
+                        $ = _a.sent();
+                        textArray = $('.entry-content p')
+                            .map(function (_, element) { return $(element).text().trim(); })
+                            .get()
+                            .join('\n')
+                            .split('\n');
+                        index = textArray.findIndex(function (element) {
+                            return [
+                                'Traducteur Anglais- Français',
+                                'Titre en français',
+                                '———',
+                                'Titre :',
+                                'Lien vers le premier chapitre',
+                                '____________',
+                                'Auteur : ',
+                            ].some(function (marker) { return element.includes(marker); });
+                        });
+                        novel.summary = (index !== -1 ? textArray.slice(0, index) : textArray)
+                            .join('\n')
+                            .replace('Synopsis :', '');
+                        novel.author = this.extractInfo(textArray.join('\n'), this.regexAuthors);
+                        novel.cover = this.findCoverImage($);
+                        return [2 /*return*/, novel];
+                }
+            });
+        });
+    };
+    KissWoodPlugin.prototype.findCoverImage = function ($) {
+        return ($('div p img').first().attr('src') ||
+            $('figure a img').first().attr('src') ||
+            $('figure img').first().attr('src') ||
+            defaultCover_1.defaultCover);
+    };
+    KissWoodPlugin.prototype.extractInfo = function (text, regexes) {
+        for (var _i = 0, regexes_1 = regexes; _i < regexes_1.length; _i++) {
+            var regex = regexes_1[_i];
+            var match = regex.exec(text);
+            if (match !== null) {
+                return match[1].trim();
+            }
+        }
+        return '';
+    };
+    KissWoodPlugin.prototype.popularNovels = function (pageNo) {
+        return __awaiter(this, void 0, void 0, function () {
+            var novels, $, listUrlCover;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (pageNo > 1)
+                            return [2 /*return*/, []];
+                        novels = [];
+                        return [4 /*yield*/, this.getCheerio(this.site)];
+                    case 1:
+                        $ = _a.sent();
+                        listUrlCover = [];
+                        $('nav div div ul li ul li').each(function (i, elem) {
+                            if ($(elem).text().trim() === 'Sommaire') {
+                                var novelName = $(elem)
+                                    .closest('ul')
+                                    .siblings('a')
+                                    .first()
+                                    .text()
+                                    .trim();
+                                var novelUrl = $(elem).find('a').attr('href');
+                                if (novelUrl && novelName) {
+                                    var urlCover = $(elem).parent().find('a').attr('href');
+                                    if (urlCover) {
+                                        listUrlCover.push(urlCover);
+                                    }
+                                    else {
+                                        listUrlCover.push('');
+                                    }
+                                    var novel = {
+                                        name: novelName,
+                                        path: novelUrl.replace(_this.site, ''),
+                                        cover: defaultCover_1.defaultCover,
+                                    };
+                                    novels.push(novel);
+                                }
+                            }
+                        });
+                        return [4 /*yield*/, this.getNovelsCovers(novels, listUrlCover)];
+                    case 2: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    KissWoodPlugin.prototype.parseNovel = function (novelPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var novel, $, novelUrl, chapterSelectors, chapters;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        novel = {
+                            path: novelPath,
+                            name: 'Sans titre',
+                            status: novelStatus_1.NovelStatus.Ongoing,
+                        };
+                        return [4 /*yield*/, this.getCheerio(this.site + novelPath)];
+                    case 1:
+                        $ = _a.sent();
+                        novelUrl = null;
+                        $('nav div div ul li ul li').each(function (i, elem) {
+                            if ($(elem).find('a').attr('href') === _this.site + novelPath) {
+                                novelUrl = $(elem).parent().find('a').first().attr('href');
+                                novel.name = $(elem).closest('ul').siblings('a').first().text().trim();
+                                return;
+                            }
+                        });
+                        if (!novelUrl) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.getNovelInfo(novel, novelUrl)];
+                    case 2:
+                        novel = _a.sent();
+                        _a.label = 3;
+                    case 3:
+                        chapterSelectors = [
+                            '.entry-content ul li a',
+                            '.entry-content ul li ul li a',
+                            '.entry-content p a',
+                            '.entry-content li a',
+                            '.entry-content blockquote a',
+                        ].join(', ');
+                        chapters = [];
+                        $(chapterSelectors).each(function (i, elem) {
+                            var _a;
+                            var chapterName = $(elem).text().trim();
+                            var chapterUrl = (_a = $(elem).attr('href')) === null || _a === void 0 ? void 0 : _a.replace('http://', 'https://');
+                            if (chapterUrl &&
+                                chapterName &&
+                                chapterUrl.includes(_this.site) &&
+                                // We remove the unnecessary links to Facebook, X, and the homepage from the chapters.
+                                !chapterUrl.includes('share=facebook') &&
+                                !chapterUrl.includes('share=x') &&
+                                !chapterUrl.includes('/category/traductions/') &&
+                                !chapterUrl.includes('/category/tour-des-mondes/') &&
+                                // Removal of duplicates
+                                !chapters.some(function (chapter) { return _this.site + chapter.path === chapterUrl; })) {
+                                chapters.push({
+                                    name: chapterName,
+                                    path: chapterUrl.replace(_this.site, ''),
+                                });
+                            }
+                        });
+                        novel.chapters = chapters;
+                        return [2 /*return*/, novel];
+                }
+            });
+        });
+    };
+    KissWoodPlugin.prototype.parseChapter = function (chapterPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var $, elements, hrIndexes;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getCheerio(this.site + chapterPath)];
+                    case 1:
+                        $ = _a.sent();
+                        elements = $('.entry-content')
+                            .contents()
+                            .map(function (_, el) { return $.html(el); })
+                            .get();
+                        hrIndexes = elements
+                            .map(function (elem, index) { return (elem.includes('<hr>') ? index : -1); })
+                            .filter(function (index) { return index !== -1; });
+                        if (hrIndexes.length === 0) {
+                            hrIndexes = [
+                                0,
+                                elements.findIndex(function (element) {
+                                    return element.includes('https://fr.tipeee.com/kisswood/') ||
+                                        element.includes('>Sommaire</a>') ||
+                                        element.includes('>Chapitre Suivant</a>') ||
+                                        element.includes('———————————————————————————-') ||
+                                        element.includes('share=facebook');
+                                }),
+                            ];
+                        }
+                        else if (hrIndexes.length === 1) {
+                            hrIndexes.unshift(0);
+                        }
+                        else {
+                            hrIndexes[0] += 1;
+                        }
+                        return [2 /*return*/, elements.slice(hrIndexes[0], hrIndexes[1]).join('\n')];
+                }
+            });
+        });
+    };
+    KissWoodPlugin.prototype.searchNovels = function (searchTerm, pageNo) {
+        return __awaiter(this, void 0, void 0, function () {
+            var popularNovels, novels;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (pageNo !== 1)
+                            return [2 /*return*/, []];
+                        popularNovels = this.popularNovels(1);
+                        return [4 /*yield*/, popularNovels];
+                    case 1:
+                        novels = (_a.sent()).filter(function (novel) {
+                            return novel.name
+                                .toLowerCase()
+                                .normalize('NFD')
+                                .replace(/[\u0300-\u036f]/g, '')
+                                .trim()
+                                .includes(searchTerm
+                                .toLowerCase()
+                                .normalize('NFD')
+                                .replace(/[\u0300-\u036f]/g, '')
+                                .trim());
+                        });
+                        return [2 /*return*/, novels];
+                }
+            });
+        });
+    };
+    return KissWoodPlugin;
+}());
+exports.default = new KissWoodPlugin();

@@ -1,1 +1,304 @@
-var t=this&&this.__awaiter||function(t,e,r,n){return new(r||(r=Promise))((function(i,o){function a(t){try{s(n.next(t))}catch(t){o(t)}}function l(t){try{s(n.throw(t))}catch(t){o(t)}}function s(t){var e;t.done?i(t.value):(e=t.value,e instanceof r?e:new r((function(t){t(e)}))).then(a,l)}s((n=n.apply(t,e||[])).next())}))},e=this&&this.__generator||function(t,e){var r,n,i,o={label:0,sent:function(){if(1&i[0])throw i[1];return i[1]},trys:[],ops:[]},a=Object.create(("function"==typeof Iterator?Iterator:Object).prototype);return a.next=l(0),a.throw=l(1),a.return=l(2),"function"==typeof Symbol&&(a[Symbol.iterator]=function(){return this}),a;function l(l){return function(s){return function(l){if(r)throw new TypeError("Generator is already executing.");for(;a&&(a=0,l[0]&&(o=0)),o;)try{if(r=1,n&&(i=2&l[0]?n.return:l[0]?n.throw||((i=n.return)&&i.call(n),0):n.next)&&!(i=i.call(n,l[1])).done)return i;switch(n=0,i&&(l=[2&l[0],i.value]),l[0]){case 0:case 1:i=l;break;case 4:return o.label++,{value:l[1],done:!1};case 5:o.label++,n=l[1],l=[0];continue;case 7:l=o.ops.pop(),o.trys.pop();continue;default:if(!(i=o.trys,(i=i.length>0&&i[i.length-1])||6!==l[0]&&2!==l[0])){o=0;continue}if(3===l[0]&&(!i||l[1]>i[0]&&l[1]<i[3])){o.label=l[1];break}if(6===l[0]&&o.label<i[1]){o.label=i[1],i=l;break}if(i&&o.label<i[2]){o.label=i[2],o.ops.push(l);break}i[2]&&o.ops.pop(),o.trys.pop();continue}l=e.call(t,o)}catch(t){l=[6,t],n=0}finally{r=i=0}if(5&l[0])throw l[1];return{value:l[0]?l[1]:void 0,done:!0}}([l,s])}}},r=this&&this.__spreadArray||function(t,e,r){if(r||2===arguments.length)for(var n,i=0,o=e.length;i<o;i++)!n&&i in e||(n||(n=Array.prototype.slice.call(e,0,i)),n[i]=e[i]);return t.concat(n||Array.prototype.slice.call(e))};Object.defineProperty(exports,"__esModule",{value:!0});var n=require("@libs/fetch"),i=require("@libs/filterInputs"),o=function(){function o(){this.id="ichijoutranslations",this.name="Ichijou Translations",this.site="https://www.ichijoutranslations.com",this.apiSite="https://api.ichijoutranslations.com/api",this.apiRoot="https://api.ichijoutranslations.com",this.cdnSite="https://cdn.ichijoutranslations.com",this.apiHomeBase="https://api.ichijoutranslations.com/api/home",this.version="1.2.0",this.icon="src/es/ichijoutranslations/icon.png",this.lang="Spanish",this.filters={sortBy:{type:i.FilterTypes.Picker,label:"Ordenar por",value:"title",options:[{label:"Título",value:"title"},{label:"Agregado",value:"createdAt"},{label:"Actualizado",value:"updatedAt"},{label:"Vistas",value:"views"}]},sortOrder:{type:i.FilterTypes.Picker,label:"Orden",value:"ASC",options:[{label:"Ascendente",value:"ASC"},{label:"Descendente",value:"DESC"}]}}}return o.prototype.buildCdnUrl=function(t){return t.startsWith("http")?t:this.cdnSite+(t.startsWith("/")?t:"/".concat(t))},o.prototype.isPdfFile=function(t){return/\.pdf(\?|$)/i.test(t)},o.prototype.popularNovels=function(r,i){return t(this,arguments,void 0,(function(t,r){var i,o,a,l,s,c,u,d=this,p=r.filters;return e(this,(function(e){switch(e.label){case 0:return i=(null===(c=null==p?void 0:p.sortBy)||void 0===c?void 0:c.value)||this.filters.sortBy.value,o=(null===(u=null==p?void 0:p.sortOrder)||void 0===u?void 0:u.value)||this.filters.sortOrder.value,a="".concat(this.apiSite,"/home/explore?page=").concat(t,"&limit=12&sortBy=").concat(i,"&sortOrder=").concat(o),[4,(0,n.fetchApi)(a)];case 1:return[4,e.sent().json()];case 2:return l=e.sent(),s=[],l.data.data.forEach((function(t){var e=t.workImages.find((function(t){return"card"===t.image_type.code&&t.image_url}))||t.workImages.find((function(t){return"cover"===t.image_type.code&&t.image_url})),r=(null==e?void 0:e.image_url)?d.buildCdnUrl(e.image_url):void 0;s.push({name:t.title,cover:r,path:"/obras/".concat(t.id,"-").concat(t.slug)})})),[2,s]}}))}))},o.prototype.parseNovel=function(i){return t(this,void 0,void 0,(function(){var t,o,a,l,s,c,u,d,p,h,f,v,m,y,b,g,w,x,_,A,I,k,j,C,S,U,P,E,F;return e(this,(function(e){switch(e.label){case 0:if(!(t=i.split("/").pop()))throw new Error("No se pudo obtener el slug de la novela");return o="".concat(this.apiHomeBase,"/works/").concat(t),[4,(0,n.fetchApi)(o)];case 1:return[4,e.sent().json()];case 2:if(a=e.sent(),l=a.data,s=null!==(j=null===(k=l.workImages)||void 0===k?void 0:k.find((function(t){return"card"===t.image_type.code&&t.image_url})))&&void 0!==j?j:null===(C=l.workImages)||void 0===C?void 0:C.find((function(t){return"cover"===t.image_type.code&&t.image_url})),c=(null==s?void 0:s.image_url)?this.buildCdnUrl(s.image_url):void 0,u=(null===(S=l.workGenres)||void 0===S?void 0:S.map((function(t){return t.genre.name})))||[],d=[],p=0,(h=Array.isArray(l.volumes)?l.volumes:[]).length)for(f=r([],h,!0).sort((function(t,e){return t.orderIndex-e.orderIndex})),v=0,m=f;v<m.length;v++)y=m[v],(A=y.fileUrl||(null===(U=y.volume_file)||void 0===U?void 0:U.fileUrl))&&this.isPdfFile(A)&&(p++,d.push({name:"Volumen ".concat(y.orderIndex,": ").concat(y.title),path:this.buildCdnUrl(A),releaseTime:y.createdAt,chapterNumber:p}));if((b=Array.isArray(l.chapters)?l.chapters:[]).length)for(g=r([],b,!0).sort((function(t,e){return t.orderIndex-e.orderIndex})),w=0,x=g;w<x.length;w++)_=x[w],p++,A=_.fileUrl||(null===(P=_.chapterFile)||void 0===P?void 0:P.fileUrl),I=A&&this.isPdfFile(A)?this.buildCdnUrl(A):null,d.push({name:"Capítulo ".concat(_.orderIndex,": ").concat(_.title),path:null!=I?I:"/capitulo/".concat(_.id),releaseTime:_.createdAt,chapterNumber:p});return[2,{path:i,name:l.title,cover:c,summary:l.synopsis,status:null===(F=null===(E=l.publicationStatus)||void 0===E?void 0:E.name)||void 0===F?void 0:F.trim(),genres:u.join(", "),chapters:d}]}}))}))},o.prototype.parseChapter=function(r){return t(this,void 0,void 0,(function(){var t,i,o,a,l,s,c,u,d,p,h,f,v,m,y,b,g,w,x,_;return e(this,(function(e){switch(e.label){case 0:if(this.isPdfFile(r))return i=r.startsWith("http")?r:this.buildCdnUrl(r),[2,'<div style="text-align:center;padding:32px 16px;font-family:sans-serif;"><p style="font-size:18px;margin-bottom:24px;">Este capítulo está en formato PDF.</p>'+'<a href="'.concat(i,'" style="display:inline-block;padding:14px 28px;')+'background:#1976D2;color:#fff;text-decoration:none;border-radius:8px;font-size:16px;">Abrir PDF</a></div>'];if(r.includes("/leer-pdf/"))return t=r.replace("/leer-pdf",""),i=this.buildCdnUrl(t),[2,'<div style="text-align:center;padding:32px 16px;font-family:sans-serif;"><p style="font-size:18px;margin-bottom:24px;">Este capítulo está en formato PDF.</p>'+'<a href="'.concat(i,'" style="display:inline-block;padding:14px 28px;')+'background:#1976D2;color:#fff;text-decoration:none;border-radius:8px;font-size:16px;">Abrir PDF</a></div>'];if(!r.startsWith("/capitulo/"))return[3,3];if(!(o=null===(f=null===(h=r.split("/").pop())||void 0===h?void 0:h.match(/^(\d+)/))||void 0===f?void 0:f[1]))throw new Error("No se pudo obtener el ID del capítulo");return a="".concat(this.apiSite,"/home/chapter/").concat(o),[4,(0,n.fetchApi)(a)];case 1:return[4,e.sent().json()];case 2:if(l=e.sent(),!(s=null!==(y=null!==(m=null===(v=l.data)||void 0===v?void 0:v.content)&&void 0!==m?m:l.content)&&void 0!==y?y:""))throw new Error("No se encontró contenido del capítulo");return[2,s];case 3:if(!(c=null===(g=null===(b=r.split("/").pop())||void 0===b?void 0:b.match(/^(\d+)/))||void 0===g?void 0:g[1]))throw new Error("No se pudo obtener el ID del capítulo");return u="".concat(this.apiSite,"/home/chapter/").concat(c),[4,(0,n.fetchApi)(u)];case 4:return[4,e.sent().json()];case 5:if(d=e.sent(),!(p=null!==(_=null!==(x=null===(w=d.data)||void 0===w?void 0:w.content)&&void 0!==x?x:d.content)&&void 0!==_?_:""))throw new Error("No se encontró contenido del capítulo");return[2,p]}}))}))},o.prototype.searchNovels=function(r,i){return t(this,void 0,void 0,(function(){var t,o,a,l,s,c=this;return e(this,(function(e){switch(e.label){case 0:return t=this.filters.sortBy.value,o=this.filters.sortOrder.value,a="".concat(this.apiSite,"/home/explore?page=").concat(i,"&limit=12&sortBy=").concat(t,"&sortOrder=").concat(o,"&search=").concat(encodeURIComponent(r)),[4,(0,n.fetchApi)(a)];case 1:return[4,e.sent().json()];case 2:return l=e.sent(),s=[],l.data.data.forEach((function(t){var e=t.workImages.find((function(t){return"card"===t.image_type.code&&t.image_url}))||t.workImages.find((function(t){return"cover"===t.image_type.code&&t.image_url})),r=(null==e?void 0:e.image_url)?c.buildCdnUrl(e.image_url):void 0;s.push({name:t.title,cover:r,path:"/obras/".concat(t.id,"-").concat(t.slug)})})),[2,s]}}))}))},o}();exports.default=new o;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var fetch_1 = require("@libs/fetch");
+var filterInputs_1 = require("@libs/filterInputs");
+var IchijouTranslations = /** @class */ (function () {
+    function IchijouTranslations() {
+        this.id = 'ichijoutranslations';
+        this.name = 'Ichijou Translations';
+        this.site = 'https://www.ichijoutranslations.com';
+        this.apiSite = 'https://api.ichijoutranslations.com/api';
+        this.apiRoot = 'https://api.ichijoutranslations.com';
+        this.cdnSite = 'https://cdn.ichijoutranslations.com';
+        this.apiHomeBase = 'https://api.ichijoutranslations.com/api/home';
+        this.version = '1.2.0';
+        this.icon = 'src/es/ichijoutranslations/icon.png';
+        this.lang = 'Spanish';
+        this.filters = {
+            sortBy: {
+                type: filterInputs_1.FilterTypes.Picker,
+                label: 'Ordenar por',
+                value: 'title',
+                options: [
+                    { label: 'Título', value: 'title' },
+                    { label: 'Agregado', value: 'createdAt' },
+                    { label: 'Actualizado', value: 'updatedAt' },
+                    { label: 'Vistas', value: 'views' },
+                ],
+            },
+            sortOrder: {
+                type: filterInputs_1.FilterTypes.Picker,
+                label: 'Orden',
+                value: 'ASC',
+                options: [
+                    { label: 'Ascendente', value: 'ASC' },
+                    { label: 'Descendente', value: 'DESC' },
+                ],
+            },
+        };
+    }
+    IchijouTranslations.prototype.buildCdnUrl = function (relativePath) {
+        if (relativePath.startsWith('http'))
+            return relativePath;
+        return (this.cdnSite +
+            (relativePath.startsWith('/') ? relativePath : "/".concat(relativePath)));
+    };
+    IchijouTranslations.prototype.isPdfFile = function (fileUrl) {
+        return /\.pdf(\?|$)/i.test(fileUrl);
+    };
+    IchijouTranslations.prototype.popularNovels = function (pageNo_1, _a) {
+        return __awaiter(this, arguments, void 0, function (pageNo, _b) {
+            var sortBy, sortOrder, url, result, body, novels;
+            var _this = this;
+            var _c, _d;
+            var filters = _b.filters;
+            return __generator(this, function (_e) {
+                switch (_e.label) {
+                    case 0:
+                        sortBy = ((_c = filters === null || filters === void 0 ? void 0 : filters.sortBy) === null || _c === void 0 ? void 0 : _c.value) || this.filters.sortBy.value;
+                        sortOrder = ((_d = filters === null || filters === void 0 ? void 0 : filters.sortOrder) === null || _d === void 0 ? void 0 : _d.value) || this.filters.sortOrder.value;
+                        url = "".concat(this.apiSite, "/home/explore?page=").concat(pageNo, "&limit=12&sortBy=").concat(sortBy, "&sortOrder=").concat(sortOrder);
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(url)];
+                    case 1:
+                        result = _e.sent();
+                        return [4 /*yield*/, result.json()];
+                    case 2:
+                        body = (_e.sent());
+                        novels = [];
+                        body.data.data.forEach(function (work) {
+                            var coverImage = work.workImages.find(function (img) { return img.image_type.code === 'card' && img.image_url; }) ||
+                                work.workImages.find(function (img) { return img.image_type.code === 'cover' && img.image_url; });
+                            var cover = (coverImage === null || coverImage === void 0 ? void 0 : coverImage.image_url)
+                                ? _this.buildCdnUrl(coverImage.image_url)
+                                : undefined;
+                            novels.push({
+                                name: work.title,
+                                cover: cover,
+                                path: "/obras/".concat(work.id, "-").concat(work.slug),
+                            });
+                        });
+                        return [2 /*return*/, novels];
+                }
+            });
+        });
+    };
+    IchijouTranslations.prototype.parseNovel = function (novelPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var slug, url, result, body, work, coverImage, cover, genres, chapters, chapterNumber, volumes, sortedVolumes, _i, sortedVolumes_1, volume, fileUrl, rootChapters, sortedChapters, _a, sortedChapters_1, chapter, fileUrl, pdfPath;
+            var _b, _c, _d, _e, _f, _g, _h, _j;
+            return __generator(this, function (_k) {
+                switch (_k.label) {
+                    case 0:
+                        slug = novelPath.split('/').pop();
+                        if (!slug)
+                            throw new Error('No se pudo obtener el slug de la novela');
+                        url = "".concat(this.apiHomeBase, "/works/").concat(slug);
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(url)];
+                    case 1:
+                        result = _k.sent();
+                        return [4 /*yield*/, result.json()];
+                    case 2:
+                        body = (_k.sent());
+                        work = body.data;
+                        coverImage = (_c = (_b = work.workImages) === null || _b === void 0 ? void 0 : _b.find(function (img) { return img.image_type.code === 'card' && img.image_url; })) !== null && _c !== void 0 ? _c : (_d = work.workImages) === null || _d === void 0 ? void 0 : _d.find(function (img) { return img.image_type.code === 'cover' && img.image_url; });
+                        cover = (coverImage === null || coverImage === void 0 ? void 0 : coverImage.image_url)
+                            ? this.buildCdnUrl(coverImage.image_url)
+                            : undefined;
+                        genres = ((_e = work.workGenres) === null || _e === void 0 ? void 0 : _e.map(function (g) { return g.genre.name; })) || [];
+                        chapters = [];
+                        chapterNumber = 0;
+                        volumes = Array.isArray(work.volumes) ? work.volumes : [];
+                        if (volumes.length) {
+                            sortedVolumes = __spreadArray([], volumes, true).sort(function (a, b) { return a.orderIndex - b.orderIndex; });
+                            for (_i = 0, sortedVolumes_1 = sortedVolumes; _i < sortedVolumes_1.length; _i++) {
+                                volume = sortedVolumes_1[_i];
+                                fileUrl = volume.fileUrl || ((_f = volume.volume_file) === null || _f === void 0 ? void 0 : _f.fileUrl);
+                                if (fileUrl && this.isPdfFile(fileUrl)) {
+                                    chapterNumber++;
+                                    chapters.push({
+                                        name: "Volumen ".concat(volume.orderIndex, ": ").concat(volume.title),
+                                        path: this.buildCdnUrl(fileUrl),
+                                        releaseTime: volume.createdAt,
+                                        chapterNumber: chapterNumber,
+                                    });
+                                }
+                            }
+                        }
+                        rootChapters = Array.isArray(work.chapters) ? work.chapters : [];
+                        if (rootChapters.length) {
+                            sortedChapters = __spreadArray([], rootChapters, true).sort(function (a, b) { return a.orderIndex - b.orderIndex; });
+                            for (_a = 0, sortedChapters_1 = sortedChapters; _a < sortedChapters_1.length; _a++) {
+                                chapter = sortedChapters_1[_a];
+                                chapterNumber++;
+                                fileUrl = chapter.fileUrl || ((_g = chapter.chapterFile) === null || _g === void 0 ? void 0 : _g.fileUrl);
+                                pdfPath = fileUrl && this.isPdfFile(fileUrl) ? this.buildCdnUrl(fileUrl) : null;
+                                chapters.push({
+                                    name: "Cap\u00EDtulo ".concat(chapter.orderIndex, ": ").concat(chapter.title),
+                                    path: pdfPath !== null && pdfPath !== void 0 ? pdfPath : "/capitulo/".concat(chapter.id),
+                                    releaseTime: chapter.createdAt,
+                                    chapterNumber: chapterNumber,
+                                });
+                            }
+                        }
+                        return [2 /*return*/, {
+                                path: novelPath,
+                                name: work.title,
+                                cover: cover,
+                                summary: work.synopsis,
+                                status: (_j = (_h = work.publicationStatus) === null || _h === void 0 ? void 0 : _h.name) === null || _j === void 0 ? void 0 : _j.trim(),
+                                genres: genres.join(', '),
+                                chapters: chapters,
+                            }];
+                }
+            });
+        });
+    };
+    IchijouTranslations.prototype.parseChapter = function (chapterPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var pdfUrl, relativePath, pdfUrl, chapterId, url_1, result_1, body_1, content_1, id, url, result, body, content;
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+            return __generator(this, function (_l) {
+                switch (_l.label) {
+                    case 0:
+                        // PDF directo (URL CDN completa) — la app redirige a PdfReaderScreen antes
+                        // de llegar aquí, pero lo dejamos como fallback por si acaso.
+                        if (this.isPdfFile(chapterPath)) {
+                            pdfUrl = chapterPath.startsWith('http')
+                                ? chapterPath
+                                : this.buildCdnUrl(chapterPath);
+                            return [2 /*return*/, ('<div style="text-align:center;padding:32px 16px;font-family:sans-serif;">' +
+                                    '<p style="font-size:18px;margin-bottom:24px;">Este capítulo está en formato PDF.</p>' +
+                                    "<a href=\"".concat(pdfUrl, "\" style=\"display:inline-block;padding:14px 28px;") +
+                                    'background:#1976D2;color:#fff;text-decoration:none;border-radius:8px;' +
+                                    'font-size:16px;">Abrir PDF</a></div>')];
+                        }
+                        // Backward compat: rutas /leer-pdf/ antiguas
+                        if (chapterPath.includes('/leer-pdf/')) {
+                            relativePath = chapterPath.replace('/leer-pdf', '');
+                            pdfUrl = this.buildCdnUrl(relativePath);
+                            return [2 /*return*/, ('<div style="text-align:center;padding:32px 16px;font-family:sans-serif;">' +
+                                    '<p style="font-size:18px;margin-bottom:24px;">Este capítulo está en formato PDF.</p>' +
+                                    "<a href=\"".concat(pdfUrl, "\" style=\"display:inline-block;padding:14px 28px;") +
+                                    'background:#1976D2;color:#fff;text-decoration:none;border-radius:8px;' +
+                                    'font-size:16px;">Abrir PDF</a></div>')];
+                        }
+                        if (!chapterPath.startsWith('/capitulo/')) return [3 /*break*/, 3];
+                        chapterId = (_b = (_a = chapterPath
+                            .split('/')
+                            .pop()) === null || _a === void 0 ? void 0 : _a.match(/^(\d+)/)) === null || _b === void 0 ? void 0 : _b[1];
+                        if (!chapterId)
+                            throw new Error('No se pudo obtener el ID del capítulo');
+                        url_1 = "".concat(this.apiSite, "/home/chapter/").concat(chapterId);
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(url_1)];
+                    case 1:
+                        result_1 = _l.sent();
+                        return [4 /*yield*/, result_1.json()];
+                    case 2:
+                        body_1 = (_l.sent());
+                        content_1 = (_e = (_d = (_c = body_1.data) === null || _c === void 0 ? void 0 : _c.content) !== null && _d !== void 0 ? _d : body_1.content) !== null && _e !== void 0 ? _e : '';
+                        if (!content_1)
+                            throw new Error('No se encontró contenido del capítulo');
+                        return [2 /*return*/, content_1];
+                    case 3:
+                        id = (_g = (_f = chapterPath
+                            .split('/')
+                            .pop()) === null || _f === void 0 ? void 0 : _f.match(/^(\d+)/)) === null || _g === void 0 ? void 0 : _g[1];
+                        if (!id)
+                            throw new Error('No se pudo obtener el ID del capítulo');
+                        url = "".concat(this.apiSite, "/home/chapter/").concat(id);
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(url)];
+                    case 4:
+                        result = _l.sent();
+                        return [4 /*yield*/, result.json()];
+                    case 5:
+                        body = (_l.sent());
+                        content = (_k = (_j = (_h = body.data) === null || _h === void 0 ? void 0 : _h.content) !== null && _j !== void 0 ? _j : body.content) !== null && _k !== void 0 ? _k : '';
+                        if (!content)
+                            throw new Error('No se encontró contenido del capítulo');
+                        return [2 /*return*/, content];
+                }
+            });
+        });
+    };
+    IchijouTranslations.prototype.searchNovels = function (searchTerm, pageNo) {
+        return __awaiter(this, void 0, void 0, function () {
+            var sortBy, sortOrder, url, result, body, novels;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        sortBy = this.filters.sortBy.value;
+                        sortOrder = this.filters.sortOrder.value;
+                        url = "".concat(this.apiSite, "/home/explore?page=").concat(pageNo, "&limit=12&sortBy=").concat(sortBy, "&sortOrder=").concat(sortOrder, "&search=").concat(encodeURIComponent(searchTerm));
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(url)];
+                    case 1:
+                        result = _a.sent();
+                        return [4 /*yield*/, result.json()];
+                    case 2:
+                        body = (_a.sent());
+                        novels = [];
+                        body.data.data.forEach(function (work) {
+                            var coverImage = work.workImages.find(function (img) { return img.image_type.code === 'card' && img.image_url; }) ||
+                                work.workImages.find(function (img) { return img.image_type.code === 'cover' && img.image_url; });
+                            var cover = (coverImage === null || coverImage === void 0 ? void 0 : coverImage.image_url)
+                                ? _this.buildCdnUrl(coverImage.image_url)
+                                : undefined;
+                            novels.push({
+                                name: work.title,
+                                cover: cover,
+                                path: "/obras/".concat(work.id, "-").concat(work.slug),
+                            });
+                        });
+                        return [2 /*return*/, novels];
+                }
+            });
+        });
+    };
+    return IchijouTranslations;
+}());
+exports.default = new IchijouTranslations();

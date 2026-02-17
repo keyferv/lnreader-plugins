@@ -1,1 +1,306 @@
-var t=this&&this.__awaiter||function(t,e,r,n){return new(r||(r=Promise))((function(i,o){function a(t){try{c(n.next(t))}catch(t){o(t)}}function s(t){try{c(n.throw(t))}catch(t){o(t)}}function c(t){var e;t.done?i(t.value):(e=t.value,e instanceof r?e:new r((function(t){t(e)}))).then(a,s)}c((n=n.apply(t,e||[])).next())}))},e=this&&this.__generator||function(t,e){var r,n,i,o={label:0,sent:function(){if(1&i[0])throw i[1];return i[1]},trys:[],ops:[]},a=Object.create(("function"==typeof Iterator?Iterator:Object).prototype);return a.next=s(0),a.throw=s(1),a.return=s(2),"function"==typeof Symbol&&(a[Symbol.iterator]=function(){return this}),a;function s(s){return function(c){return function(s){if(r)throw new TypeError("Generator is already executing.");for(;a&&(a=0,s[0]&&(o=0)),o;)try{if(r=1,n&&(i=2&s[0]?n.return:s[0]?n.throw||((i=n.return)&&i.call(n),0):n.next)&&!(i=i.call(n,s[1])).done)return i;switch(n=0,i&&(s=[2&s[0],i.value]),s[0]){case 0:case 1:i=s;break;case 4:return o.label++,{value:s[1],done:!1};case 5:o.label++,n=s[1],s=[0];continue;case 7:s=o.ops.pop(),o.trys.pop();continue;default:if(!(i=o.trys,(i=i.length>0&&i[i.length-1])||6!==s[0]&&2!==s[0])){o=0;continue}if(3===s[0]&&(!i||s[1]>i[0]&&s[1]<i[3])){o.label=s[1];break}if(6===s[0]&&o.label<i[1]){o.label=i[1],i=s;break}if(i&&o.label<i[2]){o.label=i[2],o.ops.push(s);break}i[2]&&o.ops.pop(),o.trys.pop();continue}s=e.call(t,o)}catch(t){s=[6,t],n=0}finally{r=i=0}if(5&s[0])throw s[1];return{value:s[0]?s[1]:void 0,done:!0}}([s,c])}}};Object.defineProperty(exports,"__esModule",{value:!0});var r=require("cheerio"),n=require("@libs/fetch"),i=function(){function i(){this.id="lorenovels",this.name="Lore Novels",this.icon="src/en/lorenovels/icon.png",this.site="https://lorenovels.com",this.version="1.0.3"}return i.prototype.resolvePath=function(t){if(t){if(t.startsWith("http")){var e=new URL(t);if(!e.hostname.endsWith("lorenovels.com"))return;return e.pathname}return t.startsWith("/")?t:"/".concat(t)}},i.prototype.resolveCover=function(t){if(t&&!t.startsWith("data:"))return t.startsWith("http")?t:new URL(t,this.site).toString()},i.prototype.parseHomeNovels=function(t){var e=this,r=t("div.entry-content.alignwide.wp-block-post-content").first(),n=r.length?r:t.root(),i=[],o=new Set;return n.find("div.wp-block-column").each((function(r,n){var a=t(n),s=a.find("h2 a").first().attr("href"),c=a.find("h2 a").first().text().trim(),h=a.find("figure img").first(),u=e.resolveCover(h.attr("data-src")||h.attr("src")),l=e.resolvePath(s);c&&l&&!o.has(l)&&(o.add(l),i.push({name:c,path:l,cover:u}))})),i},i.prototype.popularNovels=function(i,o){return t(this,arguments,void 0,(function(t,i){var o,a;i.showLatestNovels;return e(this,(function(e){switch(e.label){case 0:return t>1?[2,[]]:[4,(0,n.fetchApi)(this.site).then((function(t){return t.text()}))];case 1:return o=e.sent(),a=(0,r.load)(o),[2,this.parseHomeNovels(a)]}}))}))},i.prototype.parseNovel=function(i){return t(this,void 0,void 0,(function(){var t,o,a,s,c,h,u,l,f,p,d,v,m,w,b,y,g,x,k,_=this;return e(this,(function(e){switch(e.label){case 0:return[4,(0,n.fetchApi)(this.site+i).then((function(t){return t.text()}))];case 1:return t=e.sent(),o=(0,r.load)(t),a=o("h1.entry-title, h1.wp-block-post-title, h1").first().text().trim(),s=o("div.entry-content figure.wp-block-image img").first(),c=o('div.entry-content img[class*="wp-image-"]').first(),h=o("img.wp-post-image").first(),u=o(".wp-block-image img").first(),l=o("figure img").first(),f=o("div.entry-content img").first(),p=this.resolveCover(s.attr("data-src")||s.attr("src")||c.attr("data-src")||c.attr("src")||h.attr("data-src")||h.attr("src")||u.attr("data-src")||u.attr("src")||l.attr("data-src")||l.attr("src")||f.attr("data-src")||f.attr("src")),d=["title:","author:","genre:","genres:","status:","artist:"],o("div.wp-block-group.is-vertical").each((function(t,e){var r=o(e),n=r.find("p").first().text().trim().toLowerCase();if(d.includes(n)){var i=r.find("h2").first().text().trim()||r.find(".wp-block-button__link").first().text().trim();i&&("title:"===n?a&&"Untitled"!==a||(a=i):"author:"===n?v=i:"genre:"===n||"genres:"===n?m=i:"status:"===n?w=i:"artist:"===n&&(b=i))}})),y=[],o("div.entry-content p").each((function(t,e){var r=o(e).text().trim();r&&(d.includes(r.toLowerCase())||y.push(r))})),g=y.join("\n\n")||void 0,x=[],k=new Set,o(".wp-block-latest-posts__post-title").each((function(t,e){var r=o(e),n=r.attr("href"),i=_.resolvePath(n),a=r.text().trim();i&&a&&!k.has(i)&&(k.add(i),x.push({name:a,path:i}))})),o("div.entry-content a:not(.wp-block-button__link)").each((function(t,e){var r=o(e),n=r.attr("href"),i=_.resolvePath(n),a=r.text().trim();i&&a&&(i.includes("#")||i.includes("/wp-content/")||(/chapter|cap|ch\.?\s?\d/i.test(a)||/chapter/i.test(i))&&(k.has(i)||(k.add(i),x.push({name:a,path:i}))))})),[2,{path:i,name:a||"Untitled",cover:p,summary:g,author:v,artist:b,genres:m,status:w,chapters:x}]}}))}))},i.prototype.parseChapter=function(i){return t(this,void 0,void 0,(function(){var t,o,a,s;return e(this,(function(e){switch(e.label){case 0:return[4,(0,n.fetchApi)(this.site+i).then((function(t){return t.text()}))];case 1:return t=e.sent(),o=(0,r.load)(t),a=o("h1.wp-block-post-title").text().trim(),o("script, style, .sharedaddy, .wp-block-buttons, nav, form, .comment-respond, .not-a-member-block, .site-comments, .wp-block-post-navigation-link").remove(),o("div.entry-content img").each((function(t,e){var r=o(e),n=r.attr("data-src");n&&(r.attr("src",n),r.removeAttr("data-src"))})),s=o("div.entry-content").html()||"",[2,"<h1>".concat(a,"</h1>\n").concat(s)]}}))}))},i.prototype.searchNovels=function(i,o){return t(this,void 0,void 0,(function(){var t,a,s,c,h,u=this;return e(this,(function(e){switch(e.label){case 0:return o>1?[2,[]]:(t="".concat(this.site,"/?s=").concat(encodeURIComponent(i)),[4,(0,n.fetchApi)(t).then((function(t){return t.text()}))]);case 1:return a=e.sent(),s=(0,r.load)(a),c=[],h=new Set,s("article").each((function(t,e){var r=s(e),n=r.find("h2 a, h1 a").first().attr("href"),i=r.find("h2, h1").first().text().trim(),o=r.find("img").first(),a=u.resolveCover(o.attr("data-src")||o.attr("src")),l=u.resolvePath(n);i&&l&&!h.has(l)&&(/chapter|cap|ch\.?\s?\d/i.test(i)||(h.add(l),c.push({name:i,path:l,cover:a})))})),c.length?[2,c]:[2,this.parseHomeNovels(s)]}}))}))},i}();exports.default=new i;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var cheerio_1 = require("cheerio");
+var fetch_1 = require("@libs/fetch");
+var LoreNovels = /** @class */ (function () {
+    function LoreNovels() {
+        this.id = 'lorenovels';
+        this.name = 'Lore Novels';
+        this.icon = 'src/en/lorenovels/icon.png';
+        this.site = 'https://lorenovels.com';
+        this.version = '1.0.3';
+    }
+    LoreNovels.prototype.resolvePath = function (href) {
+        if (!href)
+            return undefined;
+        if (href.startsWith('http')) {
+            var url = new URL(href);
+            if (!url.hostname.endsWith('lorenovels.com'))
+                return undefined;
+            return url.pathname;
+        }
+        if (!href.startsWith('/'))
+            return "/".concat(href);
+        return href;
+    };
+    LoreNovels.prototype.resolveCover = function (src) {
+        if (!src || src.startsWith('data:'))
+            return undefined;
+        if (src.startsWith('http'))
+            return src;
+        return new URL(src, this.site).toString();
+    };
+    LoreNovels.prototype.parseHomeNovels = function (loadedCheerio) {
+        var _this = this;
+        var container = loadedCheerio('div.entry-content.alignwide.wp-block-post-content').first();
+        var root = (container.length ? container : loadedCheerio.root());
+        var novels = [];
+        var seen = new Set();
+        root.find('div.wp-block-column').each(function (_, el) {
+            var column = loadedCheerio(el);
+            var link = column.find('h2 a').first().attr('href');
+            var name = column.find('h2 a').first().text().trim();
+            var img = column.find('figure img').first();
+            var cover = _this.resolveCover(img.attr('data-src') || img.attr('src'));
+            var path = _this.resolvePath(link);
+            if (!name || !path || seen.has(path))
+                return;
+            seen.add(path);
+            novels.push({
+                name: name,
+                path: path,
+                cover: cover,
+            });
+        });
+        return novels;
+    };
+    LoreNovels.prototype.popularNovels = function (pageNo_1, _a) {
+        return __awaiter(this, arguments, void 0, function (pageNo, _b) {
+            var body, loadedCheerio;
+            var showLatestNovels = _b.showLatestNovels;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        if (pageNo > 1)
+                            return [2 /*return*/, []];
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site).then(function (res) { return res.text(); })];
+                    case 1:
+                        body = _c.sent();
+                        loadedCheerio = (0, cheerio_1.load)(body);
+                        if (showLatestNovels) {
+                            return [2 /*return*/, this.parseHomeNovels(loadedCheerio)];
+                        }
+                        return [2 /*return*/, this.parseHomeNovels(loadedCheerio)];
+                }
+            });
+        });
+    };
+    LoreNovels.prototype.parseNovel = function (novelPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var body, loadedCheerio, name, contentImg, wpImg, postImg, blockImg, figImg, firstImg, cover, metaLabels, author, genres, status, artist, summaryParts, summary, chapters, seen;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + novelPath).then(function (res) { return res.text(); })];
+                    case 1:
+                        body = _a.sent();
+                        loadedCheerio = (0, cheerio_1.load)(body);
+                        name = loadedCheerio('h1.entry-title, h1.wp-block-post-title, h1')
+                            .first()
+                            .text()
+                            .trim();
+                        contentImg = loadedCheerio('div.entry-content figure.wp-block-image img').first();
+                        wpImg = loadedCheerio('div.entry-content img[class*="wp-image-"]').first();
+                        postImg = loadedCheerio('img.wp-post-image').first();
+                        blockImg = loadedCheerio('.wp-block-image img').first();
+                        figImg = loadedCheerio('figure img').first();
+                        firstImg = loadedCheerio('div.entry-content img').first();
+                        cover = this.resolveCover(contentImg.attr('data-src') ||
+                            contentImg.attr('src') ||
+                            wpImg.attr('data-src') ||
+                            wpImg.attr('src') ||
+                            postImg.attr('data-src') ||
+                            postImg.attr('src') ||
+                            blockImg.attr('data-src') ||
+                            blockImg.attr('src') ||
+                            figImg.attr('data-src') ||
+                            figImg.attr('src') ||
+                            firstImg.attr('data-src') ||
+                            firstImg.attr('src'));
+                        metaLabels = [
+                            'title:',
+                            'author:',
+                            'genre:',
+                            'genres:',
+                            'status:',
+                            'artist:',
+                        ];
+                        loadedCheerio('div.wp-block-group.is-vertical').each(function (_, el) {
+                            var group = loadedCheerio(el);
+                            var label = group.find('p').first().text().trim().toLowerCase();
+                            if (!metaLabels.includes(label))
+                                return;
+                            var value = group.find('h2').first().text().trim() ||
+                                group.find('.wp-block-button__link').first().text().trim();
+                            if (!value)
+                                return;
+                            if (label === 'title:') {
+                                if (!name || name === 'Untitled') {
+                                    name = value;
+                                }
+                            }
+                            else if (label === 'author:')
+                                author = value;
+                            else if (label === 'genre:' || label === 'genres:')
+                                genres = value;
+                            else if (label === 'status:')
+                                status = value;
+                            else if (label === 'artist:')
+                                artist = value;
+                        });
+                        summaryParts = [];
+                        loadedCheerio('div.entry-content p').each(function (_, el) {
+                            var text = loadedCheerio(el).text().trim();
+                            if (!text)
+                                return;
+                            if (metaLabels.includes(text.toLowerCase()))
+                                return;
+                            summaryParts.push(text);
+                        });
+                        summary = summaryParts.join('\n\n') || undefined;
+                        chapters = [];
+                        seen = new Set();
+                        // Latest posts block (primary chapter list)
+                        loadedCheerio('.wp-block-latest-posts__post-title').each(function (_, el) {
+                            var anchor = loadedCheerio(el);
+                            var href = anchor.attr('href');
+                            var path = _this.resolvePath(href);
+                            var title = anchor.text().trim();
+                            if (!path || !title || seen.has(path))
+                                return;
+                            seen.add(path);
+                            chapters.push({ name: title, path: path });
+                        });
+                        // Fallback: entry-content links
+                        loadedCheerio('div.entry-content a:not(.wp-block-button__link)').each(function (_, el) {
+                            var anchor = loadedCheerio(el);
+                            var href = anchor.attr('href');
+                            var path = _this.resolvePath(href);
+                            var title = anchor.text().trim();
+                            if (!path || !title)
+                                return;
+                            if (path.includes('#') || path.includes('/wp-content/'))
+                                return;
+                            if (!/chapter|cap|ch\.?\s?\d/i.test(title) && !/chapter/i.test(path)) {
+                                return;
+                            }
+                            if (seen.has(path))
+                                return;
+                            seen.add(path);
+                            chapters.push({
+                                name: title,
+                                path: path,
+                            });
+                        });
+                        return [2 /*return*/, {
+                                path: novelPath,
+                                name: name || 'Untitled',
+                                cover: cover,
+                                summary: summary,
+                                author: author,
+                                artist: artist,
+                                genres: genres,
+                                status: status,
+                                chapters: chapters,
+                            }];
+                }
+            });
+        });
+    };
+    LoreNovels.prototype.parseChapter = function (chapterPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var body, loadedCheerio, title, content;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + chapterPath).then(function (res) {
+                            return res.text();
+                        })];
+                    case 1:
+                        body = _a.sent();
+                        loadedCheerio = (0, cheerio_1.load)(body);
+                        title = loadedCheerio('h1.wp-block-post-title').text().trim();
+                        loadedCheerio('script, style, .sharedaddy, .wp-block-buttons, nav, form, .comment-respond, .not-a-member-block, .site-comments, .wp-block-post-navigation-link').remove();
+                        loadedCheerio('div.entry-content img').each(function (_, el) {
+                            var img = loadedCheerio(el);
+                            var dataSrc = img.attr('data-src');
+                            if (dataSrc) {
+                                img.attr('src', dataSrc);
+                                img.removeAttr('data-src');
+                            }
+                        });
+                        content = loadedCheerio('div.entry-content').html() || '';
+                        return [2 /*return*/, "<h1>".concat(title, "</h1>\n").concat(content)];
+                }
+            });
+        });
+    };
+    LoreNovels.prototype.searchNovels = function (searchTerm, pageNo) {
+        return __awaiter(this, void 0, void 0, function () {
+            var url, body, loadedCheerio, novels, seen;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (pageNo > 1)
+                            return [2 /*return*/, []];
+                        url = "".concat(this.site, "/?s=").concat(encodeURIComponent(searchTerm));
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(url).then(function (res) { return res.text(); })];
+                    case 1:
+                        body = _a.sent();
+                        loadedCheerio = (0, cheerio_1.load)(body);
+                        novels = [];
+                        seen = new Set();
+                        loadedCheerio('article').each(function (_, el) {
+                            var article = loadedCheerio(el);
+                            var link = article.find('h2 a, h1 a').first().attr('href');
+                            var name = article.find('h2, h1').first().text().trim();
+                            var searchImg = article.find('img').first();
+                            var cover = _this.resolveCover(searchImg.attr('data-src') || searchImg.attr('src'));
+                            var path = _this.resolvePath(link);
+                            if (!name || !path || seen.has(path))
+                                return;
+                            if (/chapter|cap|ch\.?\s?\d/i.test(name))
+                                return;
+                            seen.add(path);
+                            novels.push({
+                                name: name,
+                                path: path,
+                                cover: cover,
+                            });
+                        });
+                        if (novels.length)
+                            return [2 /*return*/, novels];
+                        return [2 /*return*/, this.parseHomeNovels(loadedCheerio)];
+                }
+            });
+        });
+    };
+    return LoreNovels;
+}());
+exports.default = new LoreNovels();

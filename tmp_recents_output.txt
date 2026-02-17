@@ -1,0 +1,393 @@
+Fetching https://panchonovels.online/home
+
+DOM (server-rendered) novels:
+[
+  {
+    "name": "La Victima de la Academia",
+    "cover": "https://api.panchonovels.online/uploads/1769477242702_The_Victim_of_the_Academy_df.webp",
+    "path": "novel/la-victima-de-la-academia"
+  },
+  {
+    "name": "Eliminé al Jugador de la Academia",
+    "cover": "https://api.panchonovels.online/uploads/1745981016526-Portada_df.webp",
+    "path": "novel/elimine-al-jugador-de-la-academia"
+  },
+  {
+    "name": "Cómo Criar Villanos Correctamente",
+    "cover": "https://api.panchonovels.online/uploads/1762633989375_portada_df.webp",
+    "path": "novel/como-criar-villanos-correctamente"
+  },
+  {
+    "name": "El Mundo Después del Final Malo",
+    "cover": "https://api.panchonovels.online/uploads/1761698821788_El_Mundo_Despues_del_Final_Malo___Portada_df.webp",
+    "path": "novel/el-mundo-despues-del-final-malo"
+  },
+  {
+    "name": "El Punto de Vista del Autor",
+    "cover": "https://api.panchonovels.online/uploads/1745981861461-punto_de_vista_df.webp",
+    "path": "novel/el-punto-de-vista-del-autor"
+  },
+  {
+    "name": "El genio de la clonación en la Ciudad de la Academia",
+    "cover": "https://api.panchonovels.online/uploads/1760327595196-1760327365_df.webp",
+    "path": "novel/el-genio-de-la-clonacion-en-la-ciudad-de-la-academia"
+  },
+  {
+    "name": "Esclavo de las Sombras",
+    "cover": "https://api.panchonovels.online/uploads/1745983084725-shadow_slave_df.webp",
+    "path": "novel/esclavo-de-las-sombras"
+  },
+  {
+    "name": "Peregrino de la Espada",
+    "cover": "https://api.panchonovels.online/uploads/1745987523865-peregrino_de_la_espada_df.webp",
+    "path": "novel/peregrino-de-la-espada"
+  }
+]
+
+X-data (client) novels:
+[
+  {
+    "name": "El Maestro de la Espada Acogedor de Estrellas",
+    "cover": "https://api.panchonovels.online/uploads/1745988600595-maestro_de_la_espada_df.webp",
+    "path": "novel/el-maestro-de-la-espada-acogedor-de-estrellas"
+  },
+  {
+    "name": "Ending Maker",
+    "cover": "https://api.panchonovels.online/uploads/1752611217408-1000944316_df.webp",
+    "path": "novel/ending-maker"
+  },
+  {
+    "name": "Fui rechazado por el personaje principal en una fantasía romántica.",
+    "cover": "https://api.panchonovels.online/uploads/1750727963254-IWDbtMCit_df.webp",
+    "path": "novel/fui-rechazado-por-el-personaje-principal-en-una-fantasia-romantica"
+  },
+  {
+    "name": "Callate dragona malvada, ya no quiero criar hijos contigo",
+    "cover": "https://api.panchonovels.online/uploads/1747666269494-manhwa-manhua-similar-to-shut-up-evil-dragon-i-dont-want-to-v0-0lznfijoz7ae1_df.webp",
+    "path": "novel/callate-dragona-malvada,-ya-no-quiero-criar-hijos-contigo"
+  },
+  {
+    "name": "Acabé Convirtiéndome en la Estudiante de Menor Rango en la academia",
+    "cover": "https://api.panchonovels.online/uploads/1751776260893-image5_df.webp",
+    "path": "novel/me-converti-en-el-ultimo-lugar-en-la-academia"
+  },
+  {
+    "name": "No Existen las Chicas Malas en el Mundo",
+    "cover": "https://api.panchonovels.online/uploads/1746669768846-Portada_df.webp",
+    "path": "novel/no-existen-las-chicas-malas-en-el-mundo"
+  },
+  {
+    "name": "Me Siento Detrás de la Heroína de la Academia a la Derecha",
+    "cover": "https://api.panchonovels.online/uploads/1752028784475-atras_de_la_heroina_df.webp",
+    "path": "novel/me-siento-detras-de-la-heroina-de-la-academia-a-la-derecha"
+  },
+  {
+    "name": "30 Años Después de Reencarnar, Me Di Cuenta Que Estaba En Una Novela Romántica",
+    "cover": "https://api.panchonovels.online/uploads/1751158768354-30_aÃ±os_df.webp",
+    "path": "novel/30-anos-despues-de-reencarnar-me-di-cuenta-que-estaba-en-una-novela-romantica"
+  },
+  {
+    "name": "Sobreviviendo en una Novela de Fantasía Romántica",
+    "cover": "https://api.panchonovels.online/uploads/1746122929878-fantasia_romantica_df.webp",
+    "path": "novel/sobreviendo-en-una-novela-de-fantasia-romantica"
+  },
+  {
+    "name": "Abandonado por mi Amiga de la Infancia Me Convertí en un Héroe de Guerra",
+    "cover": "https://api.panchonovels.online/uploads/1746116818896-abandonado_por_amiga_de_la_infancia_df.webp",
+    "path": "novel/abandonado-por-mi-amiga-de-la-infancia-me-converti-en-un-heroe-de-guerra-2"
+  },
+  {
+    "name": "Sangre Maldita",
+    "cover": "https://api.panchonovels.online/uploads/1746116481216-sangre_maldita_df.webp",
+    "path": "novel/sangre-maldita-novela"
+  },
+  {
+    "name": "El Villano Quiere Vivir",
+    "cover": "https://api.panchonovels.online/uploads/1745989824033-el_villano_quiere_vivir_df.webp",
+    "path": "novel/el-villano-quiere-vivir"
+  },
+  {
+    "name": "Amigo de la Infancia del Zenith",
+    "cover": "https://api.panchonovels.online/uploads/1745989404954-amigo_de_la_infancia_del_zenith_df.webp",
+    "path": "novel/amigo-de-la-infancia-del-zenith"
+  },
+  {
+    "name": "El Legado Sombrío Del Mensajero Sin Alma",
+    "cover": "https://api.panchonovels.online/uploads/1745989162847-mensajero_sin_alma_df.webp",
+    "path": "novel/el-legado-sombrio-del-mensajero-sin-alma"
+  },
+  {
+    "name": "Me Convertí en un Espadachín Genio en el Juego de las Chicas Bonitas",
+    "cover": "https://api.panchonovels.online/uploads/1745988850881-espadachin_en_juego_de_chicas_df.webp",
+    "path": "novel/me-converti-en-un-espadachin-genio-en-el-juego-de-las-chicas-bonitas"
+  },
+  {
+    "name": "Destinado a Ser Amado por las Villanas",
+    "cover": "https://api.panchonovels.online/uploads/1745988099676-destinado_df.webp",
+    "path": "novel/destinado-a-ser-amado-por-las-villanas"
+  },
+  {
+    "name": "Cómo Sobrevivir en la Academia",
+    "cover": "https://api.panchonovels.online/uploads/1745987846702-sobrevivir_en_la_academia_df.webp",
+    "path": "novel/como-sobrevivir-en-la-academia"
+  },
+  {
+    "name": "Funcionario Público en Fantasía Romántica",
+    "cover": "https://api.panchonovels.online/uploads/1745987288482-funcionario_en_fantasia_romantica_df.webp",
+    "path": "novel/funcionario-publico-en-fantasia-romantica"
+  },
+  {
+    "name": "No Soy Un Regresor",
+    "cover": "https://api.panchonovels.online/uploads/1745986955854-no_soy_un_regresor_df.webp",
+    "path": "novel/no-soy-un-regresor"
+  },
+  {
+    "name": "El Villano de la Novela",
+    "cover": "https://api.panchonovels.online/uploads/1745982807383-villano_novela_df.webp",
+    "path": "novel/el-villano-de-la-novela"
+  },
+  {
+    "name": "Rehabilitando a la Villana",
+    "cover": "https://api.panchonovels.online/uploads/1745985814241-rehabilitando_a_la_villana_df.webp",
+    "path": "novel/rehabilitando-a-la-villana"
+  },
+  {
+    "name": "Me Convertí en un Lancero de la Academia",
+    "cover": "https://api.panchonovels.online/uploads/1745985527639-Lancero_df.webp",
+    "path": "novel/me-converti-en-un-lancero-de-la-academia"
+  },
+  {
+    "name": "Me Convertí en el Prometido de una Heroína Loca",
+    "cover": "https://api.panchonovels.online/uploads/1745984991577-prometido_heroina_loca_df.webp",
+    "path": "novel/me-converti-en-el-prometido-de-una-heroina-loca"
+  },
+  {
+    "name": "Maldita Reencarnación",
+    "cover": "https://api.panchonovels.online/uploads/1745984707129-maldita_reencarnacion_df.webp",
+    "path": "novel/maldita-reencarnacion"
+  },
+  {
+    "name": "Las Heroínas Principales Están Tratando de Matarme",
+    "cover": "https://api.panchonovels.online/uploads/1745984104084-las_heroinas_df.webp",
+    "path": "novel/las-heroinas-principales-estan-tratando-de-matarme"
+  },
+  {
+    "name": "Invocador Genio de la Academia Nigromante",
+    "cover": "https://api.panchonovels.online/uploads/1745983655719-invocado_genio_df.webp",
+    "path": "novel/invocador-genio-de-la-academia-nigromante"
+  },
+  {
+    "name": "Esposas Incompatibles de Interespecies",
+    "cover": "https://api.panchonovels.online/uploads/1745983441777-arwin_df.webp",
+    "path": "novel/esposas-incompatibles-de-interespecies"
+  },
+  {
+    "name": "El Profesor Encubierto de la Academia",
+    "cover": "https://api.panchonovels.online/uploads/1745982215048-profesor_encubierto_df.webp",
+    "path": "novel/el-profesor-encubierto-de-la-academia"
+  },
+  {
+    "name": "El Regresor y la Santa Ciega",
+    "cover": "https://api.panchonovels.online/uploads/1745981464572-el_regresor_y_la_santa_ciega_df.webp",
+    "path": "novel/el-regresor-y-la-santa-ciega"
+  },
+  {
+    "name": "La Hija Mayor Camina por el Sendero de las Flores",
+    "cover": "https://api.panchonovels.online/uploads/1745980670544-sendero_flores_df.webp",
+    "path": "novel/la-hija-mayor-camina-por-el-sendero-de-las-flores"
+  }
+]
+
+Merged (DOM then x-data):
+[
+  {
+    "name": "La Victima de la Academia",
+    "cover": "https://api.panchonovels.online/uploads/1769477242702_The_Victim_of_the_Academy_df.webp",
+    "path": "novel/la-victima-de-la-academia"
+  },
+  {
+    "name": "Eliminé al Jugador de la Academia",
+    "cover": "https://api.panchonovels.online/uploads/1745981016526-Portada_df.webp",
+    "path": "novel/elimine-al-jugador-de-la-academia"
+  },
+  {
+    "name": "Cómo Criar Villanos Correctamente",
+    "cover": "https://api.panchonovels.online/uploads/1762633989375_portada_df.webp",
+    "path": "novel/como-criar-villanos-correctamente"
+  },
+  {
+    "name": "El Mundo Después del Final Malo",
+    "cover": "https://api.panchonovels.online/uploads/1761698821788_El_Mundo_Despues_del_Final_Malo___Portada_df.webp",
+    "path": "novel/el-mundo-despues-del-final-malo"
+  },
+  {
+    "name": "El Punto de Vista del Autor",
+    "cover": "https://api.panchonovels.online/uploads/1745981861461-punto_de_vista_df.webp",
+    "path": "novel/el-punto-de-vista-del-autor"
+  },
+  {
+    "name": "El genio de la clonación en la Ciudad de la Academia",
+    "cover": "https://api.panchonovels.online/uploads/1760327595196-1760327365_df.webp",
+    "path": "novel/el-genio-de-la-clonacion-en-la-ciudad-de-la-academia"
+  },
+  {
+    "name": "Esclavo de las Sombras",
+    "cover": "https://api.panchonovels.online/uploads/1745983084725-shadow_slave_df.webp",
+    "path": "novel/esclavo-de-las-sombras"
+  },
+  {
+    "name": "Peregrino de la Espada",
+    "cover": "https://api.panchonovels.online/uploads/1745987523865-peregrino_de_la_espada_df.webp",
+    "path": "novel/peregrino-de-la-espada"
+  },
+  {
+    "name": "El Maestro de la Espada Acogedor de Estrellas",
+    "cover": "https://api.panchonovels.online/uploads/1745988600595-maestro_de_la_espada_df.webp",
+    "path": "novel/el-maestro-de-la-espada-acogedor-de-estrellas"
+  },
+  {
+    "name": "Ending Maker",
+    "cover": "https://api.panchonovels.online/uploads/1752611217408-1000944316_df.webp",
+    "path": "novel/ending-maker"
+  },
+  {
+    "name": "Fui rechazado por el personaje principal en una fantasía romántica.",
+    "cover": "https://api.panchonovels.online/uploads/1750727963254-IWDbtMCit_df.webp",
+    "path": "novel/fui-rechazado-por-el-personaje-principal-en-una-fantasia-romantica"
+  },
+  {
+    "name": "Callate dragona malvada, ya no quiero criar hijos contigo",
+    "cover": "https://api.panchonovels.online/uploads/1747666269494-manhwa-manhua-similar-to-shut-up-evil-dragon-i-dont-want-to-v0-0lznfijoz7ae1_df.webp",
+    "path": "novel/callate-dragona-malvada,-ya-no-quiero-criar-hijos-contigo"
+  },
+  {
+    "name": "Acabé Convirtiéndome en la Estudiante de Menor Rango en la academia",
+    "cover": "https://api.panchonovels.online/uploads/1751776260893-image5_df.webp",
+    "path": "novel/me-converti-en-el-ultimo-lugar-en-la-academia"
+  },
+  {
+    "name": "No Existen las Chicas Malas en el Mundo",
+    "cover": "https://api.panchonovels.online/uploads/1746669768846-Portada_df.webp",
+    "path": "novel/no-existen-las-chicas-malas-en-el-mundo"
+  },
+  {
+    "name": "Me Siento Detrás de la Heroína de la Academia a la Derecha",
+    "cover": "https://api.panchonovels.online/uploads/1752028784475-atras_de_la_heroina_df.webp",
+    "path": "novel/me-siento-detras-de-la-heroina-de-la-academia-a-la-derecha"
+  },
+  {
+    "name": "30 Años Después de Reencarnar, Me Di Cuenta Que Estaba En Una Novela Romántica",
+    "cover": "https://api.panchonovels.online/uploads/1751158768354-30_aÃ±os_df.webp",
+    "path": "novel/30-anos-despues-de-reencarnar-me-di-cuenta-que-estaba-en-una-novela-romantica"
+  },
+  {
+    "name": "Sobreviviendo en una Novela de Fantasía Romántica",
+    "cover": "https://api.panchonovels.online/uploads/1746122929878-fantasia_romantica_df.webp",
+    "path": "novel/sobreviendo-en-una-novela-de-fantasia-romantica"
+  },
+  {
+    "name": "Abandonado por mi Amiga de la Infancia Me Convertí en un Héroe de Guerra",
+    "cover": "https://api.panchonovels.online/uploads/1746116818896-abandonado_por_amiga_de_la_infancia_df.webp",
+    "path": "novel/abandonado-por-mi-amiga-de-la-infancia-me-converti-en-un-heroe-de-guerra-2"
+  },
+  {
+    "name": "Sangre Maldita",
+    "cover": "https://api.panchonovels.online/uploads/1746116481216-sangre_maldita_df.webp",
+    "path": "novel/sangre-maldita-novela"
+  },
+  {
+    "name": "El Villano Quiere Vivir",
+    "cover": "https://api.panchonovels.online/uploads/1745989824033-el_villano_quiere_vivir_df.webp",
+    "path": "novel/el-villano-quiere-vivir"
+  },
+  {
+    "name": "Amigo de la Infancia del Zenith",
+    "cover": "https://api.panchonovels.online/uploads/1745989404954-amigo_de_la_infancia_del_zenith_df.webp",
+    "path": "novel/amigo-de-la-infancia-del-zenith"
+  },
+  {
+    "name": "El Legado Sombrío Del Mensajero Sin Alma",
+    "cover": "https://api.panchonovels.online/uploads/1745989162847-mensajero_sin_alma_df.webp",
+    "path": "novel/el-legado-sombrio-del-mensajero-sin-alma"
+  },
+  {
+    "name": "Me Convertí en un Espadachín Genio en el Juego de las Chicas Bonitas",
+    "cover": "https://api.panchonovels.online/uploads/1745988850881-espadachin_en_juego_de_chicas_df.webp",
+    "path": "novel/me-converti-en-un-espadachin-genio-en-el-juego-de-las-chicas-bonitas"
+  },
+  {
+    "name": "Destinado a Ser Amado por las Villanas",
+    "cover": "https://api.panchonovels.online/uploads/1745988099676-destinado_df.webp",
+    "path": "novel/destinado-a-ser-amado-por-las-villanas"
+  },
+  {
+    "name": "Cómo Sobrevivir en la Academia",
+    "cover": "https://api.panchonovels.online/uploads/1745987846702-sobrevivir_en_la_academia_df.webp",
+    "path": "novel/como-sobrevivir-en-la-academia"
+  },
+  {
+    "name": "Funcionario Público en Fantasía Romántica",
+    "cover": "https://api.panchonovels.online/uploads/1745987288482-funcionario_en_fantasia_romantica_df.webp",
+    "path": "novel/funcionario-publico-en-fantasia-romantica"
+  },
+  {
+    "name": "No Soy Un Regresor",
+    "cover": "https://api.panchonovels.online/uploads/1745986955854-no_soy_un_regresor_df.webp",
+    "path": "novel/no-soy-un-regresor"
+  },
+  {
+    "name": "El Villano de la Novela",
+    "cover": "https://api.panchonovels.online/uploads/1745982807383-villano_novela_df.webp",
+    "path": "novel/el-villano-de-la-novela"
+  },
+  {
+    "name": "Rehabilitando a la Villana",
+    "cover": "https://api.panchonovels.online/uploads/1745985814241-rehabilitando_a_la_villana_df.webp",
+    "path": "novel/rehabilitando-a-la-villana"
+  },
+  {
+    "name": "Me Convertí en un Lancero de la Academia",
+    "cover": "https://api.panchonovels.online/uploads/1745985527639-Lancero_df.webp",
+    "path": "novel/me-converti-en-un-lancero-de-la-academia"
+  },
+  {
+    "name": "Me Convertí en el Prometido de una Heroína Loca",
+    "cover": "https://api.panchonovels.online/uploads/1745984991577-prometido_heroina_loca_df.webp",
+    "path": "novel/me-converti-en-el-prometido-de-una-heroina-loca"
+  },
+  {
+    "name": "Maldita Reencarnación",
+    "cover": "https://api.panchonovels.online/uploads/1745984707129-maldita_reencarnacion_df.webp",
+    "path": "novel/maldita-reencarnacion"
+  },
+  {
+    "name": "Las Heroínas Principales Están Tratando de Matarme",
+    "cover": "https://api.panchonovels.online/uploads/1745984104084-las_heroinas_df.webp",
+    "path": "novel/las-heroinas-principales-estan-tratando-de-matarme"
+  },
+  {
+    "name": "Invocador Genio de la Academia Nigromante",
+    "cover": "https://api.panchonovels.online/uploads/1745983655719-invocado_genio_df.webp",
+    "path": "novel/invocador-genio-de-la-academia-nigromante"
+  },
+  {
+    "name": "Esposas Incompatibles de Interespecies",
+    "cover": "https://api.panchonovels.online/uploads/1745983441777-arwin_df.webp",
+    "path": "novel/esposas-incompatibles-de-interespecies"
+  },
+  {
+    "name": "El Profesor Encubierto de la Academia",
+    "cover": "https://api.panchonovels.online/uploads/1745982215048-profesor_encubierto_df.webp",
+    "path": "novel/el-profesor-encubierto-de-la-academia"
+  },
+  {
+    "name": "El Regresor y la Santa Ciega",
+    "cover": "https://api.panchonovels.online/uploads/1745981464572-el_regresor_y_la_santa_ciega_df.webp",
+    "path": "novel/el-regresor-y-la-santa-ciega"
+  },
+  {
+    "name": "La Hija Mayor Camina por el Sendero de las Flores",
+    "cover": "https://api.panchonovels.online/uploads/1745980670544-sendero_flores_df.webp",
+    "path": "novel/la-hija-mayor-camina-por-el-sendero-de-las-flores"
+  }
+]

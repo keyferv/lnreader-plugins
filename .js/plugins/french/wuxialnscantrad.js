@@ -1,1 +1,271 @@
-var t=this&&this.__awaiter||function(t,e,r,n){return new(r||(r=Promise))((function(i,s){function o(t){try{a(n.next(t))}catch(t){s(t)}}function u(t){try{a(n.throw(t))}catch(t){s(t)}}function a(t){var e;t.done?i(t.value):(e=t.value,e instanceof r?e:new r((function(t){t(e)}))).then(o,u)}a((n=n.apply(t,e||[])).next())}))},e=this&&this.__generator||function(t,e){var r,n,i,s={label:0,sent:function(){if(1&i[0])throw i[1];return i[1]},trys:[],ops:[]},o=Object.create(("function"==typeof Iterator?Iterator:Object).prototype);return o.next=u(0),o.throw=u(1),o.return=u(2),"function"==typeof Symbol&&(o[Symbol.iterator]=function(){return this}),o;function u(u){return function(a){return function(u){if(r)throw new TypeError("Generator is already executing.");for(;o&&(o=0,u[0]&&(s=0)),s;)try{if(r=1,n&&(i=2&u[0]?n.return:u[0]?n.throw||((i=n.return)&&i.call(n),0):n.next)&&!(i=i.call(n,u[1])).done)return i;switch(n=0,i&&(u=[2&u[0],i.value]),u[0]){case 0:case 1:i=u;break;case 4:return s.label++,{value:u[1],done:!1};case 5:s.label++,n=u[1],u=[0];continue;case 7:u=s.ops.pop(),s.trys.pop();continue;default:if(!(i=s.trys,(i=i.length>0&&i[i.length-1])||6!==u[0]&&2!==u[0])){s=0;continue}if(3===u[0]&&(!i||u[1]>i[0]&&u[1]<i[3])){s.label=u[1];break}if(6===u[0]&&s.label<i[1]){s.label=i[1],i=u;break}if(i&&s.label<i[2]){s.label=i[2],s.ops.push(u);break}i[2]&&s.ops.pop(),s.trys.pop();continue}u=e.call(t,s)}catch(t){u=[6,t],n=0}finally{r=i=0}if(5&u[0])throw u[1];return{value:u[0]?u[1]:void 0,done:!0}}([u,a])}}},r=this&&this.__importDefault||function(t){return t&&t.__esModule?t:{default:t}};Object.defineProperty(exports,"__esModule",{value:!0});var n=require("cheerio"),i=require("@libs/fetch"),s=require("@libs/defaultCover"),o=require("@libs/novelStatus"),u=r(require("dayjs")),a=function(){function r(){this.id="wuxialnscantrad",this.name="WuxiaLnScantrad",this.icon="src/fr/wuxialnscantrad/icon.png",this.site="https://wuxialnscantrad.wordpress.com",this.version="1.0.0"}return r.prototype.getCheerio=function(r){return t(this,void 0,void 0,(function(){var t;return e(this,(function(e){switch(e.label){case 0:return[4,(0,i.fetchApi)(r,{headers:{"Accept-Encoding":"deflate"}})];case 1:return[4,e.sent().text()];case 2:return t=e.sent(),[2,(0,n.load)(t)]}}))}))},r.prototype.popularNovels=function(r){return t(this,void 0,void 0,(function(){var t,n,i,o,u=this;return e(this,(function(e){switch(e.label){case 0:return r>1?[2,[]]:(t=[],i=this.site,[4,this.getCheerio(i)]);case 1:return(o=e.sent())("#menu-item-2210 ul li").each((function(e,r){var i=o(r).first().text().trim(),a=o(r).find("a").attr("href");a&&i&&(n={name:i,cover:s.defaultCover,path:a.replace(u.site,"")},t.push(n))})),[2,t]}}))}))},r.prototype.parseNovel=function(r){return t(this,void 0,void 0,(function(){var t,n,i,s,o,a=this;return e(this,(function(e){switch(e.label){case 0:return t={path:r,name:"Sans titre"},[4,this.getCheerio(this.site+r)];case 1:return n=e.sent(),t.name=n(".entry-title").text().trim(),t.cover=n(".entry-content p strong img").first().attr("src")||n(".entry-content p img").first().attr("src"),i=n(".entry-content").text(),t.author=this.getAuthor(i),t.genres=this.getGenres(i),t.artist=this.getArtist(i),t.summary=this.getSummary(i),t.status=this.getStatus(i),s=n(".entry-content ul").first().children("li"),o=[],s.each((function(t,e){var r=n(e).text().trim(),i=n(e).find("a").attr("href");if(i&&i.includes(a.site)&&r){var s=i.replace(a.site,"");if(!o.some((function(t){return t.path===s}))){var c=(0,u.default)(null==i?void 0:i.substring(a.site.length+1,a.site.length+11)).format("DD MMMM YYYY");o.push({name:r,path:s,releaseTime:c})}}})),t.chapters=o,[2,t]}}))}))},r.prototype.getAuthor=function(t){var e=/Auteur\(s\):\s*(.*)/.exec(t),r="";return null!==e&&(r=e[1].trim()),r},r.prototype.getGenres=function(t){var e=/Genres:\s*(.*)/.exec(t),r="";return null!==e&&(r=e[1].trim()),r},r.prototype.getArtist=function(t){var e=/Artiste\(s\):\s*(.*)Genres/.exec(t),r="";return null!==e&&(r=e[1].trim()),r},r.prototype.getSummary=function(t){for(var e=0,r=[/Synopsis :([\s\S]*)Chapitres disponibles/,/Sypnopsis([\s\S]*)Sypnopsis officiel/,/Synopsis([\s\S]*)Chapitres disponibles/];e<r.length;e++){var n=r[e].exec(t);if(null!==n)return n[1].trim()}return""},r.prototype.getStatus=function(t){var e=/Statut:\s*(.*)/.exec(t),r="";switch(null!==e&&(r=e[1].trim()),r){case"En cours":default:return o.NovelStatus.Ongoing;case"Arrêté":return o.NovelStatus.Cancelled;case"Terminé":return o.NovelStatus.Completed}},r.prototype.parseChapter=function(r){return t(this,void 0,void 0,(function(){var t,n;return e(this,(function(e){switch(e.label){case 0:return[4,this.getCheerio(this.site+r)];case 1:return t=e.sent(),n="",t(".entry-content").contents().each((function(){var e,r,i,s;if(null===(e=t(this).html())||void 0===e?void 0:e.includes("<script"))return!1;(null===(r=t(this).html())||void 0===r?void 0:r.includes('data-attachment-id="480'))||(null===(i=t.html(this))||void 0===i?void 0:i.includes("<hr>"))||(null===(s=t.html(this))||void 0===s?void 0:s.includes("<p>&nbsp;</p>"))||(n+=t.html(this))})),[2,n]}}))}))},r.prototype.searchNovels=function(r,n){return t(this,void 0,void 0,(function(){return e(this,(function(t){switch(t.label){case 0:return 1!==n?[2,[]]:[4,this.popularNovels(1)];case 1:return[2,t.sent().filter((function(t){return t.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().includes(r.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim())}))]}}))}))},r}();exports.default=new a;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var cheerio_1 = require("cheerio");
+var fetch_1 = require("@libs/fetch");
+var defaultCover_1 = require("@libs/defaultCover");
+var novelStatus_1 = require("@libs/novelStatus");
+var dayjs_1 = __importDefault(require("dayjs"));
+var WuxialnscantradPlugin = /** @class */ (function () {
+    function WuxialnscantradPlugin() {
+        this.id = 'wuxialnscantrad';
+        this.name = 'WuxiaLnScantrad';
+        this.icon = 'src/fr/wuxialnscantrad/icon.png';
+        this.site = 'https://wuxialnscantrad.wordpress.com';
+        this.version = '1.0.0';
+    }
+    WuxialnscantradPlugin.prototype.getCheerio = function (url) {
+        return __awaiter(this, void 0, void 0, function () {
+            var r, body, $;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(url, {
+                            headers: { 'Accept-Encoding': 'deflate' },
+                        })];
+                    case 1:
+                        r = _a.sent();
+                        return [4 /*yield*/, r.text()];
+                    case 2:
+                        body = _a.sent();
+                        $ = (0, cheerio_1.load)(body);
+                        return [2 /*return*/, $];
+                }
+            });
+        });
+    };
+    WuxialnscantradPlugin.prototype.popularNovels = function (pageNo) {
+        return __awaiter(this, void 0, void 0, function () {
+            var novels, novel, url, $;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (pageNo > 1)
+                            return [2 /*return*/, []];
+                        novels = [];
+                        url = this.site;
+                        return [4 /*yield*/, this.getCheerio(url)];
+                    case 1:
+                        $ = _a.sent();
+                        $('#menu-item-2210 ul li').each(function (i, elem) {
+                            var novelName = $(elem).first().text().trim();
+                            var novelUrl = $(elem).find('a').attr('href');
+                            if (novelUrl && novelName) {
+                                novel = {
+                                    name: novelName,
+                                    cover: defaultCover_1.defaultCover,
+                                    path: novelUrl.replace(_this.site, ''),
+                                };
+                                novels.push(novel);
+                            }
+                        });
+                        return [2 /*return*/, novels];
+                }
+            });
+        });
+    };
+    WuxialnscantradPlugin.prototype.parseNovel = function (novelPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var novel, $, entryContentText, pathChapter, chapters;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        novel = {
+                            path: novelPath,
+                            name: 'Sans titre',
+                        };
+                        return [4 /*yield*/, this.getCheerio(this.site + novelPath)];
+                    case 1:
+                        $ = _a.sent();
+                        novel.name = $('.entry-title').text().trim();
+                        novel.cover =
+                            $('.entry-content p strong img').first().attr('src') ||
+                                $('.entry-content p img').first().attr('src');
+                        entryContentText = $('.entry-content').text();
+                        novel.author = this.getAuthor(entryContentText);
+                        novel.genres = this.getGenres(entryContentText);
+                        novel.artist = this.getArtist(entryContentText);
+                        novel.summary = this.getSummary(entryContentText);
+                        novel.status = this.getStatus(entryContentText);
+                        pathChapter = $('.entry-content ul').first().children('li');
+                        chapters = [];
+                        pathChapter.each(function (i, elem) {
+                            var chapterName = $(elem).text().trim();
+                            var chapterUrl = $(elem).find('a').attr('href');
+                            if (chapterUrl && chapterUrl.includes(_this.site) && chapterName) {
+                                var pathchapter_1 = chapterUrl.replace(_this.site, '');
+                                // we do not take the paths already present
+                                if (!chapters.some(function (chap) { return chap.path === pathchapter_1; })) {
+                                    var releaseDate = (0, dayjs_1.default)(chapterUrl === null || chapterUrl === void 0 ? void 0 : chapterUrl.substring(_this.site.length + 1, _this.site.length + 11)).format('DD MMMM YYYY');
+                                    chapters.push({
+                                        name: chapterName,
+                                        path: pathchapter_1,
+                                        releaseTime: releaseDate,
+                                    });
+                                }
+                            }
+                        });
+                        novel.chapters = chapters;
+                        return [2 /*return*/, novel];
+                }
+            });
+        });
+    };
+    WuxialnscantradPlugin.prototype.getAuthor = function (text) {
+        var regex = /Auteur\(s\):\s*(.*)/;
+        var match = regex.exec(text);
+        var author = '';
+        if (match !== null) {
+            author = match[1].trim();
+        }
+        return author;
+    };
+    WuxialnscantradPlugin.prototype.getGenres = function (text) {
+        var regex = /Genres:\s*(.*)/;
+        var match = regex.exec(text);
+        var genre = '';
+        if (match !== null) {
+            genre = match[1].trim();
+        }
+        return genre;
+    };
+    WuxialnscantradPlugin.prototype.getArtist = function (text) {
+        var regex = /Artiste\(s\):\s*(.*)Genres/;
+        var match = regex.exec(text);
+        var artist = '';
+        if (match !== null) {
+            artist = match[1].trim();
+        }
+        return artist;
+    };
+    WuxialnscantradPlugin.prototype.getSummary = function (text) {
+        var regexAuthors = [
+            /Synopsis :([\s\S]*)Chapitres disponibles/,
+            /Sypnopsis([\s\S]*)Sypnopsis officiel/,
+            /Synopsis([\s\S]*)Chapitres disponibles/,
+        ];
+        for (var _i = 0, regexAuthors_1 = regexAuthors; _i < regexAuthors_1.length; _i++) {
+            var regex = regexAuthors_1[_i];
+            var match = regex.exec(text);
+            if (match !== null) {
+                return match[1].trim();
+            }
+        }
+        return '';
+    };
+    WuxialnscantradPlugin.prototype.getStatus = function (text) {
+        var regex = /Statut:\s*(.*)/;
+        var match = regex.exec(text);
+        var status = '';
+        if (match !== null) {
+            status = match[1].trim();
+        }
+        switch (status) {
+            case 'En cours':
+                return novelStatus_1.NovelStatus.Ongoing;
+            case 'Arrêté':
+                return novelStatus_1.NovelStatus.Cancelled;
+            case 'Terminé':
+                return novelStatus_1.NovelStatus.Completed;
+            default:
+                return novelStatus_1.NovelStatus.Ongoing;
+        }
+    };
+    WuxialnscantradPlugin.prototype.parseChapter = function (chapterPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var $, contenuHtml;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getCheerio(this.site + chapterPath)];
+                    case 1:
+                        $ = _a.sent();
+                        contenuHtml = '';
+                        $('.entry-content')
+                            .contents()
+                            .each(function () {
+                            var _a, _b, _c, _d;
+                            if ((_a = $(this).html()) === null || _a === void 0 ? void 0 : _a.includes('<script')) {
+                                return false;
+                            }
+                            //Removing tags linked to navigation and unnecessary paragraphs.
+                            if (!((_b = $(this).html()) === null || _b === void 0 ? void 0 : _b.includes('data-attachment-id="480')) &&
+                                !((_c = $.html(this)) === null || _c === void 0 ? void 0 : _c.includes('<hr>')) &&
+                                !((_d = $.html(this)) === null || _d === void 0 ? void 0 : _d.includes('<p>&nbsp;</p>'))) {
+                                contenuHtml += $.html(this);
+                            }
+                        });
+                        return [2 /*return*/, contenuHtml];
+                }
+            });
+        });
+    };
+    WuxialnscantradPlugin.prototype.searchNovels = function (searchTerm, pageNo) {
+        return __awaiter(this, void 0, void 0, function () {
+            var popularNovels, novels;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (pageNo !== 1)
+                            return [2 /*return*/, []];
+                        popularNovels = this.popularNovels(1);
+                        return [4 /*yield*/, popularNovels];
+                    case 1:
+                        novels = (_a.sent()).filter(function (novel) {
+                            return novel.name
+                                .toLowerCase()
+                                .normalize('NFD')
+                                .replace(/[\u0300-\u036f]/g, '')
+                                .trim()
+                                .includes(searchTerm
+                                .toLowerCase()
+                                .normalize('NFD')
+                                .replace(/[\u0300-\u036f]/g, '')
+                                .trim());
+                        });
+                        return [2 /*return*/, novels];
+                }
+            });
+        });
+    };
+    return WuxialnscantradPlugin;
+}());
+exports.default = new WuxialnscantradPlugin();

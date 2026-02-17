@@ -1,0 +1,107 @@
+Fetching https://panchonovels.online/home
+
+Popular (carousel) count: 10
+[
+  {
+    "name": "Cómo Sobrevivir en la Academia",
+    "cover": "https://api.panchonovels.online/uploads/1745987846702-sobrevivir_en_la_academia_xl.webp",
+    "path": "novel/como-sobrevivir-en-la-academia"
+  },
+  {
+    "name": "El Punto de Vista del Autor",
+    "cover": "https://api.panchonovels.online/uploads/1745981861461-punto_de_vista_xl.webp",
+    "path": "novel/el-punto-de-vista-del-autor"
+  },
+  {
+    "name": "El Villano Quiere Vivir",
+    "cover": "https://api.panchonovels.online/uploads/1745989824033-el_villano_quiere_vivir_xl.webp",
+    "path": "novel/el-villano-quiere-vivir"
+  },
+  {
+    "name": "Maldita Reencarnación",
+    "cover": "https://api.panchonovels.online/uploads/1745984707129-maldita_reencarnacion_xl.webp",
+    "path": "novel/maldita-reencarnacion"
+  },
+  {
+    "name": "Esclavo de las Sombras",
+    "cover": "https://api.panchonovels.online/uploads/1745983084725-shadow_slave_xl.webp",
+    "path": "novel/esclavo-de-las-sombras"
+  },
+  {
+    "name": "El Maestro de la Espada Acogedor de Estrellas",
+    "cover": "https://api.panchonovels.online/uploads/1745988600595-maestro_de_la_espada_xl.webp",
+    "path": "novel/el-maestro-de-la-espada-acogedor-de-estrellas"
+  },
+  {
+    "name": "Me Convertí en un Espadachín Genio en el Juego de las Chicas Bonitas",
+    "cover": "https://api.panchonovels.online/uploads/1745988850881-espadachin_en_juego_de_chicas_xl.webp",
+    "path": "novel/me-converti-en-un-espadachin-genio-en-el-juego-de-las-chicas-bonitas"
+  },
+  {
+    "name": "Callate dragona malvada, ya no quiero criar hijos contigo",
+    "cover": "https://api.panchonovels.online/uploads/1747666269494-manhwa-manhua-similar-to-shut-up-evil-dragon-i-dont-want-to-v0-0lznfijoz7ae1_xl.webp",
+    "path": "novel/callate-dragona-malvada,-ya-no-quiero-criar-hijos-contigo"
+  },
+  {
+    "name": "Fui rechazado por el personaje principal en una fantasía romántica.",
+    "cover": "https://api.panchonovels.online/uploads/1750727963254-IWDbtMCit_xl.webp",
+    "path": "novel/fui-rechazado-por-el-personaje-principal-en-una-fantasia-romantica"
+  },
+  {
+    "name": "No Existen las Chicas Malas en el Mundo",
+    "cover": "https://api.panchonovels.online/uploads/1746669768846-Portada_xl.webp",
+    "path": "novel/no-existen-las-chicas-malas-en-el-mundo"
+  }
+]
+
+Recents (DOM) count: 8
+[
+  {
+    "name": "La Victima de la Academia",
+    "cover": "https://api.panchonovels.online/uploads/1769477242702_The_Victim_of_the_Academy_df.webp",
+    "path": "novel/la-victima-de-la-academia"
+  },
+  {
+    "name": "Eliminé al Jugador de la Academia",
+    "cover": "https://api.panchonovels.online/uploads/1745981016526-Portada_df.webp",
+    "path": "novel/elimine-al-jugador-de-la-academia"
+  },
+  {
+    "name": "Cómo Criar Villanos Correctamente",
+    "cover": "https://api.panchonovels.online/uploads/1762633989375_portada_df.webp",
+    "path": "novel/como-criar-villanos-correctamente"
+  },
+  {
+    "name": "El Mundo Después del Final Malo",
+    "cover": "https://api.panchonovels.online/uploads/1761698821788_El_Mundo_Despues_del_Final_Malo___Portada_df.webp",
+    "path": "novel/el-mundo-despues-del-final-malo"
+  },
+  {
+    "name": "El Punto de Vista del Autor",
+    "cover": "https://api.panchonovels.online/uploads/1745981861461-punto_de_vista_df.webp",
+    "path": "novel/el-punto-de-vista-del-autor"
+  },
+  {
+    "name": "El genio de la clonación en la Ciudad de la Academia",
+    "cover": "https://api.panchonovels.online/uploads/1760327595196-1760327365_df.webp",
+    "path": "novel/el-genio-de-la-clonacion-en-la-ciudad-de-la-academia"
+  },
+  {
+    "name": "Esclavo de las Sombras",
+    "cover": "https://api.panchonovels.online/uploads/1745983084725-shadow_slave_df.webp",
+    "path": "novel/esclavo-de-las-sombras"
+  },
+  {
+    "name": "Peregrino de la Espada",
+    "cover": "https://api.panchonovels.online/uploads/1745987523865-peregrino_de_la_espada_df.webp",
+    "path": "novel/peregrino-de-la-espada"
+  }
+]
+
+Overlap count: 2
+[
+  "novel/el-punto-de-vista-del-autor",
+  "novel/esclavo-de-las-sombras"
+]
+
+Result: There is overlap — some items appear in both lists.

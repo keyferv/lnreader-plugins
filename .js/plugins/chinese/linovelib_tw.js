@@ -1,1 +1,470 @@
-var t=this&&this.__awaiter||function(t,e,r,a){return new(r||(r=Promise))((function(n,o){function i(t){try{c(a.next(t))}catch(t){o(t)}}function l(t){try{c(a.throw(t))}catch(t){o(t)}}function c(t){var e;t.done?n(t.value):(e=t.value,e instanceof r?e:new r((function(t){t(e)}))).then(i,l)}c((a=a.apply(t,e||[])).next())}))},e=this&&this.__generator||function(t,e){var r,a,n,o={label:0,sent:function(){if(1&n[0])throw n[1];return n[1]},trys:[],ops:[]},i=Object.create(("function"==typeof Iterator?Iterator:Object).prototype);return i.next=l(0),i.throw=l(1),i.return=l(2),"function"==typeof Symbol&&(i[Symbol.iterator]=function(){return this}),i;function l(l){return function(c){return function(l){if(r)throw new TypeError("Generator is already executing.");for(;i&&(i=0,l[0]&&(o=0)),o;)try{if(r=1,a&&(n=2&l[0]?a.return:l[0]?a.throw||((n=a.return)&&n.call(a),0):a.next)&&!(n=n.call(a,l[1])).done)return n;switch(a=0,n&&(l=[2&l[0],n.value]),l[0]){case 0:case 1:n=l;break;case 4:return o.label++,{value:l[1],done:!1};case 5:o.label++,a=l[1],l=[0];continue;case 7:l=o.ops.pop(),o.trys.pop();continue;default:if(!(n=o.trys,(n=n.length>0&&n[n.length-1])||6!==l[0]&&2!==l[0])){o=0;continue}if(3===l[0]&&(!n||l[1]>n[0]&&l[1]<n[3])){o.label=l[1];break}if(6===l[0]&&o.label<n[1]){o.label=n[1],n=l;break}if(n&&o.label<n[2]){o.label=n[2],o.ops.push(l);break}n[2]&&o.ops.pop(),o.trys.pop();continue}l=e.call(t,o)}catch(t){l=[6,t],a=0}finally{r=n=0}if(5&l[0])throw l[1];return{value:l[0]?l[1]:void 0,done:!0}}([l,c])}}};Object.defineProperty(exports,"__esModule",{value:!0});var r=require("cheerio"),a=require("@libs/fetch"),n=require("@libs/filterInputs"),o=require("@libs/novelStatus"),i=function(){function i(){this.id="linovelib_tw",this.name="Linovelib(繁體)",this.icon="src/cn/linovelib/icon.png",this.site="https://tw.linovelib.com/",this.version="1.0.0",this.filters={rank:{label:"排行榜",value:"monthvisit",options:[{label:"月點擊榜",value:"monthvisit"},{label:"周點擊榜",value:"weekvisit"},{label:"月推薦榜",value:"monthvote"},{label:"周推薦榜",value:"weekvote"},{label:"月鮮花榜",value:"monthflower"},{label:"周鮮花榜",value:"weekflower"},{label:"月鷄蛋榜",value:"monthegg"},{label:"周鷄蛋榜",value:"weekegg"},{label:"最近更新",value:"lastupdate"},{label:"最新入庫",value:"postdate"},{label:"收藏榜",value:"goodnum"},{label:"新書榜",value:"newhot"}],type:n.FilterTypes.Picker}}}return i.prototype.popularNovels=function(n,o){return t(this,arguments,void 0,(function(t,n){var o,i,l,c,s,u=n.showLatestNovels,h=n.filters;return e(this,(function(e){switch(e.label){case 0:return o=u?"lastupdate":h.rank.value,i="".concat(this.site,"/top/").concat(o,"/").concat(t,".html"),[4,(0,a.fetchText)(i)];case 1:if(""===(l=e.sent()))throw Error("無法獲取小説列表, 請檢查網絡");return c=(0,r.load)(l),s=[],c(".module-rank-booklist .book-layout").each((function(t,e){var r=c(e).attr("href"),a=c(e).find(".book-title").text(),n=c(e).find("div.book-cover > img").attr("data-src");if(r){var o={name:a,cover:n,path:r};s.push(o)}})),[2,s]}}))}))},i.prototype.parseNovel=function(n){return t(this,void 0,void 0,(function(){var t,i,l,c,s,u,h,f,v,p,b,d,m,g;return e(this,(function(e){switch(e.label){case 0:return t=this.site+n,[4,(0,a.fetchText)(t)];case 1:if(""===(i=e.sent()))throw Error("無法獲取小説信息, 請檢查網絡");return l=(0,r.load)(i),(c={path:n,chapters:[],name:l("#bookDetailWrapper .book-title").text()}).cover=l("#bookDetailWrapper img.book-cover").attr("src"),c.summary=l("#bookSummary content").text(),c.author=l("#bookDetailWrapper .book-rand-a a").text(),s=l("#bookDetailWrapper .book-meta").text(),c.status=s.includes("完結")?o.NovelStatus.Completed:o.NovelStatus.Ongoing,c.genres=l(".tag-small.red").children("a").map((function(t,e){return l(e).text()})).toArray().join(","),u=[],h=/\/(\d+)\.html/,f=null===(g=t.match(h))||void 0===g?void 0:g[1],v=this.site+l("#btnReadBook").attr("href"),[4,(0,a.fetchText)(v)];case 2:return p=e.sent(),(b=(0,r.load)(p))("#volumes .chapter-li:not(.volume-cover)").each((function(t,e){if(b(e).hasClass("chapter-bar"))d=b(e).text();else{var r=b(e).find(".chapter-li-a").attr("href"),a=null==r?void 0:r.match(h);a?m=+a[1]:m++;var n="/novel/".concat(f,"/").concat(m,".html"),o=d+" — "+b(e).find(".chapter-index").text().trim();m&&u.push({name:o,releaseTime:null,path:n})}})),c.chapters=u,[2,c]}}))}))},i.prototype.parseChapter=function(n){return t(this,void 0,void 0,(function(){var o,i,l,c,s,u,h,f,v,p,b,d,m=this;return e(this,(function(g){switch(g.label){case 0:i="",s="",u=1,h={"“":"「","”":"」","‘":"『","’":"』","":"的","":"一","":"是","":"了","":"我","":"不","":"人","":"在","":"他","":"有","":"这","":"个","":"上","":"们","":"来","":"到","":"时","":"大","":"地","":"为","":"子","":"中","":"你","":"说","":"生","":"国","":"年","":"着","":"就","":"那","":"和","":"要","":"她","":"出","":"也","":"得","":"里","":"后","":"自","":"以","":"会","":"家","":"可","":"下","":"而","":"过","":"天","":"去","":"能","":"对","":"小","":"多","":"然","":"于","":"心","":"学","":"么","":"之","":"都","":"好","":"看","":"起","":"发","":"当","":"没","":"成","":"只","":"如","":"事","":"把","":"还","":"用","":"第","":"样","":"道","":"想","":"作","":"种","":"开","":"美","":"乳","":"阴","":"液","":"茎","":"欲","":"呻","":"肉","":"交","":"性","":"胸","":"私","":"穴","":"淫","":"臀","":"舔","":"射","":"脱","":"裸","":"骚","":"唇"},f=function(r){return t(m,void 0,void 0,(function(){var a=this;return e(this,(function(n){switch(n.label){case 0:return[4,function(){return t(a,void 0,void 0,(function(){return e(this,(function(t){return r("div.cgo, center").remove(),r("#acontentl img.imagecontent").each((function(t,e){var a=r(e).attr("data-src")||r(e).attr("src");a&&r(e).attr("src",a).removeAttr("data-src").removeClass("lazyload")})),s=(s=r("#acontentl").html()||"").replace(/./g,(function(t){return h[t]||t})),[2,Promise.resolve()]}))}))}()];case 1:return n.sent(),o=r("#atitle + h3").text()+" — "+r("#atitle").text(),""===i&&(i="<h2>"+o+"</h2>"),i+=s,[2]}}))}))},v=function(n){return t(m,void 0,void 0,(function(){var t,o,i;return e(this,(function(e){switch(e.label){case 0:return t={Accept:"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7","Accept-Language":"zh-CN,zh;q=0.9,zh-TW;q=0.8,zh-HK;q=0.7,en;q=0.6,en-GB;q=0.5,en-US;q=0.4","Cache-Control":"no-cache"},[4,(0,a.fetchText)(n,{headers:t})];case 1:return o=e.sent(),i=(0,r.load)(o),[4,f(i)];case 2:return e.sent(),c="下一页"===i("#footlink a:last").text()||"下一頁"===i("#footlink a:last").text(),[2,{pageCheerio:i,pageHasNextPage:c}]}}))}))},p=this.site+n,b=p,g.label=1;case 1:return[4,v(p)];case 2:d=g.sent(),!0===(l=d.pageHasNextPage)&&(u++,p=b.replace(/\.html/gi,"_".concat(u)+".html")),g.label=3;case 3:if(!0===l)return[3,1];g.label=4;case 4:return[2,i]}}))}))},i.prototype.searchNovels=function(n,o){return t(this,void 0,void 0,(function(){var t,i,l,c;return e(this,(function(e){switch(e.label){case 0:return t="".concat(this.site,"/search/").concat(encodeURI(n),"_").concat(o,".html"),[4,(0,a.fetchText)(t)];case 1:if(""===(i=e.sent()))throw Error("無法獲取搜索結果, 請檢查網絡");return l=(0,r.load)(i),c=[],l(".book-ol .book-layout").each((function(t,e){var r=l(e).attr("href"),a=l(e).find(".book-title").text(),n=l(e).find("div.book-cover > img").attr("data-src");r&&c.push({name:a,path:r,cover:n})})),[2,c]}}))}))},i}();exports.default=new i;
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var cheerio_1 = require("cheerio");
+var fetch_1 = require("@libs/fetch");
+var filterInputs_1 = require("@libs/filterInputs");
+var novelStatus_1 = require("@libs/novelStatus");
+var Linovelib_tw = /** @class */ (function () {
+    function Linovelib_tw() {
+        this.id = 'linovelib_tw';
+        this.name = 'Linovelib(繁體)';
+        this.icon = 'src/cn/linovelib/icon.png';
+        this.site = 'https://tw.linovelib.com/';
+        this.version = '1.0.0';
+        this.filters = {
+            rank: {
+                label: '排行榜',
+                value: 'monthvisit',
+                options: [
+                    { label: '月點擊榜', value: 'monthvisit' },
+                    { label: '周點擊榜', value: 'weekvisit' },
+                    { label: '月推薦榜', value: 'monthvote' },
+                    { label: '周推薦榜', value: 'weekvote' },
+                    { label: '月鮮花榜', value: 'monthflower' },
+                    { label: '周鮮花榜', value: 'weekflower' },
+                    { label: '月鷄蛋榜', value: 'monthegg' },
+                    { label: '周鷄蛋榜', value: 'weekegg' },
+                    { label: '最近更新', value: 'lastupdate' },
+                    { label: '最新入庫', value: 'postdate' },
+                    { label: '收藏榜', value: 'goodnum' },
+                    { label: '新書榜', value: 'newhot' },
+                ],
+                type: filterInputs_1.FilterTypes.Picker,
+            },
+        };
+    }
+    Linovelib_tw.prototype.popularNovels = function (pageNo_1, _a) {
+        return __awaiter(this, arguments, void 0, function (pageNo, _b) {
+            var rank, url, body, loadedCheerio, novels;
+            var showLatestNovels = _b.showLatestNovels, filters = _b.filters;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        rank = showLatestNovels ? 'lastupdate' : filters.rank.value;
+                        url = "".concat(this.site, "/top/").concat(rank, "/").concat(pageNo, ".html");
+                        return [4 /*yield*/, (0, fetch_1.fetchText)(url)];
+                    case 1:
+                        body = _c.sent();
+                        if (body === '')
+                            throw Error('無法獲取小説列表, 請檢查網絡');
+                        loadedCheerio = (0, cheerio_1.load)(body);
+                        novels = [];
+                        loadedCheerio('.module-rank-booklist .book-layout').each(function (i, el) {
+                            var url = loadedCheerio(el).attr('href');
+                            var novelName = loadedCheerio(el).find('.book-title').text();
+                            var novelCover = loadedCheerio(el)
+                                .find('div.book-cover > img')
+                                .attr('data-src');
+                            if (!url)
+                                return;
+                            var novel = {
+                                name: novelName,
+                                cover: novelCover,
+                                path: url,
+                            };
+                            novels.push(novel);
+                        });
+                        return [2 /*return*/, novels];
+                }
+            });
+        });
+    };
+    Linovelib_tw.prototype.parseNovel = function (novelPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var url, body, loadedCheerio, novel, meta, chapter, idPattern, novelId, chaptersUrl, chaptersBody, chaptersLoadedCheerio, volumeName, chapterId;
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        url = this.site + novelPath;
+                        return [4 /*yield*/, (0, fetch_1.fetchText)(url)];
+                    case 1:
+                        body = _b.sent();
+                        if (body === '')
+                            throw Error('無法獲取小説信息, 請檢查網絡');
+                        loadedCheerio = (0, cheerio_1.load)(body);
+                        novel = {
+                            path: novelPath,
+                            chapters: [],
+                            name: loadedCheerio('#bookDetailWrapper .book-title').text(),
+                        };
+                        novel.cover = loadedCheerio('#bookDetailWrapper img.book-cover').attr('src');
+                        novel.summary = loadedCheerio('#bookSummary content').text();
+                        novel.author = loadedCheerio('#bookDetailWrapper .book-rand-a a').text();
+                        meta = loadedCheerio('#bookDetailWrapper .book-meta').text();
+                        novel.status = meta.includes('完結')
+                            ? novelStatus_1.NovelStatus.Completed
+                            : novelStatus_1.NovelStatus.Ongoing;
+                        novel.genres = loadedCheerio('.tag-small.red')
+                            .children('a')
+                            .map(function (i, el) { return loadedCheerio(el).text(); })
+                            .toArray()
+                            .join(',');
+                        chapter = [];
+                        idPattern = /\/(\d+)\.html/;
+                        novelId = (_a = url.match(idPattern)) === null || _a === void 0 ? void 0 : _a[1];
+                        chaptersUrl = this.site + loadedCheerio('#btnReadBook').attr('href');
+                        return [4 /*yield*/, (0, fetch_1.fetchText)(chaptersUrl)];
+                    case 2:
+                        chaptersBody = _b.sent();
+                        chaptersLoadedCheerio = (0, cheerio_1.load)(chaptersBody);
+                        chaptersLoadedCheerio('#volumes .chapter-li:not(.volume-cover)').each(function (i, el) {
+                            if (chaptersLoadedCheerio(el).hasClass('chapter-bar')) {
+                                volumeName = chaptersLoadedCheerio(el).text();
+                                return;
+                            }
+                            else {
+                                var urlPart = chaptersLoadedCheerio(el)
+                                    .find('.chapter-li-a')
+                                    .attr('href');
+                                var chapterIdMatch = urlPart === null || urlPart === void 0 ? void 0 : urlPart.match(idPattern);
+                                // Sometimes the href attribute does not contain the url, but javascript:cid(0).
+                                // Increment the previous chapter ID should result in the right URL
+                                if (chapterIdMatch) {
+                                    chapterId = +chapterIdMatch[1];
+                                }
+                                else {
+                                    chapterId++;
+                                }
+                            }
+                            var chapterUrl = "/novel/".concat(novelId, "/").concat(chapterId, ".html");
+                            var chapterName = volumeName +
+                                ' — ' +
+                                chaptersLoadedCheerio(el).find('.chapter-index').text().trim();
+                            var releaseDate = null;
+                            if (!chapterId)
+                                return;
+                            chapter.push({
+                                name: chapterName,
+                                releaseTime: releaseDate,
+                                path: chapterUrl,
+                            });
+                        });
+                        novel.chapters = chapter;
+                        return [2 /*return*/, novel];
+                }
+            });
+        });
+    };
+    Linovelib_tw.prototype.parseChapter = function (chapterPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var chapterName, chapterText, hasNextPage, pageHasNextPage, pageText, pageNumber, skillgg, addPage, loadPage, url, baseUrl, page;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        chapterText = '', pageText = '';
+                        pageNumber = 1;
+                        skillgg = {
+                            '\u201c': '\u300c',
+                            '\u201d': '\u300d',
+                            '\u2018': '\u300e',
+                            '\u2019': '\u300f',
+                            '\ue82c': '\u7684',
+                            '\ue852': '\u4e00',
+                            '\ue82d': '\u662f',
+                            '\ue819': '\u4e86',
+                            '\ue856': '\u6211',
+                            '\ue857': '\u4e0d',
+                            '\ue816': '\u4eba',
+                            '\ue83c': '\u5728',
+                            '\ue830': '\u4ed6',
+                            '\ue82e': '\u6709',
+                            '\ue836': '\u8fd9',
+                            '\ue859': '\u4e2a',
+                            '\ue80a': '\u4e0a',
+                            '\ue855': '\u4eec',
+                            '\ue842': '\u6765',
+                            '\ue858': '\u5230',
+                            '\ue80b': '\u65f6',
+                            '\ue81f': '\u5927',
+                            '\ue84a': '\u5730',
+                            '\ue853': '\u4e3a',
+                            '\ue81e': '\u5b50',
+                            '\ue822': '\u4e2d',
+                            '\ue813': '\u4f60',
+                            '\ue85b': '\u8bf4',
+                            '\ue807': '\u751f',
+                            '\ue818': '\u56fd',
+                            '\ue810': '\u5e74',
+                            '\ue812': '\u7740',
+                            '\ue851': '\u5c31',
+                            '\ue801': '\u90a3',
+                            '\ue80c': '\u548c',
+                            '\ue815': '\u8981',
+                            '\ue84c': '\u5979',
+                            '\ue840': '\u51fa',
+                            '\ue848': '\u4e5f',
+                            '\ue835': '\u5f97',
+                            '\ue800': '\u91cc',
+                            '\ue826': '\u540e',
+                            '\ue863': '\u81ea',
+                            '\ue861': '\u4ee5',
+                            '\ue854': '\u4f1a',
+                            '\ue827': '\u5bb6',
+                            '\ue83b': '\u53ef',
+                            '\ue85d': '\u4e0b',
+                            '\ue84d': '\u800c',
+                            '\ue862': '\u8fc7',
+                            '\ue81c': '\u5929',
+                            '\ue81d': '\u53bb',
+                            '\ue860': '\u80fd',
+                            '\ue843': '\u5bf9',
+                            '\ue82f': '\u5c0f',
+                            '\ue802': '\u591a',
+                            '\ue831': '\u7136',
+                            '\ue84b': '\u4e8e',
+                            '\ue837': '\u5fc3',
+                            '\ue829': '\u5b66',
+                            '\ue85e': '\u4e48',
+                            '\ue83a': '\u4e4b',
+                            '\ue832': '\u90fd',
+                            '\ue808': '\u597d',
+                            '\ue841': '\u770b',
+                            '\ue821': '\u8d77',
+                            '\ue845': '\u53d1',
+                            '\ue803': '\u5f53',
+                            '\ue828': '\u6ca1',
+                            '\ue81b': '\u6210',
+                            '\ue83e': '\u53ea',
+                            '\ue820': '\u5982',
+                            '\ue84e': '\u4e8b',
+                            '\ue85a': '\u628a',
+                            '\ue806': '\u8fd8',
+                            '\ue83f': '\u7528',
+                            '\ue833': '\u7b2c',
+                            '\ue811': '\u6837',
+                            '\ue804': '\u9053',
+                            '\ue814': '\u60f3',
+                            '\ue80f': '\u4f5c',
+                            '\ue84f': '\u79cd',
+                            '\ue80e': '\u5f00',
+                            '\ue823': '\u7f8e',
+                            '\ue849': '\u4e73',
+                            '\ue805': '\u9634',
+                            '\ue809': '\u6db2',
+                            '\ue81a': '\u830e',
+                            '\ue844': '\u6b32',
+                            '\ue847': '\u547b',
+                            '\ue850': '\u8089',
+                            '\ue824': '\u4ea4',
+                            '\ue85f': '\u6027',
+                            '\ue817': '\u80f8',
+                            '\ue85c': '\u79c1',
+                            '\ue838': '\u7a74',
+                            '\ue82a': '\u6deb',
+                            '\ue83d': '\u81c0',
+                            '\ue82b': '\u8214',
+                            '\ue80d': '\u5c04',
+                            '\ue839': '\u8131',
+                            '\ue834': '\u88f8',
+                            '\ue846': '\u9a9a',
+                            '\ue825': '\u5507',
+                        };
+                        addPage = function (pageCheerio) { return __awaiter(_this, void 0, void 0, function () {
+                            var formatPage;
+                            var _this = this;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        formatPage = function () { return __awaiter(_this, void 0, void 0, function () {
+                                            return __generator(this, function (_a) {
+                                                // Remove JS and notice of the website
+                                                pageCheerio('div.cgo, center').remove();
+                                                // Load lazyloaded images
+                                                pageCheerio('#acontentl img.imagecontent').each(function (i, el) {
+                                                    // Sometimes images are either in data-src or src
+                                                    var imgSrc = pageCheerio(el).attr('data-src') || pageCheerio(el).attr('src');
+                                                    if (imgSrc) {
+                                                        // Clean up img element
+                                                        pageCheerio(el)
+                                                            .attr('src', imgSrc)
+                                                            .removeAttr('data-src')
+                                                            .removeClass('lazyload');
+                                                    }
+                                                });
+                                                // Recover the original character
+                                                pageText = pageCheerio('#acontentl').html() || '';
+                                                pageText = pageText.replace(/./g, function (char) { return skillgg[char] || char; });
+                                                return [2 /*return*/, Promise.resolve()];
+                                            });
+                                        }); };
+                                        return [4 /*yield*/, formatPage()];
+                                    case 1:
+                                        _a.sent();
+                                        chapterName =
+                                            pageCheerio('#atitle + h3').text() +
+                                                ' — ' +
+                                                pageCheerio('#atitle').text();
+                                        if (chapterText === '') {
+                                            chapterText = '<h2>' + chapterName + '</h2>';
+                                        }
+                                        chapterText += pageText;
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); };
+                        loadPage = function (url) { return __awaiter(_this, void 0, void 0, function () {
+                            var headers, body, pageCheerio;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        headers = {
+                                            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+                                            'Accept-Language': 'zh-CN,zh;q=0.9,zh-TW;q=0.8,zh-HK;q=0.7,en;q=0.6,en-GB;q=0.5,en-US;q=0.4',
+                                            'Cache-Control': 'no-cache',
+                                        };
+                                        return [4 /*yield*/, (0, fetch_1.fetchText)(url, { headers: headers })];
+                                    case 1:
+                                        body = _a.sent();
+                                        pageCheerio = (0, cheerio_1.load)(body);
+                                        return [4 /*yield*/, addPage(pageCheerio)];
+                                    case 2:
+                                        _a.sent();
+                                        pageHasNextPage =
+                                            pageCheerio('#footlink a:last').text() === '下一页' ||
+                                                pageCheerio('#footlink a:last').text() === '下一頁'
+                                                ? true
+                                                : false;
+                                        return [2 /*return*/, { pageCheerio: pageCheerio, pageHasNextPage: pageHasNextPage }];
+                                }
+                            });
+                        }); };
+                        url = this.site + chapterPath;
+                        baseUrl = url;
+                        _a.label = 1;
+                    case 1: return [4 /*yield*/, loadPage(url)];
+                    case 2:
+                        page = _a.sent();
+                        hasNextPage = page.pageHasNextPage;
+                        if (hasNextPage === true) {
+                            pageNumber++;
+                            url = baseUrl.replace(/\.html/gi, "_".concat(pageNumber) + '.html');
+                        }
+                        _a.label = 3;
+                    case 3:
+                        if (hasNextPage === true) return [3 /*break*/, 1];
+                        _a.label = 4;
+                    case 4: return [2 /*return*/, chapterText];
+                }
+            });
+        });
+    };
+    Linovelib_tw.prototype.searchNovels = function (searchTerm, pageNo) {
+        return __awaiter(this, void 0, void 0, function () {
+            var url, body, pageCheerio, novels;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        url = "".concat(this.site, "/search/").concat(encodeURI(searchTerm), "_").concat(pageNo, ".html");
+                        return [4 /*yield*/, (0, fetch_1.fetchText)(url)];
+                    case 1:
+                        body = _a.sent();
+                        if (body === '')
+                            throw Error('無法獲取搜索結果, 請檢查網絡');
+                        pageCheerio = (0, cheerio_1.load)(body);
+                        novels = [];
+                        // const addPage = async (pageCheerio: CheerioAPI, redirect: string) => {
+                        //     const loadSearchResults = () => {
+                        //         pageCheerio(".book-ol .book-layout").each((i, el) => {
+                        //             let nUrl = pageCheerio(el).attr("href");
+                        //             const novelName = pageCheerio(el)
+                        //                 .find(".book-title")
+                        //                 .text();
+                        //             const novelCover = pageCheerio(el)
+                        //                 .find("div.book-cover > img")
+                        //                 .attr("data-src");
+                        //             const novelUrl = this.site + nUrl;
+                        //             if (!nUrl) return;
+                        //             novels.push({
+                        //                 name: novelName,
+                        //                 url: novelUrl,
+                        //                 cover: novelCover,
+                        //             });
+                        //         });
+                        //     };
+                        //     const novelResults = pageCheerio(".book-ol a.book-layout");
+                        //     if (novelResults.length === 0) {
+                        //     } else {
+                        //         loadSearchResults();
+                        //     }
+                        //     if (redirect.length) {
+                        //         novels.length = 0;
+                        //         const novelName = pageCheerio(
+                        //             "#bookDetailWrapper .book-title"
+                        //         ).text();
+                        //         const novelCover = pageCheerio(
+                        //             "#bookDetailWrapper div.book-cover > img"
+                        //         ).attr("src");
+                        //         const novelUrl =
+                        //             this.site +
+                        //             pageCheerio("#btnReadBook").attr("href")?.slice(0, -8) +
+                        //             ".html";
+                        //         novels.push({
+                        //             name: novelName,
+                        //             url: novelUrl,
+                        //             cover: novelCover,
+                        //         });
+                        //     }
+                        // };
+                        // NOTE: don't know redirect is for what, comment out for now
+                        // const redirect = pageCheerio("div.book-layout").text();
+                        // await addPage(pageCheerio, redirect);
+                        pageCheerio('.book-ol .book-layout').each(function (i, el) {
+                            var nUrl = pageCheerio(el).attr('href');
+                            var novelName = pageCheerio(el).find('.book-title').text();
+                            var novelCover = pageCheerio(el)
+                                .find('div.book-cover > img')
+                                .attr('data-src');
+                            if (!nUrl)
+                                return;
+                            novels.push({
+                                name: novelName,
+                                path: nUrl,
+                                cover: novelCover,
+                            });
+                        });
+                        return [2 /*return*/, novels];
+                }
+            });
+        });
+    };
+    return Linovelib_tw;
+}());
+exports.default = new Linovelib_tw();

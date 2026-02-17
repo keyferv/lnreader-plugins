@@ -1,1 +1,745 @@
-var e=this&&this.__assign||function(){return e=Object.assign||function(e){for(var t,a=1,n=arguments.length;a<n;a++)for(var r in t=arguments[a])Object.prototype.hasOwnProperty.call(t,r)&&(e[r]=t[r]);return e},e.apply(this,arguments)},t=this&&this.__awaiter||function(e,t,a,n){return new(a||(a=Promise))((function(r,o){function s(e){try{i(n.next(e))}catch(e){o(e)}}function l(e){try{i(n.throw(e))}catch(e){o(e)}}function i(e){var t;e.done?r(e.value):(t=e.value,t instanceof a?t:new a((function(e){e(t)}))).then(s,l)}i((n=n.apply(e,t||[])).next())}))},a=this&&this.__generator||function(e,t){var a,n,r,o={label:0,sent:function(){if(1&r[0])throw r[1];return r[1]},trys:[],ops:[]},s=Object.create(("function"==typeof Iterator?Iterator:Object).prototype);return s.next=l(0),s.throw=l(1),s.return=l(2),"function"==typeof Symbol&&(s[Symbol.iterator]=function(){return this}),s;function l(l){return function(i){return function(l){if(a)throw new TypeError("Generator is already executing.");for(;s&&(s=0,l[0]&&(o=0)),o;)try{if(a=1,n&&(r=2&l[0]?n.return:l[0]?n.throw||((r=n.return)&&r.call(n),0):n.next)&&!(r=r.call(n,l[1])).done)return r;switch(n=0,r&&(l=[2&l[0],r.value]),l[0]){case 0:case 1:r=l;break;case 4:return o.label++,{value:l[1],done:!1};case 5:o.label++,n=l[1],l=[0];continue;case 7:l=o.ops.pop(),o.trys.pop();continue;default:if(!(r=o.trys,(r=r.length>0&&r[r.length-1])||6!==l[0]&&2!==l[0])){o=0;continue}if(3===l[0]&&(!r||l[1]>r[0]&&l[1]<r[3])){o.label=l[1];break}if(6===l[0]&&o.label<r[1]){o.label=r[1],r=l;break}if(r&&o.label<r[2]){o.label=r[2],o.ops.push(l);break}r[2]&&o.ops.pop(),o.trys.pop();continue}l=t.call(e,o)}catch(e){l=[6,e],n=0}finally{a=r=0}if(5&l[0])throw l[1];return{value:l[0]?l[1]:void 0,done:!0}}([l,i])}}};Object.defineProperty(exports,"__esModule",{value:!0}),exports.ReadNovelFullPlugin=void 0;var n,r=require("htmlparser2"),o=require("@libs/fetch"),s=require("@libs/novelStatus"),l=function(){function l(e){var t;this.lastSearch=null,this.searchInterval=3400,this.id=e.id,this.name=e.sourceName,this.icon="multisrc/readnovelfull/".concat(e.id.toLowerCase(),"/icon.png"),this.site=e.sourceSite;var a=(null===(t=e.options)||void 0===t?void 0:t.versionIncrements)||0;this.version="2.1.".concat(2+a),this.options=e.options,this.filters=e.filters}return l.prototype.sleep=function(e){return t(this,void 0,void 0,(function(){return a(this,(function(t){return[2,new Promise((function(t){return setTimeout(t,e)}))]}))}))},l.prototype.parseNovels=function(t){var a,o=this,s=[],l={},i=[n.Idle],c=function(){return i[i.length-1]},u=function(e){return i.push(e)},h=function(){return i.length>1?i.pop():c()},p=new r.Parser({onopentag:function(e,t){var r,s,i=c();if(((null===(r=t.class)||void 0===r?void 0:r.includes("archive"))||"col-content"===t.class||(null===(s=t.class)||void 0===s?void 0:s.includes("list-novel")))&&(u(n.NovelList),a=0),i===n.NovelList||i===n.NovelName)switch(e){case"img":var h=t["data-src"]||t.src;h&&(l.cover=new URL(h,o.site).href);break;case"h3":i===n.NovelList&&u(n.NovelName);break;case"a":if(i===n.NovelName){var p=t.href;p&&(l.path=new URL(p,o.site).pathname.substring(1),l.name=t.title)}break;case"div":a++;break;default:return}},onclosetag:function(t){var r=c();"a"===t&&r===n.NovelName&&(l.name&&l.path&&s.push(e({},l)),l={},h()),"div"===t&&r===n.NovelList&&--a<0&&h()}});return p.write(t),p.end(),s},l.prototype.popularNovels=function(e,n){return t(this,arguments,void 0,(function(e,t){var n,r,s,l,i,c,u,h,p,v,d,f,g,b,m,w,y,S,N,k,C,P,L,x=t.filters,A=t.showLatestNovels;return a(this,(function(t){switch(t.label){case 0:return n=x,r=this.options,s=r.pageParam,l=void 0===s?"page":s,i=r.novelListing,c=r.typeParam,u=void 0===c?"type":c,h=r.latestPage,p=r.genreParam,v=void 0===p?"category_novel":p,d=r.genreKey,f=void 0===d?"id":d,g=r.langParam,b=r.urlLangCode,m=r.noPages,w=void 0===m?[]:m,y=r.pageAsPath,S=void 0!==y&&y,1!==e&&!A&&!n.genres.value.length&&w.length>0&&w.includes(n.type.value)?[2,[]]:(N="",i?(k=new URLSearchParams,A?k.append(u,h):n.genres.value.length?(k.append(u,v),k.append(f,n.genres.value)):k.append(u,n.type.value),g&&b&&k.append(g,b),k.append(l,e.toString()),N="".concat(this.site).concat(i,"?").concat(k.toString())):(C=A?h:n.genres.value.length?n.genres.value:n.type.value,N=S?e>1?"".concat(this.site).concat(C,"/").concat(e.toString()):"".concat(this.site).concat(C):"".concat(this.site).concat(C,"?").concat(l,"=").concat(e.toString())),[4,(0,o.fetchApi)(N)]);case 1:if(!(P=t.sent()).ok)throw new Error("Could not reach site (".concat(P.status,": ").concat(P.statusText,") try to open in webview."));return[4,P.text()];case 2:return L=t.sent(),[2,this.parseNovels(L)]}}))}))},l.prototype.parseNovel=function(l){return t(this,void 0,void 0,(function(){var t,i,c,u,h,p,v,d,f,g,b,m,w,y,S,N,k,C,P,L,x,A,j,I,H,R,G,E,M=this;return a(this,(function(a){switch(a.label){case 0:return t=this.site+l,[4,(0,o.fetchApi)(t)];case 1:return[4,a.sent().text()];case 2:return i=a.sent(),c={path:l,chapters:[]},u=[],h=[],p=[],v=[],d=[],f=[],g=null,b={},m=0,y=[n.Idle],S=function(){return y[y.length-1]},N=function(e){return y.push(e)},k=function(){return y.length>1?y.pop():S()},C=new r.Parser({onopentag:function(e,t){var a,r,o,s=S();switch(e){case"div":switch(t.class){case"books":case"m-imgtxt":return void N(n.Cover);case"inner":case"desc-text":s===n.Cover&&k(),N(n.Summary);break;case"info":N(n.Info),w=0}M.options.noAjax||"rating"!==t.id||(g=t["data-novel-id"]),s===n.Info&&w++;break;case"img":if(s===n.Cover){var i=null!==(r=null!==(a=t.src)&&void 0!==a?a:t["data-cfsrc"])&&void 0!==r?r:t["data-src"],h=t.title;i&&(c.cover=new URL(i,M.site).href),h?c.name=h:k()}break;case"h3":s===n.Cover&&N(n.NovelName);break;case"span":if(s===n.Cover&&t.title){var p={Genre:n.Genres,Author:n.Author,Status:n.Status}[t.title];p&&N(p)}break;case"br":s===n.Summary&&u.push("\n");break;case"ul":(null===(o=t.class)||void 0===o?void 0:o.includes("info-meta"))&&N(n.Info),M.options.noAjax&&"idData"===t.id&&N(n.ChapterList);break;case"a":if(s===n.ChapterList){m++;var v=t.href;N(n.Chapter),b.name=t.title||"Chapter ".concat(m),b.releaseTime=null,b.chapterNumber=m,b.path=(null==v?void 0:v.substring(1))||l.replace(".html","/chapter-".concat(m,".html"))}}},ontext:function(e){var t=e.trim();if(t)switch(S()){case n.NovelName:c.name=(c.name||"")+t;break;case n.Summary:u.push(e);break;case n.Info:d.push(t);break;case n.Genres:v.push(e);break;case n.Author:p.push(e);break;case n.Status:h.push(t)}},onclosetag:function(t){var a=S();switch(t){case"div":switch(a){case n.Info:w--,d.push("\n"),w<0&&k();break;case n.Genres:case n.Author:case n.Status:case n.Summary:k()}break;case"h3":a===n.NovelName&&k();break;case"a":a===n.Chapter&&(b.name&&b.path&&f.push(e({},b)),b={},k());break;case"li":a===n.Info&&d.push("\n");break;case"ul":switch(a){case n.Info:case n.ChapterList:k()}break;default:return}},onend:function(){if(d.length){if(d.join("").split("\n").map((function(e){return e.trim()})).filter((function(e){return e.includes(":")})).forEach((function(e){var t,a=e.split(":"),n=a[0].trim().toLowerCase(),r=a[1].split(",").map((function(e){return e.trim()})).join(", ");switch(n){case"author":c.author=r;break;case"genre":c.genres=r;break;case"status":var o={ongoing:s.NovelStatus.Ongoing,hiatus:s.NovelStatus.OnHiatus,dropped:s.NovelStatus.Cancelled,cancelled:s.NovelStatus.Cancelled,completed:s.NovelStatus.Completed};c.status=null!==(t=o[r.toLowerCase()])&&void 0!==t?t:s.NovelStatus.Unknown;break;default:return}})),!g){var e=l.match(/\d+/);g=e?e[0]:null}}else c.genres=v.join("").trim(),c.author=p.join("").trim(),c.status=h.join("").toLowerCase().replace(/\b\w/g,(function(e){return e.toUpperCase()}));c.summary=u.join("\n\n").trim()}}),C.write(i),C.end(),this.options.noAjax&&f.length>0?(c.chapters=f,[3,7]):[3,3];case 3:return null===g?[3,7]:(P=this.options.chapterListing||"ajax/chapter-archive",L=this.options.chapterParam||"novelId",x=new URLSearchParams(((E={})[L]=g,E)),A="".concat(this.site).concat(P,"?").concat(x.toString()),[4,(0,o.fetchApi)(A)]);case 4:return(j=a.sent()).ok?[3,5]:(console.error("Failed to fetch chapters: ".concat(j.status)),c.chapters=[],[3,7]);case 5:return[4,j.text()];case 6:I=a.sent(),H=[],R={},(G=new r.Parser({onopentag:function(e,t){var a,r;if("a"===e&&t.href?(a=t.href,r=t.title||"",N(n.Chapter)):"option"===e&&t.value&&(a=t.value,r="",N(n.Chapter)),void 0!==a){var o=new URL(a,M.site);R.path=o.pathname.substring(1),R.name=r}},ontext:function(e){var t=e.trim();S()===n.Chapter&&!R.name&&t&&(R.name+=t)},onclosetag:function(t){"a"!==t&&"option"!==t||S()!==n.Chapter||(R.name&&R.path&&(R.name=R.name.trim(),R.releaseTime=null,H.push(e({},R))),R={},k())}})).write(I),G.end(),c.chapters=H,a.label=7;case 7:return[2,c]}}))}))},l.prototype.parseChapter=function(e){return t(this,void 0,void 0,(function(){var t,s,l,i,c,u,h,p,v,d,f,g,b,m;return a(this,(function(a){switch(a.label){case 0:return[4,(0,o.fetchApi)(this.site+e)];case 1:return[4,a.sent().text()];case 2:return t=a.sent(),i=[],c=!1,u="",h=[n.Idle],p=function(){return h[h.length-1]},v=function(e){return h.push(e)},d=function(){return h.length>1?h.pop():p()},f=/[&<>"'\u00A0]/g,g={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"," ":"&nbsp;"},b=function(e){return e.replace(f,(function(e){return g[e]}))},m=new r.Parser({onopentag:function(e,t){var a,r=p(),o=null===(a=t.class)||void 0===a?void 0:a.trim();switch(r){case n.Idle:"txt"!==o&&"chr-content"!==t.id&&"chapter-content"!==t.id||(v(n.Chapter),s=0);break;case n.Chapter:"sub"===e?v(n.Hidden):"div"===e&&(s++,((null==o?void 0:o.includes("unlock-buttons"))||(null==o?void 0:o.includes("ads")))&&(v(n.Hidden),l=0));break;case n.Hidden:"sub"===e?v(n.Hidden):"div"===e&&l++;break;default:return}if(p()===n.Chapter){var h=Object.keys(t);if(0===h.length)i.push("<".concat(e,">"));else if(h.every((function(e){return""===t[e].trim()}))){c=!0,u=e;var d=e.replace(/\b\w/g,(function(e){return e.toUpperCase()}));i.push(b("<".concat(d," ").concat(h.join(" "),">")))}else{var f=h.map((function(e){return" ".concat(e,'="').concat(t[e].replace(/"/g,"&quot;"),'"')})).join("");i.push("<".concat(e).concat(f,">"))}}},ontext:function(e){p()===n.Chapter&&i.push(b(e))},onclosetag:function(e){var t=p();t===n.Hidden&&("sub"===e?d():"div"===e&&--l<0&&(d(),s--)),t===n.Chapter&&(m.isVoidElement(e)||(c&&e===u?(c=!1,u=""):i.push("</".concat(e,">"))),"div"===e&&--s<0&&v(n.Stopped))}}),m.write(t),m.end(),[2,i.join("")]}}))}))},l.prototype.searchNovels=function(n,r){return t(this,void 0,void 0,(function(){var t,s,l,i,c,u,h,p,v,d,f,g,b,m,w,y,S,N,k,C;return a(this,(function(a){switch(a.label){case 0:return t=Date.now(),this.lastSearch&&t-this.lastSearch<=this.searchInterval?[4,this.sleep(this.searchInterval)]:[3,2];case 1:a.sent(),a.label=2;case 2:return s=this.options,l=s.pageParam,i=void 0===l?"page":l,c=s.searchKey,u=void 0===c?"keyword":c,h=s.postSearch,p=s.langParam,v=s.urlLangCode,d=s.searchPage,f=new URLSearchParams(e(e(((S={})[u]=n,S),p&&v&&((N={})[p]=v,N)),!h&&((k={})[i]=r.toString(),k))),g="".concat(this.site).concat(d).concat(h?"":"?".concat(f.toString())),b=h?{method:"POST",body:f.toString(),headers:{"Content-Type":"application/x-www-form-urlencoded"}}:void 0,[4,(0,o.fetchApi)(g,b)];case 3:if(m=a.sent(),this.lastSearch=Date.now(),!m.ok)throw new Error("Could not reach site ('".concat(m.status,"') try to open in webview."));return[4,m.text()];case 4:if(w=a.sent(),y=(null===(C=w.match(/alert\((.*?)\)/))||void 0===C?void 0:C[1])||"")throw new Error(y);return[2,this.parseNovels(w)]}}))}))},l}();exports.ReadNovelFullPlugin=l,function(e){e[e.Idle=0]="Idle",e[e.Info=1]="Info",e[e.Cover=2]="Cover",e[e.Author=3]="Author",e[e.Genres=4]="Genres",e[e.Status=5]="Status",e[e.Hidden=6]="Hidden",e[e.Summary=7]="Summary",e[e.Stopped=8]="Stopped",e[e.Chapter=9]="Chapter",e[e.ChapterList=10]="ChapterList",e[e.NovelName=11]="NovelName",e[e.NovelList=12]="NovelList"}(n||(n={}));var i=new l({id:"libread",sourceSite:"https://libread.com/",sourceName:"Lib Read",options:{latestPage:"sort/latest-novels",searchPage:"search",searchKey:"searchkey",postSearch:!0,noAjax:!0,noPages:["sort/most-popular"],pageAsPath:!0},filters:{type:{type:"Picker",label:"Novel Type",value:"sort/most-popular",options:[{label:"All",value:"sort/latest-release"},{label:"Chinese Novel",value:"sort/latest-release/chinese-novel"},{label:"Korean Novel",value:"sort/latest-release/korean-novel"},{label:"Japanese Novel",value:"sort/latest-release/japanese-novel"},{label:"English Novel",value:"sort/latest-release/english-novel"},{label:"Most Popular",value:"sort/most-popular"}]},genres:{type:"Picker",label:"Genre",value:"",options:[{label:"Action",value:"genre/Action"},{label:"Adult",value:"genre/Adult"},{label:"Adventure",value:"genre/Adventure"},{label:"Comedy",value:"genre/Comedy"},{label:"Drama",value:"genre/Drama"},{label:"Eastern",value:"genre/Eastern"},{label:"Ecchi",value:"genre/Ecchi"},{label:"Fantasy",value:"genre/Fantasy"},{label:"Game",value:"genre/Game"},{label:"Gender Bender",value:"genre/Gender+Bender"},{label:"Harem",value:"genre/Harem"},{label:"Historical",value:"genre/Historical"},{label:"Horror",value:"genre/Horror"},{label:"Josei",value:"genre/Josei"},{label:"Martial Arts",value:"genre/Martial+Arts"},{label:"Mature",value:"genre/Mature"},{label:"Mecha",value:"genre/Mecha"},{label:"Mystery",value:"genre/Mystery"},{label:"Psychological",value:"genre/Psychological"},{label:"Reincarnation",value:"genre/Reincarnation"},{label:"Romance",value:"genre/Romance"},{label:"School Life",value:"genre/School+Life"},{label:"Sci-fi",value:"genre/Sci-fi"},{label:"Seinen",value:"genre/Seinen"},{label:"Shoujo",value:"genre/Shoujo"},{label:"Shounen Ai",value:"genre/Shounen+Ai"},{label:"Shounen",value:"genre/Shounen"},{label:"Slice of Life",value:"genre/Slice+of+Life"},{label:"Smut",value:"genre/Smut"},{label:"Sports",value:"genre/Sports"},{label:"Supernatural",value:"genre/Supernatural"},{label:"Tragedy",value:"genre/Tragedy"},{label:"Wuxia",value:"genre/Wuxia"},{label:"Xianxia",value:"genre/Xianxia"},{label:"Xuanhuan",value:"genre/Xuanhuan"},{label:"Yaoi",value:"genre/Yaoi"}]}}});exports.default=i;
+"use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ReadNovelFullPlugin = void 0;
+var htmlparser2_1 = require("htmlparser2");
+var fetch_1 = require("@libs/fetch");
+var novelStatus_1 = require("@libs/novelStatus");
+var ReadNovelFullPlugin = /** @class */ (function () {
+    function ReadNovelFullPlugin(metadata) {
+        var _a;
+        this.lastSearch = null;
+        this.searchInterval = 3400;
+        this.id = metadata.id;
+        this.name = metadata.sourceName;
+        this.icon = "multisrc/readnovelfull/".concat(metadata.id.toLowerCase(), "/icon.png");
+        this.site = metadata.sourceSite;
+        var versionIncrements = ((_a = metadata.options) === null || _a === void 0 ? void 0 : _a.versionIncrements) || 0;
+        this.version = "2.1.".concat(2 + versionIncrements);
+        this.options = metadata.options;
+        this.filters = metadata.filters;
+    }
+    ReadNovelFullPlugin.prototype.sleep = function (ms) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, new Promise(function (resolve) { return setTimeout(resolve, ms); })];
+            });
+        });
+    };
+    ReadNovelFullPlugin.prototype.parseNovels = function (html) {
+        var _this = this;
+        var novels = [];
+        var tempNovel = {};
+        var depth;
+        var stateStack = [ParsingState.Idle];
+        var currentState = function () { return stateStack[stateStack.length - 1]; };
+        var pushState = function (state) { return stateStack.push(state); };
+        var popState = function () {
+            return stateStack.length > 1 ? stateStack.pop() : currentState();
+        };
+        var parser = new htmlparser2_1.Parser({
+            onopentag: function (name, attribs) {
+                var _a, _b;
+                var state = currentState();
+                if (((_a = attribs.class) === null || _a === void 0 ? void 0 : _a.includes('archive')) ||
+                    attribs.class === 'col-content' ||
+                    ((_b = attribs.class) === null || _b === void 0 ? void 0 : _b.includes('list-novel'))) {
+                    pushState(ParsingState.NovelList);
+                    depth = 0;
+                }
+                if (state !== ParsingState.NovelList &&
+                    state !== ParsingState.NovelName)
+                    return;
+                switch (name) {
+                    case 'img': {
+                        var cover = attribs['data-src'] || attribs.src;
+                        if (cover) {
+                            tempNovel.cover = new URL(cover, _this.site).href;
+                        }
+                        break;
+                    }
+                    case 'h3':
+                        if (state === ParsingState.NovelList) {
+                            pushState(ParsingState.NovelName);
+                        }
+                        break;
+                    case 'a':
+                        if (state === ParsingState.NovelName) {
+                            var href = attribs.href;
+                            if (href) {
+                                tempNovel.path = new URL(href, _this.site).pathname.substring(1);
+                                tempNovel.name = attribs.title;
+                            }
+                        }
+                        break;
+                    case 'div':
+                        depth++;
+                        break;
+                    default:
+                        return;
+                }
+            },
+            onclosetag: function (name) {
+                var state = currentState();
+                if (name === 'a' && state === ParsingState.NovelName) {
+                    if (tempNovel.name && tempNovel.path) {
+                        novels.push(__assign({}, tempNovel));
+                    }
+                    tempNovel = {};
+                    popState();
+                }
+                if (name === 'div' && state === ParsingState.NovelList) {
+                    depth--;
+                    if (depth < 0)
+                        popState();
+                }
+            },
+        });
+        parser.write(html);
+        parser.end();
+        return novels;
+    };
+    ReadNovelFullPlugin.prototype.popularNovels = function (pageNo_1, _a) {
+        return __awaiter(this, arguments, void 0, function (pageNo, _b) {
+            var filtersValues, _c, _d, pageParam, novelListing, _e, typeParam, latestPage, _f, genreParam, _g, genreKey, langParam, urlLangCode, _h, noPages, _j, pageAsPath, url, params, basePage, result, html;
+            var filters = _b.filters, showLatestNovels = _b.showLatestNovels;
+            return __generator(this, function (_k) {
+                switch (_k.label) {
+                    case 0:
+                        filtersValues = filters;
+                        _c = this.options, _d = _c.pageParam, pageParam = _d === void 0 ? 'page' : _d, novelListing = _c.novelListing, _e = _c.typeParam, typeParam = _e === void 0 ? 'type' : _e, latestPage = _c.latestPage, _f = _c.genreParam, genreParam = _f === void 0 ? 'category_novel' : _f, _g = _c.genreKey, genreKey = _g === void 0 ? 'id' : _g, langParam = _c.langParam, urlLangCode = _c.urlLangCode, _h = _c.noPages, noPages = _h === void 0 ? [] : _h, _j = _c.pageAsPath, pageAsPath = _j === void 0 ? false : _j;
+                        // Skip Pagination for FWN & LR
+                        if (pageNo !== 1 &&
+                            !showLatestNovels &&
+                            !filtersValues.genres.value.length &&
+                            noPages.length > 0 &&
+                            noPages.includes(filtersValues.type.value)) {
+                            return [2 /*return*/, []];
+                        }
+                        url = '';
+                        if (novelListing) {
+                            params = new URLSearchParams();
+                            if (showLatestNovels) {
+                                params.append(typeParam, latestPage);
+                            }
+                            else if (filtersValues.genres.value.length) {
+                                params.append(typeParam, genreParam);
+                                params.append(genreKey, filtersValues.genres.value);
+                            }
+                            else {
+                                params.append(typeParam, filtersValues.type.value);
+                            }
+                            // Add language parameter if specified
+                            if (langParam && urlLangCode) {
+                                params.append(langParam, urlLangCode);
+                            }
+                            params.append(pageParam, pageNo.toString());
+                            url = "".concat(this.site).concat(novelListing, "?").concat(params.toString());
+                        }
+                        else {
+                            basePage = showLatestNovels
+                                ? latestPage
+                                : filtersValues.genres.value.length
+                                    ? filtersValues.genres.value
+                                    : filtersValues.type.value;
+                            if (pageAsPath) {
+                                if (pageNo > 1) {
+                                    url = "".concat(this.site).concat(basePage, "/").concat(pageNo.toString());
+                                }
+                                else {
+                                    url = "".concat(this.site).concat(basePage);
+                                }
+                            }
+                            else {
+                                url = "".concat(this.site).concat(basePage, "?").concat(pageParam, "=").concat(pageNo.toString());
+                            }
+                        }
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(url)];
+                    case 1:
+                        result = _k.sent();
+                        if (!result.ok) {
+                            throw new Error("Could not reach site (".concat(result.status, ": ").concat(result.statusText, ") try to open in webview."));
+                        }
+                        return [4 /*yield*/, result.text()];
+                    case 2:
+                        html = _k.sent();
+                        return [2 /*return*/, this.parseNovels(html)];
+                }
+            });
+        });
+    };
+    ReadNovelFullPlugin.prototype.parseNovel = function (novelPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var url, result, body, novel, summaryParts, statusParts, authorParts, genreArray, infoParts, chapters, novelId, tempChapter, i, depth, stateStack, currentState, pushState, popState, parser, chapterListing, ajaxParam, params, chaptersUrl, ajaxResult, ajaxBody, ajaxChapters_1, tempAjaxChapter_1, ajaxParser;
+            var _a;
+            var _this = this;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        url = this.site + novelPath;
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(url)];
+                    case 1:
+                        result = _b.sent();
+                        return [4 /*yield*/, result.text()];
+                    case 2:
+                        body = _b.sent();
+                        novel = {
+                            path: novelPath,
+                            chapters: [],
+                        };
+                        summaryParts = [];
+                        statusParts = [];
+                        authorParts = [];
+                        genreArray = [];
+                        infoParts = [];
+                        chapters = [];
+                        novelId = null;
+                        tempChapter = {};
+                        i = 0;
+                        stateStack = [ParsingState.Idle];
+                        currentState = function () { return stateStack[stateStack.length - 1]; };
+                        pushState = function (state) { return stateStack.push(state); };
+                        popState = function () {
+                            return stateStack.length > 1 ? stateStack.pop() : currentState();
+                        };
+                        parser = new htmlparser2_1.Parser({
+                            onopentag: function (name, attribs) {
+                                var _a, _b, _c;
+                                var state = currentState();
+                                switch (name) {
+                                    case 'div':
+                                        switch (attribs.class) {
+                                            case 'books':
+                                            case 'm-imgtxt':
+                                                pushState(ParsingState.Cover);
+                                                return;
+                                            case 'inner':
+                                            case 'desc-text':
+                                                if (state === ParsingState.Cover)
+                                                    popState();
+                                                pushState(ParsingState.Summary);
+                                                break;
+                                            case 'info':
+                                                pushState(ParsingState.Info);
+                                                depth = 0;
+                                                break;
+                                        }
+                                        if (!_this.options.noAjax && attribs.id === 'rating') {
+                                            novelId = attribs['data-novel-id'];
+                                        }
+                                        if (state === ParsingState.Info)
+                                            depth++;
+                                        break;
+                                    case 'img':
+                                        if (state === ParsingState.Cover) {
+                                            var cover = (_b = (_a = attribs.src) !== null && _a !== void 0 ? _a : attribs['data-cfsrc']) !== null && _b !== void 0 ? _b : attribs['data-src'];
+                                            var name_1 = attribs.title;
+                                            if (cover) {
+                                                novel.cover = new URL(cover, _this.site).href;
+                                            }
+                                            if (name_1) {
+                                                novel.name = name_1;
+                                            }
+                                            else {
+                                                popState();
+                                            }
+                                        }
+                                        break;
+                                    case 'h3':
+                                        if (state === ParsingState.Cover) {
+                                            pushState(ParsingState.NovelName);
+                                        }
+                                        break;
+                                    case 'span':
+                                        if (state === ParsingState.Cover && attribs.title) {
+                                            var newState = {
+                                                'Genre': ParsingState.Genres,
+                                                'Author': ParsingState.Author,
+                                                'Status': ParsingState.Status,
+                                            }[attribs.title];
+                                            if (newState)
+                                                pushState(newState);
+                                        }
+                                        break;
+                                    case 'br':
+                                        if (state === ParsingState.Summary) {
+                                            summaryParts.push('\n');
+                                        }
+                                        break;
+                                    case 'ul':
+                                        if ((_c = attribs.class) === null || _c === void 0 ? void 0 : _c.includes('info-meta')) {
+                                            pushState(ParsingState.Info);
+                                        }
+                                        if (_this.options.noAjax && attribs.id === 'idData') {
+                                            pushState(ParsingState.ChapterList);
+                                        }
+                                        break;
+                                    case 'a':
+                                        if (state === ParsingState.ChapterList) {
+                                            i++;
+                                            var href = attribs.href;
+                                            pushState(ParsingState.Chapter);
+                                            tempChapter.name = attribs.title || "Chapter ".concat(i);
+                                            tempChapter.releaseTime = null;
+                                            tempChapter.chapterNumber = i;
+                                            tempChapter.path =
+                                                (href === null || href === void 0 ? void 0 : href.substring(1)) ||
+                                                    novelPath.replace('.html', "/chapter-".concat(i, ".html"));
+                                        }
+                                        break;
+                                }
+                            },
+                            ontext: function (data) {
+                                var text = data.trim();
+                                if (!text)
+                                    return;
+                                switch (currentState()) {
+                                    case ParsingState.NovelName:
+                                        novel.name = (novel.name || '') + text;
+                                        break;
+                                    case ParsingState.Summary:
+                                        summaryParts.push(data);
+                                        break;
+                                    case ParsingState.Info:
+                                        infoParts.push(text);
+                                        break;
+                                    case ParsingState.Genres:
+                                        genreArray.push(data);
+                                        break;
+                                    case ParsingState.Author:
+                                        authorParts.push(data);
+                                        break;
+                                    case ParsingState.Status:
+                                        statusParts.push(text);
+                                        break;
+                                }
+                            },
+                            onclosetag: function (name) {
+                                var state = currentState();
+                                switch (name) {
+                                    case 'div':
+                                        switch (state) {
+                                            case ParsingState.Info:
+                                                depth--;
+                                                infoParts.push('\n');
+                                                if (depth < 0) {
+                                                    popState();
+                                                }
+                                                break;
+                                            case ParsingState.Genres:
+                                            case ParsingState.Author:
+                                            case ParsingState.Status:
+                                            case ParsingState.Summary:
+                                                popState();
+                                                break;
+                                        }
+                                        break;
+                                    case 'h3':
+                                        if (state === ParsingState.NovelName) {
+                                            popState();
+                                        }
+                                        break;
+                                    case 'a':
+                                        if (state === ParsingState.Chapter) {
+                                            if (tempChapter.name && tempChapter.path) {
+                                                chapters.push(__assign({}, tempChapter));
+                                            }
+                                            tempChapter = {};
+                                            popState();
+                                        }
+                                        break;
+                                    case 'li':
+                                        if (state === ParsingState.Info) {
+                                            infoParts.push('\n');
+                                        }
+                                        break;
+                                    case 'ul':
+                                        switch (state) {
+                                            case ParsingState.Info:
+                                            case ParsingState.ChapterList:
+                                                popState();
+                                                break;
+                                        }
+                                        break;
+                                    default:
+                                        return;
+                                }
+                            },
+                            onend: function () {
+                                if (infoParts.length) {
+                                    infoParts
+                                        .join('')
+                                        .split('\n')
+                                        .map(function (line) { return line.trim(); })
+                                        .filter(function (line) { return line.includes(':'); })
+                                        .forEach(function (line) {
+                                        var _a;
+                                        var parts = line.split(':');
+                                        var detailName = parts[0].trim().toLowerCase();
+                                        var detail = parts[1]
+                                            .split(',')
+                                            .map(function (g) { return g.trim(); })
+                                            .join(', ');
+                                        switch (detailName) {
+                                            case 'author':
+                                                novel.author = detail;
+                                                break;
+                                            case 'genre':
+                                                novel.genres = detail;
+                                                break;
+                                            case 'status': {
+                                                var map = {
+                                                    ongoing: novelStatus_1.NovelStatus.Ongoing,
+                                                    hiatus: novelStatus_1.NovelStatus.OnHiatus,
+                                                    dropped: novelStatus_1.NovelStatus.Cancelled,
+                                                    cancelled: novelStatus_1.NovelStatus.Cancelled,
+                                                    completed: novelStatus_1.NovelStatus.Completed,
+                                                };
+                                                novel.status =
+                                                    (_a = map[detail.toLowerCase()]) !== null && _a !== void 0 ? _a : novelStatus_1.NovelStatus.Unknown;
+                                                break;
+                                            }
+                                            default:
+                                                return;
+                                        }
+                                    });
+                                    if (!novelId) {
+                                        var idMatch = novelPath.match(/\d+/);
+                                        novelId = idMatch ? idMatch[0] : null;
+                                    }
+                                }
+                                else {
+                                    novel.genres = genreArray.join('').trim();
+                                    novel.author = authorParts.join('').trim();
+                                    novel.status = statusParts
+                                        .join('')
+                                        .toLowerCase()
+                                        .replace(/\b\w/g, function (char) { return char.toUpperCase(); });
+                                }
+                                novel.summary = summaryParts.join('\n\n').trim();
+                            },
+                        });
+                        parser.write(body);
+                        parser.end();
+                        if (!(this.options.noAjax && chapters.length > 0)) return [3 /*break*/, 3];
+                        novel.chapters = chapters;
+                        return [3 /*break*/, 7];
+                    case 3:
+                        if (!(novelId !== null)) return [3 /*break*/, 7];
+                        chapterListing = this.options.chapterListing || 'ajax/chapter-archive';
+                        ajaxParam = this.options.chapterParam || 'novelId';
+                        params = new URLSearchParams((_a = {}, _a[ajaxParam] = novelId, _a));
+                        chaptersUrl = "".concat(this.site).concat(chapterListing, "?").concat(params.toString());
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(chaptersUrl)];
+                    case 4:
+                        ajaxResult = _b.sent();
+                        if (!!ajaxResult.ok) return [3 /*break*/, 5];
+                        console.error("Failed to fetch chapters: ".concat(ajaxResult.status));
+                        novel.chapters = [];
+                        return [3 /*break*/, 7];
+                    case 5: return [4 /*yield*/, ajaxResult.text()];
+                    case 6:
+                        ajaxBody = _b.sent();
+                        ajaxChapters_1 = [];
+                        tempAjaxChapter_1 = {};
+                        ajaxParser = new htmlparser2_1.Parser({
+                            onopentag: function (name, attribs) {
+                                var chapterHref;
+                                var initialName;
+                                if (name === 'a' && attribs.href) {
+                                    chapterHref = attribs.href;
+                                    initialName = attribs.title || '';
+                                    pushState(ParsingState.Chapter);
+                                }
+                                else if (name === 'option' && attribs.value) {
+                                    chapterHref = attribs.value;
+                                    initialName = '';
+                                    pushState(ParsingState.Chapter);
+                                }
+                                if (chapterHref !== undefined) {
+                                    var href = new URL(chapterHref, _this.site);
+                                    tempAjaxChapter_1.path = href.pathname.substring(1);
+                                    tempAjaxChapter_1.name = initialName;
+                                }
+                            },
+                            ontext: function (data) {
+                                var text = data.trim();
+                                if (currentState() === ParsingState.Chapter &&
+                                    !tempAjaxChapter_1.name &&
+                                    text) {
+                                    tempAjaxChapter_1.name += text;
+                                }
+                            },
+                            onclosetag: function (name) {
+                                if ((name === 'a' || name === 'option') &&
+                                    currentState() === ParsingState.Chapter) {
+                                    if (tempAjaxChapter_1.name && tempAjaxChapter_1.path) {
+                                        tempAjaxChapter_1.name = tempAjaxChapter_1.name.trim();
+                                        tempAjaxChapter_1.releaseTime = null;
+                                        ajaxChapters_1.push(__assign({}, tempAjaxChapter_1));
+                                    }
+                                    tempAjaxChapter_1 = {};
+                                    popState();
+                                }
+                            },
+                        });
+                        ajaxParser.write(ajaxBody);
+                        ajaxParser.end();
+                        novel.chapters = ajaxChapters_1;
+                        _b.label = 7;
+                    case 7: return [2 /*return*/, novel];
+                }
+            });
+        });
+    };
+    ReadNovelFullPlugin.prototype.parseChapter = function (chapterPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, html, depth, depthHide, chapterHtml, skipClosingTag, currentTagToSkip, stateStack, currentState, pushState, popState, escapeRegex, escapeMap, escapeHtml, parser;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + chapterPath)];
+                    case 1:
+                        response = _a.sent();
+                        return [4 /*yield*/, response.text()];
+                    case 2:
+                        html = _a.sent();
+                        chapterHtml = [];
+                        skipClosingTag = false;
+                        currentTagToSkip = '';
+                        stateStack = [ParsingState.Idle];
+                        currentState = function () { return stateStack[stateStack.length - 1]; };
+                        pushState = function (state) { return stateStack.push(state); };
+                        popState = function () {
+                            return stateStack.length > 1 ? stateStack.pop() : currentState();
+                        };
+                        escapeRegex = /[&<>"'\u00A0]/g;
+                        escapeMap = {
+                            '&': '&amp;',
+                            '<': '&lt;',
+                            '>': '&gt;',
+                            '"': '&quot;',
+                            "'": '&#39;',
+                            ' ': '&nbsp;',
+                        };
+                        escapeHtml = function (text) {
+                            return text.replace(escapeRegex, function (char) { return escapeMap[char]; });
+                        };
+                        parser = new htmlparser2_1.Parser({
+                            onopentag: function (name, attribs) {
+                                var _a;
+                                var state = currentState();
+                                var attrib = (_a = attribs.class) === null || _a === void 0 ? void 0 : _a.trim();
+                                switch (state) {
+                                    case ParsingState.Idle:
+                                        if (attrib === 'txt' ||
+                                            attribs.id === 'chr-content' ||
+                                            attribs.id === 'chapter-content') {
+                                            pushState(ParsingState.Chapter);
+                                            depth = 0;
+                                        }
+                                        break;
+                                    case ParsingState.Chapter:
+                                        if (name === 'sub') {
+                                            pushState(ParsingState.Hidden);
+                                        }
+                                        else if (name === 'div') {
+                                            depth++;
+                                            if ((attrib === null || attrib === void 0 ? void 0 : attrib.includes('unlock-buttons')) ||
+                                                (attrib === null || attrib === void 0 ? void 0 : attrib.includes('ads'))) {
+                                                pushState(ParsingState.Hidden);
+                                                depthHide = 0;
+                                            }
+                                        }
+                                        break;
+                                    case ParsingState.Hidden:
+                                        if (name === 'sub') {
+                                            // Allow nesting of hidden states if a sub is inside a div
+                                            pushState(ParsingState.Hidden);
+                                        }
+                                        else if (name === 'div') {
+                                            depthHide++;
+                                        }
+                                        break;
+                                    default:
+                                        return;
+                                }
+                                if (currentState() === ParsingState.Chapter) {
+                                    var attrKeys = Object.keys(attribs);
+                                    if (attrKeys.length === 0) {
+                                        chapterHtml.push("<".concat(name, ">"));
+                                    }
+                                    else if (attrKeys.every(function (key) { return attribs[key].trim() === ''; })) {
+                                        // Handle tags with empty attributes as text content
+                                        // eg: novel/rising-up-from-a-nobleman-to-intergalactic-warlord/chapter-184
+                                        skipClosingTag = true;
+                                        currentTagToSkip = name;
+                                        var uppercaseName = name.replace(/\b\w/g, function (char) {
+                                            return char.toUpperCase();
+                                        });
+                                        chapterHtml.push(escapeHtml("<".concat(uppercaseName, " ").concat(attrKeys.join(' '), ">")));
+                                    }
+                                    else {
+                                        // Normal tag with attributes
+                                        var attrString = attrKeys
+                                            .map(function (key) { return " ".concat(key, "=\"").concat(attribs[key].replace(/"/g, '&quot;'), "\""); })
+                                            .join('');
+                                        chapterHtml.push("<".concat(name).concat(attrString, ">"));
+                                    }
+                                }
+                            },
+                            ontext: function (text) {
+                                if (currentState() === ParsingState.Chapter) {
+                                    chapterHtml.push(escapeHtml(text));
+                                }
+                            },
+                            onclosetag: function (name) {
+                                var state = currentState();
+                                if (state === ParsingState.Hidden) {
+                                    if (name === 'sub') {
+                                        popState();
+                                    }
+                                    else if (name === 'div') {
+                                        depthHide--;
+                                        if (depthHide < 0) {
+                                            popState();
+                                            depth--;
+                                        }
+                                    }
+                                }
+                                if (state !== ParsingState.Chapter) {
+                                    return;
+                                }
+                                if (!parser['isVoidElement'](name)) {
+                                    if (skipClosingTag && name === currentTagToSkip) {
+                                        skipClosingTag = false;
+                                        currentTagToSkip = '';
+                                    }
+                                    else {
+                                        chapterHtml.push("</".concat(name, ">"));
+                                    }
+                                }
+                                if (name === 'div') {
+                                    depth--;
+                                    if (depth < 0) {
+                                        pushState(ParsingState.Stopped);
+                                    }
+                                }
+                            },
+                        });
+                        parser.write(html);
+                        parser.end();
+                        return [2 /*return*/, chapterHtml.join('')];
+                }
+            });
+        });
+    };
+    ReadNovelFullPlugin.prototype.searchNovels = function (searchTerm, page) {
+        return __awaiter(this, void 0, void 0, function () {
+            var now, _a, _b, pageParam, _c, searchKey, postSearch, langParam, urlLangCode, searchPage, params, url, fetchOptions, result, html, alertText;
+            var _d, _e, _f;
+            var _g;
+            return __generator(this, function (_h) {
+                switch (_h.label) {
+                    case 0:
+                        now = Date.now();
+                        if (!(this.lastSearch && now - this.lastSearch <= this.searchInterval)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.sleep(this.searchInterval)];
+                    case 1:
+                        _h.sent();
+                        _h.label = 2;
+                    case 2:
+                        _a = this.options, _b = _a.pageParam, pageParam = _b === void 0 ? 'page' : _b, _c = _a.searchKey, searchKey = _c === void 0 ? 'keyword' : _c, postSearch = _a.postSearch, langParam = _a.langParam, urlLangCode = _a.urlLangCode, searchPage = _a.searchPage;
+                        params = new URLSearchParams(__assign(__assign((_d = {}, _d[searchKey] = searchTerm, _d), (langParam && urlLangCode && (_e = {}, _e[langParam] = urlLangCode, _e))), (!postSearch && (_f = {}, _f[pageParam] = page.toString(), _f))));
+                        url = "".concat(this.site).concat(searchPage).concat(!postSearch ? "?".concat(params.toString()) : '');
+                        fetchOptions = postSearch
+                            ? {
+                                method: 'POST',
+                                body: params.toString(),
+                                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            }
+                            : undefined;
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(url, fetchOptions)];
+                    case 3:
+                        result = _h.sent();
+                        this.lastSearch = Date.now();
+                        if (!result.ok) {
+                            throw new Error("Could not reach site ('".concat(result.status, "') try to open in webview."));
+                        }
+                        return [4 /*yield*/, result.text()];
+                    case 4:
+                        html = _h.sent();
+                        alertText = ((_g = html.match(/alert\((.*?)\)/)) === null || _g === void 0 ? void 0 : _g[1]) || '';
+                        if (alertText)
+                            throw new Error(alertText);
+                        return [2 /*return*/, this.parseNovels(html)];
+                }
+            });
+        });
+    };
+    return ReadNovelFullPlugin;
+}());
+exports.ReadNovelFullPlugin = ReadNovelFullPlugin;
+var ParsingState;
+(function (ParsingState) {
+    ParsingState[ParsingState["Idle"] = 0] = "Idle";
+    ParsingState[ParsingState["Info"] = 1] = "Info";
+    ParsingState[ParsingState["Cover"] = 2] = "Cover";
+    ParsingState[ParsingState["Author"] = 3] = "Author";
+    ParsingState[ParsingState["Genres"] = 4] = "Genres";
+    ParsingState[ParsingState["Status"] = 5] = "Status";
+    ParsingState[ParsingState["Hidden"] = 6] = "Hidden";
+    ParsingState[ParsingState["Summary"] = 7] = "Summary";
+    ParsingState[ParsingState["Stopped"] = 8] = "Stopped";
+    ParsingState[ParsingState["Chapter"] = 9] = "Chapter";
+    ParsingState[ParsingState["ChapterList"] = 10] = "ChapterList";
+    ParsingState[ParsingState["NovelName"] = 11] = "NovelName";
+    ParsingState[ParsingState["NovelList"] = 12] = "NovelList";
+})(ParsingState || (ParsingState = {}));
+var plugin = new ReadNovelFullPlugin({ "id": "libread", "sourceSite": "https://libread.com/", "sourceName": "Lib Read", "options": { "latestPage": "sort/latest-novels", "searchPage": "search", "searchKey": "searchkey", "postSearch": true, "noAjax": true, "noPages": ["sort/most-popular"], "pageAsPath": true }, "filters": { "type": { "type": "Picker", "label": "Novel Type", "value": "sort/most-popular", "options": [{ "label": "All", "value": "sort/latest-release" }, { "label": "Chinese Novel", "value": "sort/latest-release/chinese-novel" }, { "label": "Korean Novel", "value": "sort/latest-release/korean-novel" }, { "label": "Japanese Novel", "value": "sort/latest-release/japanese-novel" }, { "label": "English Novel", "value": "sort/latest-release/english-novel" }, { "label": "Most Popular", "value": "sort/most-popular" }] }, "genres": { "type": "Picker", "label": "Genre", "value": "", "options": [{ "label": "Action", "value": "genre/Action" }, { "label": "Adult", "value": "genre/Adult" }, { "label": "Adventure", "value": "genre/Adventure" }, { "label": "Comedy", "value": "genre/Comedy" }, { "label": "Drama", "value": "genre/Drama" }, { "label": "Eastern", "value": "genre/Eastern" }, { "label": "Ecchi", "value": "genre/Ecchi" }, { "label": "Fantasy", "value": "genre/Fantasy" }, { "label": "Game", "value": "genre/Game" }, { "label": "Gender Bender", "value": "genre/Gender+Bender" }, { "label": "Harem", "value": "genre/Harem" }, { "label": "Historical", "value": "genre/Historical" }, { "label": "Horror", "value": "genre/Horror" }, { "label": "Josei", "value": "genre/Josei" }, { "label": "Martial Arts", "value": "genre/Martial+Arts" }, { "label": "Mature", "value": "genre/Mature" }, { "label": "Mecha", "value": "genre/Mecha" }, { "label": "Mystery", "value": "genre/Mystery" }, { "label": "Psychological", "value": "genre/Psychological" }, { "label": "Reincarnation", "value": "genre/Reincarnation" }, { "label": "Romance", "value": "genre/Romance" }, { "label": "School Life", "value": "genre/School+Life" }, { "label": "Sci-fi", "value": "genre/Sci-fi" }, { "label": "Seinen", "value": "genre/Seinen" }, { "label": "Shoujo", "value": "genre/Shoujo" }, { "label": "Shounen Ai", "value": "genre/Shounen+Ai" }, { "label": "Shounen", "value": "genre/Shounen" }, { "label": "Slice of Life", "value": "genre/Slice+of+Life" }, { "label": "Smut", "value": "genre/Smut" }, { "label": "Sports", "value": "genre/Sports" }, { "label": "Supernatural", "value": "genre/Supernatural" }, { "label": "Tragedy", "value": "genre/Tragedy" }, { "label": "Wuxia", "value": "genre/Wuxia" }, { "label": "Xianxia", "value": "genre/Xianxia" }, { "label": "Xuanhuan", "value": "genre/Xuanhuan" }, { "label": "Yaoi", "value": "genre/Yaoi" }] } } });
+exports.default = plugin;
