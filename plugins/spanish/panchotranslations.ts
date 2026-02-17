@@ -18,7 +18,7 @@ class PanchoPlugin implements Plugin.PluginBase {
     this.name = 'Pancho Translations';
     this.icon = `multisrc/madara/panchotranslations/icon.png`;
     this.site = 'https://panchonovels.online/';
-    this.version = '1.1.3';
+    this.version = '1.1.4';
   }
 
   private decodeHtmlEntities(value: string): string {
@@ -134,6 +134,36 @@ class PanchoPlugin implements Plugin.PluginBase {
     const html = await fetchApi(this.site + 'home').then(res => res.text());
     const $ = parseHTML(html);
 
+    const novels: Plugin.NovelItem[] = [];
+    const seen = new Set<string>();
+
+    const addNovel = (novel: Plugin.NovelItem) => {
+      if (!seen.has(novel.path)) {
+        seen.add(novel.path);
+        novels.push(novel);
+      }
+    };
+
+    // 1. Parse Carousel (Popular)
+    $('div.embla > div.flex > div').each((i, el) => {
+      const name = $(el)
+        .find('span.text-white.text-base.font-semibold')
+        .text()
+        .trim();
+      const cover = $(el).find('img').attr('src');
+      const path = $(el).find('a').attr('href');
+
+      if (name && path) {
+        addNovel({
+          name,
+          cover: cover || defaultCover,
+          path: path.replace(/^\//, ''),
+        });
+      }
+    });
+
+    let otherNovels: Plugin.NovelItem[] = [];
+
     if (showLatestNovels) {
       const latestSection = $('section')
         .filter((i, el) =>
@@ -149,31 +179,36 @@ class PanchoPlugin implements Plugin.PluginBase {
       const latestFromXData = this.parseNovelsFromSource(
         latestSection.find('[x-data*="novels"]').first().attr('x-data'),
       );
-      if (latestFromXData.length) return latestFromXData;
-
-      const latestFromSectionHtml = this.parseNovelsFromSource(
-        latestSection.html(),
-      );
-      if (latestFromSectionHtml.length) return latestFromSectionHtml;
-    }
-
-    const novels = this.parseNovelsFromSource(html);
-
-    if (novels.length === 0) {
-      $('ul.grid li').each((i, el) => {
-        const name = $(el).find('h3').text().trim();
-        const cover = $(el).find('img').attr('src');
-        const path = $(el).find('picture a').attr('href');
-
-        if (name && path) {
-          novels.push({
-            name,
-            cover: cover || defaultCover,
-            path: path.replace(/^\//, ''),
-          });
+      if (latestFromXData.length) {
+        otherNovels = latestFromXData;
+      } else {
+        const latestFromSectionHtml = this.parseNovelsFromSource(
+          latestSection.html(),
+        );
+        if (latestFromSectionHtml.length) {
+          otherNovels = latestFromSectionHtml;
         }
-      });
+      }
+    } else {
+      otherNovels = this.parseNovelsFromSource(html);
+      if (otherNovels.length === 0) {
+        $('ul.grid li').each((i, el) => {
+          const name = $(el).find('h3').text().trim();
+          const cover = $(el).find('img').attr('src');
+          const path = $(el).find('picture a').attr('href');
+
+          if (name && path) {
+            otherNovels.push({
+              name,
+              cover: cover || defaultCover,
+              path: path.replace(/^\//, ''),
+            });
+          }
+        });
+      }
     }
+
+    otherNovels.forEach(addNovel);
 
     return novels;
   }
