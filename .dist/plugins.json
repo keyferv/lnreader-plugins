@@ -716,7 +716,7 @@
 		"name": "Lore Novels",
 		"site": "https://lorenovels.com",
 		"lang": "English",
-		"version": "1.0.2",
+		"version": "1.0.3",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/english/lorenovels.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/en/lorenovels/icon.png"
 	},

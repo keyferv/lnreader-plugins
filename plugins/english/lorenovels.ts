@@ -7,7 +7,7 @@ class LoreNovels implements Plugin.PluginBase {
   name = 'Lore Novels';
   icon = 'src/en/lorenovels/icon.png';
   site = 'https://lorenovels.com';
-  version = '1.0.2';
+  version = '1.0.3';
 
   private resolvePath(href?: string | null): string | undefined {
     if (!href) return undefined;
@@ -78,21 +78,24 @@ class LoreNovels implements Plugin.PluginBase {
       .text()
       .trim();
 
+    const contentImg = loadedCheerio('div.entry-content figure.wp-block-image img').first();
+    const wpImg = loadedCheerio('div.entry-content img[class*="wp-image-"]').first();
     const postImg = loadedCheerio('img.wp-post-image').first();
     const blockImg = loadedCheerio('.wp-block-image img').first();
     const figImg = loadedCheerio('figure img').first();
-    const contentImg = loadedCheerio('div.entry-content img[class*="wp-image-"]').first();
     const firstImg = loadedCheerio('div.entry-content img').first();
 
     const cover = this.resolveCover(
-      postImg.attr('data-src') ||
+      contentImg.attr('data-src') ||
+        contentImg.attr('src') ||
+        wpImg.attr('data-src') ||
+        wpImg.attr('src') ||
+        postImg.attr('data-src') ||
         postImg.attr('src') ||
         blockImg.attr('data-src') ||
         blockImg.attr('src') ||
         figImg.attr('data-src') ||
         figImg.attr('src') ||
-        contentImg.attr('data-src') ||
-        contentImg.attr('src') ||
         firstImg.attr('data-src') ||
         firstImg.attr('src'),
     );
