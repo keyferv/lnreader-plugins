@@ -18,7 +18,7 @@ class PanchoPlugin implements Plugin.PluginBase {
     this.name = 'Pancho Translations';
     this.icon = `multisrc/madara/panchotranslations/icon.png`;
     this.site = 'https://panchonovels.online/';
-    this.version = '1.1.5';
+    this.version = '1.1.6';
   }
 
   private decodeHtmlEntities(value: string): string {
@@ -185,29 +185,40 @@ class PanchoPlugin implements Plugin.PluginBase {
       }
     }
 
+    // Try parsed JSON list from x-data first (these are client-side novels)
     if (xDataString) {
       otherNovels = this.parseNovelsFromSource(xDataString);
     }
 
-    // Fallback to DOM parsing if JSON extraction failed or returned nothing
-    if (otherNovels.length === 0) {
-      $('ul.grid li').each((i, el) => {
-        const name = $(el).find('h3').text().trim();
-        const cover = $(el).find('img').attr('src');
-        const path = $(el).find('picture a').attr('href');
+    // Also parse the server-rendered DOM entries (first items are often server-side)
+    const domNovels: Plugin.NovelItem[] = [];
+    $('ul.grid li').each((i, el) => {
+      const name = $(el).find('h3').text().trim();
+      const cover = $(el).find('img').attr('src');
+      const path = $(el).find('picture a').attr('href');
 
-        if (name && path) {
-          otherNovels.push({
-            name,
-            cover: cover || defaultCover,
-            path: path.replace(/^\//, ''),
-          });
-        }
-      });
+      if (name && path) {
+        domNovels.push({
+          name,
+          cover: cover || defaultCover,
+          path: path.replace(/^\//, ''),
+        });
+      }
+    });
+
+    // If caller wants Latest/Recientes, return the grid (DOM + x-data merged),
+    // otherwise (Popular) return only the carousel items parsed earlier.
+    if (showLatestNovels) {
+      // Include both server-rendered DOM novels and client-side x-data novels.
+      // Use `addNovel` (with `seen`) to avoid duplicates and prevent parsing
+      // the same novel twice.
+      domNovels.forEach(addNovel);
+      otherNovels.forEach(addNovel);
+
+      return novels;
     }
 
-    otherNovels.forEach(addNovel);
-
+    // showLatestNovels === false -> Popular: do not add grid items, return carousel only
     return novels;
   }
 
