@@ -1,3 +1,4 @@
+/* eslint-env node */ /* global process */
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -46,7 +47,7 @@ async function readTextUpTo(response, maxBytes) {
   /** @type {Uint8Array[]} */
   const chunks = [];
 
-  while (true) {
+  for (; ;) {
     const { done, value } = await reader.read();
     if (done) break;
     if (value) {
@@ -134,7 +135,7 @@ async function runLimited(items, limit, worker) {
   let nextIndex = 0;
 
   async function runner() {
-    while (true) {
+    for (; ;) {
       const current = nextIndex++;
       if (current >= items.length) return;
       results[current] = await worker(items[current], current);
@@ -220,7 +221,7 @@ function buildMarkdownReport(results) {
     acc.total += 1;
     acc[r.classification] = (acc[r.classification] || 0) + 1;
     return acc;
-  }, /** @type {Record<string, number>} */ ({ total: 0 }));
+  }, /** @type {Record<string, number>} */({ total: 0 }));
 
   const lines = [];
   lines.push(`# Plugin Site Audit`);
@@ -330,3 +331,5 @@ main().catch(e => {
   console.error(e);
   process.exit(1);
 });
+
+

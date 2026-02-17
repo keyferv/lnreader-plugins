@@ -13,10 +13,11 @@ export type ReadwnMetadata = {
   id: string;
   sourceSite: string;
   sourceName: string;
-  filters?: any;
+  filters?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   options?: ReadwnOptions;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class ReadwnPlugin implements Plugin.PluginBase {
   id: string;
   name: string;
@@ -205,7 +206,7 @@ class ReadwnPlugin implements Plugin.PluginBase {
       method: 'POST',
       body: new URLSearchParams({
         show: 'title',
-        tempid: 1,
+        tempid: '1',
         tbname: 'news',
         keyboard: searchTerm,
       }).toString(),

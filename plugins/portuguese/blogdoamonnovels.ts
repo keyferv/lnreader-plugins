@@ -20,6 +20,7 @@ class BlogDoAnonNovelsPlugin implements Plugin.PluginBase {
       return novels;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     result.feed.entry.forEach((n: any) => {
       const novelName: string = n.title.$t;
 
@@ -164,6 +165,7 @@ class BlogDoAnonNovelsPlugin implements Plugin.PluginBase {
         break;
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       result.feed.entry.forEach((n: any) => {
         let chapterName: string = n.title.$t;
 
@@ -252,7 +254,8 @@ class BlogDoAnonNovelsPlugin implements Plugin.PluginBase {
     return $readerarea.html() || '';
   }
 
-  filters = {} satisfies Filters;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  filters: any = {} satisfies Filters;
 }
 
 export default new BlogDoAnonNovelsPlugin();

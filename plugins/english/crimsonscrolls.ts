@@ -10,10 +10,10 @@ enum APIAction {
   search = 'live_novel_search',
 }
 
-interface APIParams {
+type APIParams = {
   action: APIAction;
   params: Record<string, string | number>;
-}
+};
 
 class CrimsonScrollsPlugin implements Plugin.PluginBase {
   id = 'crimsonscrolls';
@@ -35,7 +35,7 @@ class CrimsonScrollsPlugin implements Plugin.PluginBase {
     const formData = new FormData();
     formData.append('action', query.action);
     for (const [key, value] of Object.entries(query.params))
-      formData.append(key, value);
+      formData.append(key, value.toString());
 
     const result = await fetchApi(`${this.site}/wp-admin/admin-ajax.php`, {
       method: 'POST',
@@ -45,11 +45,11 @@ class CrimsonScrollsPlugin implements Plugin.PluginBase {
     return parseHTML(result.html);
   }
 
-  async fetchChapters(id: number, page?: number | undefined) {
+  async fetchChapters(id: number, page?: number | undefined): Promise<any[]> {
     const chapter: any[] = [];
     const url = `${this.site}/wp-json/cs/v1/novels/${id}/chapters?per_page=75?order=asc`; //page=${page}
     const data = await fetchApi(`${url}&page=${page || 1}`).then(r => r.json());
-    const locked = data.items.some(e => e.locked);
+    const locked = data.items.some((e: any) => e.locked);
 
     if (data.page < data.total_pages && !(locked && this.hideLocked))
       return data.items.concat(
@@ -83,7 +83,7 @@ class CrimsonScrollsPlugin implements Plugin.PluginBase {
             .filter(e => e.length > 0)
             .join(' '),
           cover: novelCover,
-          path: novelUrl.replace(this.site, '').split('/').at(2),
+          path: novelUrl.replace(this.site, '').split('/')[2],
         };
         novels.push(novel);
       },
@@ -94,7 +94,7 @@ class CrimsonScrollsPlugin implements Plugin.PluginBase {
   async popularNovels(page: number): Promise<Plugin.NovelItem[]> {
     const loadedCheerio = await this.queryAPI({
       action: APIAction.novels,
-      params: { page: page as string },
+      params: { page: page.toString() },
     });
     return this.parseNovels(loadedCheerio);
   }
@@ -104,35 +104,38 @@ class CrimsonScrollsPlugin implements Plugin.PluginBase {
       r.text(),
     );
 
-    let loadedCheerio = parseHTML(result);
-    let novelInfo = loadedCheerio('#single-novel-content-wrapper');
+    const loadedCheerio = parseHTML(result);
+    const novelInfo = loadedCheerio('#single-novel-content-wrapper');
 
     const novel: Plugin.SourceNovel = {
       path: novelPath,
       name: novelInfo.find('h1.chapter-title').text().trim() || 'Untitled',
-      cover: novelInfo.find('.single-novel-cover > img').data('src'),
+      cover: novelInfo.find('.single-novel-cover > img').data('src') as string,
       summary: novelInfo.find('#synopsis-full').text().trim(),
-      author: novelInfo
-        .find('.single-novel-meta strong')
-        .filter(
-          (i, el) =>
-            loadedCheerio(el).text().toLowerCase().search('author') >= 0,
-        )[0]
-        .next.data.trim(),
+      author: (
+        novelInfo
+          .find('.single-novel-meta strong')
+          .filter(
+            (i, el) =>
+              loadedCheerio(el).text().toLowerCase().search('author') >= 0,
+          )[0] as any
+      ).next?.data?.trim(),
       chapters: [],
     };
 
-    novel.genres = novelInfo
-      .find('.single-novel-meta strong')
-      .filter(
-        (i, el) => loadedCheerio(el).text().toLowerCase().search('genre') >= 0,
-      )[0]
-      .next.data.split(',')
-      .map(e => e.trim())
+    novel.genres = (
+      novelInfo
+        .find('.single-novel-meta strong')
+        .filter(
+          (i, el) => loadedCheerio(el).text().toLowerCase().search('genre') >= 0,
+        )[0] as any
+    ).next?.data
+      ?.split(',')
+      .map((e: string) => e.trim())
       .join(',');
 
     novel.status = 'Unknown';
-    const id = loadedCheerio('#chapter-list').data('novel');
+    const id = loadedCheerio('#chapter-list').data('novel') as number;
     const chapters = await this.fetchChapters(id);
 
     novel.chapters = [];
@@ -142,7 +145,7 @@ class CrimsonScrollsPlugin implements Plugin.PluginBase {
           name: chapters[idx].locked
             ? `🔒 ${chapters[idx].title}`
             : chapters[idx].title,
-          path: chapters[idx].url.replace(this.site, '').split('/').at(2),
+          path: chapters[idx].url.replace(this.site, '').split('/')[2],
           chapterNumber: parseInt(idx) + 1,
         });
       }

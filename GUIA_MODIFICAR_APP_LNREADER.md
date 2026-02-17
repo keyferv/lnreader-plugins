@@ -3,6 +3,7 @@
 ## 📋 Archivos a Modificar en la App LNReader
 
 ### 1. **Ubicación del repositorio de la app**
+
 ```
 https://github.com/LNReader/lnreader
 ```
@@ -10,6 +11,7 @@ https://github.com/LNReader/lnreader
 ### 2. **Archivos principales a modificar**
 
 #### 📁 `src/screens/browse/BrowseSourceScreen.tsx`
+
 Este es el archivo principal que muestra la interfaz cuando abres una extensión.
 
 **Cambios necesarios:**
@@ -29,7 +31,7 @@ const BrowseSourceScreen = ({ route, navigation }) => {
 
   // Componente para tab "Recientes"
   const RecentRoute = () => (
-    <NovelList 
+    <NovelList
       sourceId={sourceId}
       showLatestNovels={true}
     />
@@ -37,7 +39,7 @@ const BrowseSourceScreen = ({ route, navigation }) => {
 
   // Componente para tab "Popular"
   const PopularRoute = () => (
-    <NovelList 
+    <NovelList
       sourceId={sourceId}
       showLatestNovels={false}
     />
@@ -69,6 +71,7 @@ const BrowseSourceScreen = ({ route, navigation }) => {
 ---
 
 #### 📁 `src/components/NovelList.tsx`
+
 Este componente muestra la lista de novelas. Debe aceptar el prop `showLatestNovels`.
 
 **Cambios necesarios:**
@@ -80,10 +83,10 @@ interface NovelListProps {
   filters?: any;
 }
 
-const NovelList: React.FC<NovelListProps> = ({ 
-  sourceId, 
+const NovelList: React.FC<NovelListProps> = ({
+  sourceId,
   showLatestNovels = false,
-  filters 
+  filters
 }) => {
   const [novels, setNovels] = useState([]);
   const [page, setPage] = useState(1);
@@ -123,6 +126,7 @@ const NovelList: React.FC<NovelListProps> = ({
 ---
 
 #### 📁 `src/sources/types.ts`
+
 Actualizar la interfaz del plugin para incluir el nuevo parámetro.
 
 **Cambios necesarios:**
@@ -138,8 +142,8 @@ export interface Plugin {
   name: string;
   version: string;
   popularNovels(
-    page: number, 
-    options: PopularNovelsOptions
+    page: number,
+    options: PopularNovelsOptions,
   ): Promise<NovelListResult>;
   // ... otros métodos
 }
@@ -161,6 +165,7 @@ Si no están instaladas, agregar en `package.json`:
 ```
 
 Luego ejecutar:
+
 ```bash
 npm install
 cd android && ./gradlew clean
@@ -193,6 +198,7 @@ cd .. && npx react-native run-android
 ## 🔧 Orden de Implementación
 
 ### Paso 1: Clonar la app
+
 ```bash
 git clone https://github.com/LNReader/lnreader.git
 cd lnreader
@@ -200,16 +206,19 @@ npm install
 ```
 
 ### Paso 2: Crear rama nueva
+
 ```bash
 git checkout -b feature/recent-popular-tabs
 ```
 
 ### Paso 3: Modificar archivos en este orden
+
 1. `src/sources/types.ts` (tipos)
 2. `src/components/NovelList.tsx` (lógica)
 3. `src/screens/browse/BrowseSourceScreen.tsx` (UI)
 
 ### Paso 4: Probar en desarrollo
+
 ```bash
 # Android
 npx react-native run-android
@@ -220,6 +229,7 @@ npx react-native run-ios
 ```
 
 ### Paso 5: Compilar APK
+
 ```bash
 cd android
 ./gradlew assembleRelease
@@ -232,6 +242,7 @@ El APK estará en: `android/app/build/outputs/apk/release/app-release.apk`
 ## 🎨 Personalización Adicional
 
 ### Agregar íconos a las pestañas
+
 ```typescript
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -247,11 +258,12 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 ```
 
 ### Mantener filtros solo en "Popular"
+
 ```typescript
 const PopularRoute = () => (
   <View>
     <FilterBar onFilterChange={setFilters} />
-    <NovelList 
+    <NovelList
       sourceId={sourceId}
       showLatestNovels={false}
       filters={filters}
@@ -260,7 +272,7 @@ const PopularRoute = () => (
 );
 
 const RecentRoute = () => (
-  <NovelList 
+  <NovelList
     sourceId={sourceId}
     showLatestNovels={true}
     // Sin filtros en recientes
@@ -275,6 +287,7 @@ const RecentRoute = () => (
 1. **Compatibilidad**: Estos cambios funcionarán con **todos los plugins** que implementen el parámetro `showLatestNovels`.
 
 2. **Fallback**: Si un plugin no soporta `showLatestNovels`, la app debe manejarlo:
+
    ```typescript
    try {
      const result = await plugin.popularNovels(page, { showLatestNovels });
@@ -285,6 +298,7 @@ const RecentRoute = () => (
    ```
 
 3. **Cache**: Considera implementar cache separado para "Recientes" y "Popular":
+
    ```typescript
    const cacheKey = `${sourceId}_${showLatestNovels ? 'recent' : 'popular'}_${page}`;
    ```

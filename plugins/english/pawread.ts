@@ -169,7 +169,7 @@ class PawRead implements Plugin.PluginBase {
           case ParsingState.ChapterName:
             tempChapter.name = (tempChapter.name || '') + text.trim();
             break;
-          case ParsingState.ChapterTime:
+          case ParsingState.ChapterTime: {
             if (text?.includes('Advanced')) return;
             const releaseDate = text.split('.').map(x => Number(x));
             if (releaseDate.length === 3) {
@@ -180,6 +180,7 @@ class PawRead implements Plugin.PluginBase {
               ).toISOString();
             }
             break;
+          }
         }
       },
 
@@ -252,7 +253,7 @@ class PawRead implements Plugin.PluginBase {
     const chapterHtml: string[] = [];
 
     type EscapeChar = '&' | '<' | '>' | '"' | "'" | ' ';
-    const escapeRegex = /[&<>"' ]/g;
+    const escapeRegex = /[&<>"'\u00A0]/g;
     const escapeMap: Record<EscapeChar, string> = {
       '&': '&amp;',
       '<': '&lt;',

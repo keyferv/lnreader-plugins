@@ -169,12 +169,13 @@ class ReadFromPlugin implements Plugin.PluginBase {
 
     textToRead.contents().each((_, element) => {
       switch (element.type) {
-        case 'text':
+        case 'text': {
           const content = element.data.trim();
           if (content) {
             paragraph.push(content);
           }
           break;
+        }
 
         case 'tag':
           if (paragraph.length > 0) {

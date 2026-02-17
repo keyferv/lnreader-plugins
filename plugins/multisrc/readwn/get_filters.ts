@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-undef */
 require('module-alias/register');
 import * as fs from 'fs';
 import * as cheerio from 'cheerio';
@@ -10,6 +13,7 @@ async function getFilters(name: string, url: string) {
     res.text(),
   );
   const $: cheerio.CheerioAPI = cheerio.load(html);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const filters: any = {
     'sort': {
       type: FilterTypes.Picker,
@@ -76,9 +80,9 @@ async function getFilters(name: string, url: string) {
     .map((index, element) => loadedCheerio(element).attr('href'))
     .get();
   // ===================== tags ======================
-  for (let i = 0; i < allPage.length; i++) {
-    console.log('fetch', url + allPage[i]);
-    const resTags = await fetch(url + allPage[i]).then(res => res.text());
+  for (const page of allPage) {
+    console.log('fetch', url + page);
+    const resTags = await fetch(url + page).then(res => res.text());
     const $: cheerio.CheerioAPI = cheerio.load(resTags);
     $('.tag-items > li > a').each((index, element) =>
       filters['tags'].options.push({
@@ -97,10 +101,10 @@ async function getFilters(name: string, url: string) {
         await sleep(3000);
         console.log(
           'fetch',
-          url + allPage[i].replace('-0.html', `-${pageNo + 1}.html`),
+          url + page.replace('-0.html', `-${pageNo + 1}.html`),
         );
         const resTags = await fetch(
-          url + allPage[i].replace('-0.html', `-${pageNo + 1}.html`),
+          url + page.replace('-0.html', `-${pageNo + 1}.html`),
         ).then(res => res.text());
         const $: cheerio.CheerioAPI = cheerio.load(resTags);
 

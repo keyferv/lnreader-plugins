@@ -1,3 +1,4 @@
+/* eslint-env node */ /* global process */
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -184,3 +185,5 @@ main().catch(e => {
   console.error(e instanceof Error ? e.message : String(e));
   process.exit(1);
 });
+
+

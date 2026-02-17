@@ -75,7 +75,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var fs = __importStar(require("fs"));
 var cheerio = __importStar(require("cheerio"));
 var path = __importStar(require("path"));
+// @ts-ignore
 var sources_json_1 = __importDefault(require("./sources.json"));
+var url_1 = require("url");
+var __filename = (0, url_1.fileURLToPath)(import.meta.url);
+var __dirname = path.dirname(__filename);
 function getFilters(sources) {
     return __awaiter(this, void 0, void 0, function () {
         var filters, body, $, apiSite, jsonRaw, json;

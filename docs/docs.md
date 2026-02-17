@@ -520,29 +520,29 @@ A user-defined object that defines configurable settings for the plugin. Each pr
 
 ```ts
 pluginSettings = {
-    settingKey: {
-        value: '',
-        label: 'Setting Label',
-        type: 'Text', // optional, defaults to 'Text'
-    },
+  settingKey: {
+    value: '',
+    label: 'Setting Label',
+    type: 'Text', // optional, defaults to 'Text'
+  },
 };
 ```
 
 ##### Setting Properties
 
-| Name    | Type     | Required | Description                                    |
-| ------- | -------- | -------- | ---------------------------------------------- |
-| value   | `string` | yes      | Default value for this setting                 |
-| label   | `string` | yes      | Display label shown in the app's settings UI   |
-| type    | `string` | no       | Type of the setting UI component (see below)   |
+| Name  | Type     | Required | Description                                  |
+| ----- | -------- | -------- | -------------------------------------------- |
+| value | `string` | yes      | Default value for this setting               |
+| label | `string` | yes      | Display label shown in the app's settings UI |
+| type  | `string` | no       | Type of the setting UI component (see below) |
 
 ##### Setting Types
 
 Currently, two setting types are supported:
 
-| Type     | Description                                    | UI Component | Default Value Type |
-| -------- | ---------------------------------------------- | ------------ | ------------------ |
-| `Switch` | A boolean toggle switch                        | SwitchItem   | `boolean`          |
+| Type     | Description                                     | UI Component | Default Value Type |
+| -------- | ----------------------------------------------- | ------------ | ------------------ |
+| `Switch` | A boolean toggle switch                         | SwitchItem   | `boolean`          |
 | `Text`   | A text input field (default if type is omitted) | TextInput    | `string`           |
 
 > [!NOTE]
@@ -570,7 +570,7 @@ storage.set('settingKey', 'newValue');
 class ExamplePlugin implements Plugin.PluginBase {
     ...
     hideLocked = storage.get('hideLocked');
-    
+
     pluginSettings = {
         hideLocked: {
             value: '',
@@ -578,7 +578,7 @@ class ExamplePlugin implements Plugin.PluginBase {
             type: 'Switch',
         },
     };
-    
+
     async parseNovel(novelPath: string): Promise<Plugin.SourceNovel> {
         // Use the setting value
         if (this.hideLocked) {
@@ -598,7 +598,7 @@ class ExamplePlugin implements Plugin.PluginBase {
     site = storage.get('url');
     email = storage.get('email');
     password = storage.get('password');
-    
+
     pluginSettings = {
         url: {
             value: '',
@@ -616,7 +616,7 @@ class ExamplePlugin implements Plugin.PluginBase {
             // type defaults to 'Text' if omitted
         },
     };
-    
+
     async makeRequest(url: string): Promise<string> {
         return await fetchApi(url, {
             headers: {

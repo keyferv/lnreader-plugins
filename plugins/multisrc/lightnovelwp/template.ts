@@ -99,12 +99,12 @@ class LightNovelWPPlugin implements Plugin.PluginBase {
     const articles = html.match(/<article([^]*?)<\/article>/g) || [];
     articles.forEach(article => {
       const [, novelUrl, novelName] =
-        article.match(/<a href="([^\"]*)".*? title="([^\"]*)"/) || [];
+        article.match(/<a href="([^"]*)".*? title="([^"]*)"/) || [];
 
       if (novelName && novelUrl) {
         const novelCover =
           article.match(
-            /<img [^>]*?src="([^\"]*)"[^>]*?(?: data-src="([^\"]*)")?[^>]*>/,
+            /<img [^>]*?src="([^"]*)"[^>]*?(?: data-src="([^"]*)")?[^>]*>/,
           ) || [];
 
         let novelPath;
@@ -421,7 +421,7 @@ class LightNovelWPPlugin implements Plugin.PluginBase {
       novel.chapters = chapters;
     }
 
-    novel.summary = novel.summary.trim();
+    novel.summary = novel.summary?.trim();
 
     return novel;
   }

@@ -104,7 +104,7 @@ type ProtoRequestInit = {
   // merged .proto file
   proto: string;
   requestType: string;
-  requestData?: any;
+  requestData?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   responseType: string;
 };
 

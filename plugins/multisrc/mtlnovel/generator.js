@@ -1,3 +1,4 @@
+/* eslint-disable no-undef, @typescript-eslint/no-var-requires */
 import list from './sources.json' with { type: 'json' };
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
@@ -13,7 +14,9 @@ export const generateAll = function () {
         readFileSync(`${__dirname}/filters/mtlnovel.json`, 'utf-8'),
       );
       source.filters = filters;
-    } catch (e) {}
+    } catch (e) {
+      // ignore
+    }
     console.log(
       `[mtlnovel] Generating: ${source.id}`.padEnd(35),
       source.filters ? '🔎with filters🔍' : '🚫 no filters 🚫',
@@ -40,3 +43,4 @@ export default plugin;
     pluginScript,
   };
 };
+

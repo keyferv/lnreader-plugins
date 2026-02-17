@@ -2,7 +2,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { Plugin } from '@/types/plugin';
 
-interface ChapterContent {
+type ChapterContent = {
   title: string;
   content: string;
 }

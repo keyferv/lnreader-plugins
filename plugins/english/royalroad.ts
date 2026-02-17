@@ -403,7 +403,7 @@ class RoyalRoad implements Plugin.PluginBase {
               stateDepth = 0;
               depth--;
               return;
-            case ParsingState.InNote:
+            case ParsingState.InNote: {
               const noteClass = `author-note-${isBeforeChapter ? 'before' : 'after'}`;
               const notesHtml = notesHtmlParts.join('').trim();
               const fullNote = `<div class="${noteClass}">${notesHtml}</div>`;
@@ -417,6 +417,7 @@ class RoyalRoad implements Plugin.PluginBase {
               stateDepth = 0;
               depth--;
               return;
+            }
           }
         } else if (
           state === ParsingState.InChapter ||

@@ -1,9 +1,13 @@
+/* eslint-env node */ /* global process */
+/* eslint-disable no-undef */
 import { load as cheerioLoad } from 'cheerio';
 
 const term = 'villanas';
 const url = `https://devilnovels.com/?post_type=page&s=${encodeURIComponent(term)}`;
 console.log('Fetching', url);
-const res = await fetch(url, { headers: { 'User-Agent': 'LNReader-plugins-test/1.0' } });
+const res = await fetch(url, {
+  headers: { 'User-Agent': 'LNReader-plugins-test/1.0' },
+});
 if (!res.ok) {
   console.error('HTTP error', res.status);
   process.exit(1);
@@ -22,6 +26,14 @@ $('.ast-article-inner').each((i, el) => {
 });
 
 console.log(`Found ${results.length} results`);
-results.slice(0, 20).forEach((r, i) => console.log(`${i+1}. ${r.title} -> ${r.href} [img:${r.img? 'yes' : 'no'}]`));
+results
+  .slice(0, 20)
+  .forEach((r, i) =>
+    console.log(
+      `${i + 1}. ${r.title} -> ${r.href} [img:${r.img ? 'yes' : 'no'}]`,
+    ),
+  );
 
 process.exit(results.length ? 0 : 2);
+
+

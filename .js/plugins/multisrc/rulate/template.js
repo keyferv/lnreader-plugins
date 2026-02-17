@@ -46,6 +46,7 @@ var headers = {
     'User-Agent': 'RuLateApp Android',
     'accept-encoding': 'gzip',
 };
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 var RulatePlugin = /** @class */ (function () {
     function RulatePlugin(metadata) {
         var _this = this;
@@ -120,7 +121,7 @@ var RulatePlugin = /** @class */ (function () {
                             path: novelPath,
                             cover: book.response.img,
                             genres: [book.response.genres, book.response.tags]
-                                .flatMap(function (c) { var _a; return (_a = c === null || c === void 0 ? void 0 : c.map) === null || _a === void 0 ? void 0 : _a.call(c, function (g) { return g.title || g.name; }); })
+                                .flatMap(function (c) { var _a; return (_a = c === null || c === void 0 ? void 0 : c.map) === null || _a === void 0 ? void 0 : _a.call(c, function (g) { return g.title || g.name; }); }) // eslint-disable-line @typescript-eslint/no-explicit-any
                                 .join(','),
                             summary: book.response.description,
                             author: book.response.author,

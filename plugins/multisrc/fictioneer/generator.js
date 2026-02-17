@@ -1,3 +1,4 @@
+/* eslint-disable no-undef, @typescript-eslint/no-var-requires */
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -31,3 +32,4 @@ export default plugin;
     pluginScript,
   };
 };
+

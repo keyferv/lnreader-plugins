@@ -125,12 +125,13 @@ class LnMTLPlugin implements Plugin.PagePlugin {
       },
       ontext(data) {
         switch (state) {
-          case ParsingState.InScript:
+          case ParsingState.InScript: {
             const volume = JSON.parse(
               data.match(/lnmtl.volumes = (.+])(?=;)/)![1] || '',
             );
             novel.totalPages = volume.length;
             break;
+          }
           case ParsingState.InDescription:
             summaryParts.push(data.trim());
             summaryParts.push('\n\n');

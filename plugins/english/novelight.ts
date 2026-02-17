@@ -146,7 +146,7 @@ class Novelight implements Plugin.PagePlugin {
     const totalPages = parseInt(
       rawBody
         ?.match(/<option value="([0-9]+)"/g)
-        ?.at(-1)
+        ?.pop()
         ?.match(/([0-9]+)/)?.[1] ?? '1',
     );
 
@@ -168,7 +168,7 @@ class Novelight implements Plugin.PagePlugin {
     } catch (error) {
       console.error('Error Parsing Response');
       console.error(error);
-      throw new Error(error);
+      throw new Error(String(error));
     }
 
     const chapter: Plugin.ChapterItem[] = [];
@@ -184,7 +184,9 @@ class Novelight implements Plugin.PagePlugin {
           parseHTML(ele)('.date').text().trim(),
           'DD.MM.YYYY',
         ).toISOString();
-      } catch (error) {}
+      } catch (error) {
+        // ignore
+      }
 
       const chapterName = isLocked ? '🔒 ' + title : title;
       let chapterUrl = ele.attribs.href;

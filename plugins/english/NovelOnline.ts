@@ -130,7 +130,7 @@ class NovelsOnline implements Plugin.PluginBase {
             .get()
             .join(', ');
           break;
-        case 'Artist(s)':
+        case 'Artist(s)': {
           const artist = detail
             .find('li')
             .map((_, el) => $(el).text())
@@ -138,6 +138,7 @@ class NovelsOnline implements Plugin.PluginBase {
             .join(', ');
           if (artist && artist != 'N/A') novel.artist = artist;
           break;
+        }
         case 'Status':
           novel.status = detail.text().trim();
           break;

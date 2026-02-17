@@ -43,6 +43,7 @@ var fetch_1 = require("@libs/fetch");
 var novelStatus_1 = require("@libs/novelStatus");
 var cheerio_1 = require("cheerio");
 var dayjs_1 = __importDefault(require("dayjs"));
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 var ReadwnPlugin = /** @class */ (function () {
     function ReadwnPlugin(metadata) {
         var _a;
@@ -220,7 +221,7 @@ var ReadwnPlugin = /** @class */ (function () {
                             method: 'POST',
                             body: new URLSearchParams({
                                 show: 'title',
-                                tempid: 1,
+                                tempid: '1',
                                 tbname: 'news',
                                 keyboard: searchTerm,
                             }).toString(),

@@ -1,3 +1,4 @@
+/* eslint-env node */ /* global process */
 import path from 'path';
 import fs from 'fs';
 import languages from './languages.js';
@@ -236,3 +237,5 @@ for (const language of Object.keys(languages)) {
 }
 console.warn('|----------|------------------------|');
 console.warn(`| Total | ${totalPlugins} (${totalPluginsWithFilter}) |`);
+
+

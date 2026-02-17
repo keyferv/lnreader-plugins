@@ -69,6 +69,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-undef */
 require('module-alias/register');
 var fs = __importStar(require("fs"));
 var cheerio = __importStar(require("cheerio"));
@@ -77,7 +80,7 @@ var filterInputs_1 = require("@libs/filterInputs");
 var type = ['genres', 'status', 'sort'];
 function getFilters(name, url) {
     return __awaiter(this, void 0, void 0, function () {
-        var html, $, filters, response, loadedCheerio, allPage, _loop_1, i;
+        var html, $, filters, response, loadedCheerio, allPage, _loop_1, _i, allPage_1, page;
         var _a, _b;
         return __generator(this, function (_c) {
             switch (_c.label) {
@@ -154,13 +157,13 @@ function getFilters(name, url) {
                     allPage = loadedCheerio('.tag-letters > a')
                         .map(function (index, element) { return loadedCheerio(element).attr('href'); })
                         .get();
-                    _loop_1 = function (i) {
+                    _loop_1 = function (page) {
                         var resTags, $_1, nextPage, allpage, _loop_2, pageNo;
                         return __generator(this, function (_d) {
                             switch (_d.label) {
                                 case 0:
-                                    console.log('fetch', url + allPage[i]);
-                                    return [4 /*yield*/, fetch(url + allPage[i]).then(function (res) { return res.text(); })];
+                                    console.log('fetch', url + page);
+                                    return [4 /*yield*/, fetch(url + page).then(function (res) { return res.text(); })];
                                 case 1:
                                     resTags = _d.sent();
                                     $_1 = cheerio.load(resTags);
@@ -182,8 +185,8 @@ function getFilters(name, url) {
                                                 case 0: return [4 /*yield*/, sleep(3000)];
                                                 case 1:
                                                     _e.sent();
-                                                    console.log('fetch', url + allPage[i].replace('-0.html', "-".concat(pageNo + 1, ".html")));
-                                                    return [4 /*yield*/, fetch(url + allPage[i].replace('-0.html', "-".concat(pageNo + 1, ".html"))).then(function (res) { return res.text(); })];
+                                                    console.log('fetch', url + page.replace('-0.html', "-".concat(pageNo + 1, ".html")));
+                                                    return [4 /*yield*/, fetch(url + page.replace('-0.html', "-".concat(pageNo + 1, ".html"))).then(function (res) { return res.text(); })];
                                                 case 2:
                                                     resTags_1 = _e.sent();
                                                     $_2 = cheerio.load(resTags_1);
@@ -216,16 +219,17 @@ function getFilters(name, url) {
                             }
                         });
                     };
-                    i = 0;
+                    _i = 0, allPage_1 = allPage;
                     _c.label = 3;
                 case 3:
-                    if (!(i < allPage.length)) return [3 /*break*/, 6];
-                    return [5 /*yield**/, _loop_1(i)];
+                    if (!(_i < allPage_1.length)) return [3 /*break*/, 6];
+                    page = allPage_1[_i];
+                    return [5 /*yield**/, _loop_1(page)];
                 case 4:
                     _c.sent();
                     _c.label = 5;
                 case 5:
-                    i++;
+                    _i++;
                     return [3 /*break*/, 3];
                 case 6:
                     fs.writeFileSync(path.join(__dirname, 'filters', name + '.json'), JSON.stringify({ filters: filters }, null, 2));

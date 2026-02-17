@@ -248,11 +248,12 @@
   },
   {
     "id": "panchotranslations",
-    "sourceSite": "https://panchotranslations.com/",
+    "sourceSite": "https://panchonovels.online/",
     "sourceName": "Pancho Translations",
     "options": {
       "useNewChapterEndpoint": true,
-      "lang": "Spanish"
+      "lang": "Spanish",
+      "versionIncrements": 1
     }
   },
   {

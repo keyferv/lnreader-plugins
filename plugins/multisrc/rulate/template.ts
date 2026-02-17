@@ -18,6 +18,7 @@ const headers = {
   'accept-encoding': 'gzip',
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class RulatePlugin implements Plugin.PluginBase {
   id: string;
   name: string;
@@ -76,7 +77,7 @@ class RulatePlugin implements Plugin.PluginBase {
 
   async searchNovels(
     searchTerm: string,
-    page: number = 1,
+    page = 1,
   ): Promise<Plugin.NovelItem[]> {
     const url = `${this.site}/api3/searchBooks?t=${encodeURIComponent(
       searchTerm,
@@ -95,7 +96,7 @@ class RulatePlugin implements Plugin.PluginBase {
       path: novelPath,
       cover: book.response.img,
       genres: [book.response.genres, book.response.tags]
-        .flatMap(c => c?.map?.((g: any) => g.title || g.name))
+        .flatMap(c => c?.map?.((g: any) => g.title || g.name)) // eslint-disable-line @typescript-eslint/no-explicit-any
         .join(','),
       summary: book.response.description,
       author: book.response.author,
@@ -158,7 +159,7 @@ class RulatePlugin implements Plugin.PluginBase {
     this.site + '/book/' + path + (isNovel ? '/' : '/ready_new');
 }
 
-interface SearchResponse {
+type SearchResponse = {
   status: string;
   response: {
     t_title?: string;
@@ -168,7 +169,7 @@ interface SearchResponse {
   }[];
 }
 
-interface BookResponse {
+type BookResponse = {
   response: {
     t_title?: string;
     s_title: string;
@@ -183,7 +184,7 @@ interface BookResponse {
   };
 }
 
-interface ChaptersResponse {
+type ChaptersResponse = {
   response: {
     title: string;
     id: number;
@@ -195,7 +196,7 @@ interface ChaptersResponse {
   }[];
 }
 
-interface ChapterTextResponse {
+type ChapterTextResponse = {
   response: {
     text: string;
   };

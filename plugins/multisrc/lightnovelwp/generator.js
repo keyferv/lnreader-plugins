@@ -1,3 +1,4 @@
+/* eslint-disable no-undef, @typescript-eslint/no-var-requires */
 import list from './sources.json' with { type: 'json' };
 import { existsSync, readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
@@ -41,3 +42,4 @@ export default plugin;
     pluginScript,
   };
 };
+

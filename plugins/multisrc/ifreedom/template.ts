@@ -189,7 +189,7 @@ class IfreedomPlugin implements Plugin.PluginBase {
     return novels;
   }
 
-  parseDate = (dateString: string | undefined = '') => {
+  parseDate = (dateString = '') => {
     const months: Record<string, number> = {
       января: 1,
       февраля: 2,

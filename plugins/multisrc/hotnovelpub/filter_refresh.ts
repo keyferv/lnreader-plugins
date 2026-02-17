@@ -1,7 +1,12 @@
 import * as fs from 'fs';
 import * as cheerio from 'cheerio';
 import * as path from 'path';
+// @ts-ignore
 import list from './sources.json' with { type: 'json' };
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import { HotNovelPubMetadata } from './template';
 
 async function getFilters(sources: HotNovelPubMetadata) {

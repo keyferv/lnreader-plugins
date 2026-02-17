@@ -33,7 +33,7 @@ export type ReadNovelFullMetadata = {
   filters?: any;
 };
 
-class ReadNovelFullPlugin implements Plugin.PluginBase {
+export class ReadNovelFullPlugin implements Plugin.PluginBase {
   id: string;
   name: string;
   icon: string;
@@ -90,12 +90,13 @@ class ReadNovelFullPlugin implements Plugin.PluginBase {
           return;
 
         switch (name) {
-          case 'img':
+          case 'img': {
             const cover = attribs['data-src'] || attribs.src;
             if (cover) {
               tempNovel.cover = new URL(cover, this.site).href;
             }
             break;
+          }
           case 'h3':
             if (state === ParsingState.NovelList) {
               pushState(ParsingState.NovelName);
@@ -144,6 +145,7 @@ class ReadNovelFullPlugin implements Plugin.PluginBase {
     pageNo: number,
     { filters, showLatestNovels }: Plugin.PopularNovelsOptions,
   ): Promise<Plugin.NovelItem[]> {
+    const filtersValues = filters as any;
     const {
       pageParam = 'page',
       novelListing,
@@ -161,9 +163,9 @@ class ReadNovelFullPlugin implements Plugin.PluginBase {
     if (
       pageNo !== 1 &&
       !showLatestNovels &&
-      !filters.genres.value.length &&
+      !filtersValues.genres.value.length &&
       noPages.length > 0 &&
-      noPages.includes(filters.type.value)
+      noPages.includes(filtersValues.type.value)
     ) {
       return [];
     }
@@ -176,11 +178,11 @@ class ReadNovelFullPlugin implements Plugin.PluginBase {
 
       if (showLatestNovels) {
         params.append(typeParam, latestPage);
-      } else if (filters.genres.value.length) {
+      } else if (filtersValues.genres.value.length) {
         params.append(typeParam, genreParam);
-        params.append(genreKey, filters.genres.value);
+        params.append(genreKey, filtersValues.genres.value);
       } else {
-        params.append(typeParam, filters.type.value);
+        params.append(typeParam, filtersValues.type.value);
       }
 
       // Add language parameter if specified
@@ -194,9 +196,9 @@ class ReadNovelFullPlugin implements Plugin.PluginBase {
       // URL structure with path segments
       const basePage = showLatestNovels
         ? latestPage
-        : filters.genres.value.length
-          ? filters.genres.value
-          : filters.type.value;
+        : filtersValues.genres.value.length
+          ? filtersValues.genres.value
+          : filtersValues.type.value;
 
       if (pageAsPath) {
         if (pageNo > 1) {
@@ -431,7 +433,7 @@ class ReadNovelFullPlugin implements Plugin.PluginBase {
                 case 'genre':
                   novel.genres = detail;
                   break;
-                case 'status':
+                case 'status': {
                   const map: Record<string, string> = {
                     ongoing: NovelStatus.Ongoing,
                     hiatus: NovelStatus.OnHiatus,
@@ -442,6 +444,7 @@ class ReadNovelFullPlugin implements Plugin.PluginBase {
                   novel.status =
                     map[detail.toLowerCase()] ?? NovelStatus.Unknown;
                   break;
+                }
                 default:
                   return;
               }
@@ -561,7 +564,7 @@ class ReadNovelFullPlugin implements Plugin.PluginBase {
       stateStack.length > 1 ? stateStack.pop() : currentState();
 
     type EscapeChar = '&' | '<' | '>' | '"' | "'" | ' ';
-    const escapeRegex = /[&<>"' ]/g;
+    const escapeRegex = /[&<>"'\u00A0]/g;
     const escapeMap: Record<EscapeChar, string> = {
       '&': '&amp;',
       '<': '&lt;',
@@ -715,7 +718,8 @@ class ReadNovelFullPlugin implements Plugin.PluginBase {
 
     const url = `${this.site}${searchPage}${!postSearch ? `?${params.toString()}` : ''}`;
 
-    const fetchOptions: RequestInit | undefined = postSearch
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fetchOptions: any = postSearch
       ? {
           method: 'POST',
           body: params.toString(),

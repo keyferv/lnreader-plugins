@@ -1,4 +1,5 @@
-import { load as loadCheerio } from 'cheerio';
+import * as cheerio from 'cheerio';
+const loadCheerio = cheerio.load;
 import { fetchApi } from '@libs/fetch';
 import { Plugin } from '@/types/plugin';
 import { defaultCover } from '@libs/defaultCover';
@@ -48,7 +49,7 @@ class Syosetu implements Plugin.PluginBase {
 
       const loadedCheerio = loadCheerio(html, {
         decodeEntities: false,
-      });
+      } as any);
 
       if (parseInt(loadedCheerio('.is-current').html() || '1') !== pagenumber)
         return [];
@@ -104,7 +105,7 @@ class Syosetu implements Plugin.PluginBase {
       headers: this.headers,
     });
     const body = await result.text();
-    const loadedCheerio = loadCheerio(body, { decodeEntities: false });
+    const loadedCheerio = loadCheerio(body, { decodeEntities: false } as any);
 
     // Parse status
     let status = 'Unknown';
@@ -183,7 +184,9 @@ class Syosetu implements Plugin.PluginBase {
 
       // Process each page's chapters
       pageResults.forEach(pageBody => {
-        const pageCheerio = loadCheerio(pageBody, { decodeEntities: false });
+        const pageCheerio = loadCheerio(pageBody, {
+          decodeEntities: false,
+        } as any);
         pageCheerio('.p-eplist__sublist').each((_, element) => {
           const chapterLink = pageCheerio(element).find('a');
           const chapterUrl = chapterLink.attr('href');
@@ -217,7 +220,7 @@ class Syosetu implements Plugin.PluginBase {
 
     const cheerioQuery = loadCheerio(body, {
       decodeEntities: false,
-    });
+    } as any);
 
     // Get the chapter title
     const chapterTitle = cheerioQuery('.p-novel__title').html() || '';
@@ -244,7 +247,7 @@ class Syosetu implements Plugin.PluginBase {
       const result = await fetchApi(url, { headers: this.headers });
       const body = await result.text();
       // Cheerio it!
-      const cheerioQuery = loadCheerio(body, { decodeEntities: false });
+      const cheerioQuery = loadCheerio(body, { decodeEntities: false } as any);
 
       const pageNovels: Plugin.NovelItem[] = [];
       // find class=searchkekka_box

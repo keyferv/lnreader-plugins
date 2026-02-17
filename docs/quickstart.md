@@ -6,10 +6,10 @@
 
 ### Requirements
 
--   [git](https://git-scm.com/doc/ext) basics
--   Typescript or Javascript basics
--   Node >=18
--   Installing the dependencies with `npm i`
+- [git](https://git-scm.com/doc/ext) basics
+- Typescript or Javascript basics
+- Node >=18
+- Installing the dependencies with `npm i`
 
 ### Guide
 

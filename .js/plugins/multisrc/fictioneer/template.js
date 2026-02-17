@@ -43,8 +43,8 @@ var fetch_1 = require("@libs/fetch");
 var novelStatus_1 = require("@libs/novelStatus");
 var htmlparser2_1 = require("htmlparser2");
 var dayjs_1 = __importDefault(require("dayjs"));
-var IfreedomPlugin = /** @class */ (function () {
-    function IfreedomPlugin(metadata) {
+var FictioneerPlugin = /** @class */ (function () {
+    function FictioneerPlugin(metadata) {
         this.id = metadata.id;
         this.name = metadata.sourceName;
         this.icon = "multisrc/ifreedom/".concat(metadata.id.toLowerCase(), "/icon.png");
@@ -52,7 +52,7 @@ var IfreedomPlugin = /** @class */ (function () {
         this.version = '1.1.0';
         this.filters = metadata.filters;
     }
-    IfreedomPlugin.prototype.parseNovels = function (url) {
+    FictioneerPlugin.prototype.parseNovels = function (url) {
         var _this = this;
         return (0, fetch_1.fetchApi)(url)
             .then(function (res) { return res.text(); })
@@ -96,7 +96,7 @@ var IfreedomPlugin = /** @class */ (function () {
             return novels;
         });
     };
-    IfreedomPlugin.prototype.popularNovels = function (page_1, _a) {
+    FictioneerPlugin.prototype.popularNovels = function (page_1, _a) {
         return __awaiter(this, arguments, void 0, function (page, _b) {
             var url;
             var _c;
@@ -114,7 +114,7 @@ var IfreedomPlugin = /** @class */ (function () {
             });
         });
     };
-    IfreedomPlugin.prototype.parseNovel = function (novelPath) {
+    FictioneerPlugin.prototype.parseNovel = function (novelPath) {
         return __awaiter(this, void 0, void 0, function () {
             var html, novel, chapters, genres, site, isReadingName, isReadingSummary, isCoverContainer, metaContext, isMetaRow, isMetaValue, isInsideChapterRow, isReadingChapterName, isReadingChapterDate, tempChapter, parser;
             return __generator(this, function (_a) {
@@ -296,7 +296,7 @@ var IfreedomPlugin = /** @class */ (function () {
             });
         });
     };
-    IfreedomPlugin.prototype.parseChapter = function (chapterPath) {
+    FictioneerPlugin.prototype.parseChapter = function (chapterPath) {
         return __awaiter(this, void 0, void 0, function () {
             var body, startTag, endTag, chapterStart, chapterEnd, chapterText;
             return __generator(this, function (_a) {
@@ -334,7 +334,7 @@ var IfreedomPlugin = /** @class */ (function () {
             });
         });
     };
-    IfreedomPlugin.prototype.searchNovels = function (searchTerm_1) {
+    FictioneerPlugin.prototype.searchNovels = function (searchTerm_1) {
         return __awaiter(this, arguments, void 0, function (searchTerm, page) {
             var url;
             if (page === void 0) { page = 1; }
@@ -344,7 +344,7 @@ var IfreedomPlugin = /** @class */ (function () {
             });
         });
     };
-    return IfreedomPlugin;
+    return FictioneerPlugin;
 }());
 function parseStatus(statusString) {
     var s = statusString.toLowerCase().trim();

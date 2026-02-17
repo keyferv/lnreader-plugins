@@ -17,7 +17,7 @@ const parseUrl = (url?: string): URL | undefined => {
 const getStandardNovelPath = (url?: string): string | undefined => {
   const parsedUrl = parseUrl(url);
   if (!parsedUrl) return undefined;
-  const match = parsedUrl.pathname.match(/^(\/amp)?(\/n\/[^\/]+\/)/);
+  const match = parsedUrl.pathname.match(/^(\/amp)?(\/n\/[^/]+\/)/);
   return match?.[2];
 };
 
@@ -180,7 +180,7 @@ class QuanbenPlugin implements Plugin.PluginBase {
 
     const $ = parseHTML(await res.text());
     const chapters: Plugin.ChapterItem[] = [];
-    const novelName = novelPath.match(/\/n\/([^\/]+)\//)?.[1];
+    const novelName = novelPath.match(/\/n\/([^/]+)\//)?.[1];
     if (!novelName) return [];
 
     $('ul.list3 li a').each((_i, el) => {
@@ -224,7 +224,7 @@ class QuanbenPlugin implements Plugin.PluginBase {
   // Helper function to extract and clean chapter content from HTML body
   private extractChapterContent(body: string): string {
     const $ = parseHTML(body);
-    let $content = $('#contentbody, #content, .content').first();
+    const $content = $('#contentbody, #content, .content').first();
     if (!$content.length) return 'Error: Chapter content not found.';
 
     $content

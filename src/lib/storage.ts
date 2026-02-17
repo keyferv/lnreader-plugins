@@ -1,5 +1,5 @@
 class Storage {
-  private db: Record<string, { created: Date; value: any; expires?: number }>;
+  private db: Record<string, { created: Date; value: any; expires?: number }>; // eslint-disable-line @typescript-eslint/no-explicit-any
 
   /**
    * Initializes a new instance of the Storage class.
@@ -15,7 +15,7 @@ class Storage {
    * @param {any} value - The value to set.
    * @param {Date | number} [expires] - Optional expiry date or time in milliseconds.
    */
-  set(key: string, value: any, expires?: Date | number): void {
+  set(key: string, value: any, expires?: Date | number): void { // eslint-disable-line @typescript-eslint/no-explicit-any
     this.db[key] = {
       created: new Date(),
       value,
@@ -30,7 +30,7 @@ class Storage {
    * @param {boolean} [raw] - Optional flag to return the raw stored item.
    * @returns {any} The stored value or undefined if key is not found.
    */
-  get(key: string, raw?: boolean): any {
+  get(key: string, raw?: boolean): any { // eslint-disable-line @typescript-eslint/no-explicit-any
     const item = this.db[key];
     if (item?.expires && Date.now() > item.expires) {
       this.delete(key);
@@ -80,7 +80,7 @@ https://developer.mozilla.org/en-US/docs/Web/API/Window/sessionStorage
 /**
  * Represents the structure of a storage object with string keys and values.
  */
-type StorageObject = Record<string, any>;
+type StorageObject = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 /**
  * Represents a simplified version of the browser's localStorage.

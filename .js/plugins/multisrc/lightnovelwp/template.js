@@ -108,9 +108,9 @@ var LightNovelWPPlugin = /** @class */ (function () {
         var novels = [];
         var articles = html.match(/<article([^]*?)<\/article>/g) || [];
         articles.forEach(function (article) {
-            var _a = article.match(/<a href="([^\"]*)".*? title="([^\"]*)"/) || [], novelUrl = _a[1], novelName = _a[2];
+            var _a = article.match(/<a href="([^"]*)".*? title="([^"]*)"/) || [], novelUrl = _a[1], novelName = _a[2];
             if (novelName && novelUrl) {
-                var novelCover = article.match(/<img [^>]*?src="([^\"]*)"[^>]*?(?: data-src="([^\"]*)")?[^>]*>/) || [];
+                var novelCover = article.match(/<img [^>]*?src="([^"]*)"[^>]*?(?: data-src="([^"]*)")?[^>]*>/) || [];
                 var novelPath = void 0;
                 if (novelUrl.includes(_this.site)) {
                     novelPath = novelUrl.replace(_this.site, '');
@@ -166,14 +166,14 @@ var LightNovelWPPlugin = /** @class */ (function () {
     LightNovelWPPlugin.prototype.parseNovel = function (novelPath) {
         return __awaiter(this, void 0, void 0, function () {
             var baseURL, html, novel, isParsingGenres, isReadingGenre, isReadingSummary, isParsingInfo, isReadingInfo, isReadingAuthor, isReadingArtist, isReadingStatus, isParsingChapterList, isReadingChapter, isReadingChapterInfo, isPaidChapter, hasLockItemOnChapterNum, chapters, tempChapter, hideLocked, parser;
-            var _a;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
                         baseURL = this.site;
                         return [4 /*yield*/, this.safeFecth(baseURL + novelPath, false)];
                     case 1:
-                        html = _b.sent();
+                        html = _c.sent();
                         novel = {
                             path: novelPath,
                             name: '',
@@ -459,7 +459,7 @@ var LightNovelWPPlugin = /** @class */ (function () {
                                 chapters.reverse();
                             novel.chapters = chapters;
                         }
-                        novel.summary = novel.summary.trim();
+                        novel.summary = (_b = novel.summary) === null || _b === void 0 ? void 0 : _b.trim();
                         return [2 /*return*/, novel];
                 }
             });

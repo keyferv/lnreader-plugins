@@ -15,6 +15,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateAll = void 0;
+/* eslint-disable no-undef, @typescript-eslint/no-var-requires */
 var sources_json_1 = __importDefault(require("./sources.json"));
 var fs_1 = require("fs");
 var url_1 = require("url");

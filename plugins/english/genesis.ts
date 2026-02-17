@@ -91,7 +91,7 @@ class Genesis implements Plugin.PluginBase {
   }
 
   // Helper function to extract and format chapters
-  async extractChapters(id: string): Plugin.ChapterItem[] {
+  async extractChapters(id: string): Promise<Plugin.ChapterItem[]> {
     const url = `${this.site}/api/novels-chapter/${id}`;
 
     // Fetch the chapter data in JSON format
@@ -100,7 +100,7 @@ class Genesis implements Plugin.PluginBase {
 
     // Format each chapter and add only valid ones
     const chapters = json.data.chapters
-      .map(index => {
+      .map((index: any) => {
         const title = index.chapter_title;
         const chapterPath = `/viewer/${index.id}`;
         const isLocked = !index.isUnlocked;
@@ -116,7 +116,7 @@ class Genesis implements Plugin.PluginBase {
           chapterNumber: Number(chapterNum),
         };
       })
-      .filter(chapter => chapter !== null) as Plugin.ChapterItem[];
+      .filter((chapter: any) => chapter !== null) as Plugin.ChapterItem[];
 
     return chapters;
   }
@@ -131,7 +131,7 @@ class Genesis implements Plugin.PluginBase {
     let external_api;
     let apikey;
 
-    let URLs = [];
+    const URLs: string[] = [];
     let code;
 
     // Find URL with API Key
@@ -139,13 +139,13 @@ class Genesis implements Plugin.PluginBase {
       .find('script')
       .map(function () {
         const src = $(this).attr('src');
-        if (src in URLs) {
+        if (!src || URLs.includes(src)) {
           return null;
         }
         URLs.push(src);
       })
       .toArray();
-    for (let src of URLs) {
+    for (const src of URLs) {
       const script = await fetchApi(`${this.site}${src}`);
       const raw = await script.text();
       if (raw.includes('sb_publishable')) {

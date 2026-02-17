@@ -1,4 +1,4 @@
-import { CheerioAPI, load as parseHTML } from 'cheerio';
+import { load as parseHTML } from 'cheerio';
 import { Plugin } from '@/types/plugin';
 import { defaultCover } from '@libs/defaultCover';
 import { fetchApi } from '@libs/fetch';
@@ -16,7 +16,6 @@ class DevilNovels implements Plugin.PluginBase {
     page: number,
     {
       showLatestNovels,
-      filters,
     }: Plugin.PopularNovelsOptions<typeof this.filters>,
   ): Promise<Plugin.NovelItem[]> {
     const novels: Plugin.NovelItem[] = [];
@@ -43,7 +42,7 @@ class DevilNovels implements Plugin.PluginBase {
         // Columna 1: Imagen y Título de Novela
         const left = tds.first();
         // Columna 2: Último Capítulo
-        const right = tds.eq(1);
+
 
         const titleA = left.find('a').last(); // El <a> después del div de la imagen
         const href = titleA.attr('href') || '';
@@ -53,26 +52,13 @@ class DevilNovels implements Plugin.PluginBase {
         const img = left.find('img').attr('src') || defaultCover;
         const path = href.replace(this.site, '');
 
-        // Capturar último capítulo
-        let latestChapter: { name: string; path: string } | undefined;
-        const chapterA = right.find('a').first();
-        if (chapterA.length) {
-          const cName = chapterA.text().trim();
-          const cHref = chapterA.attr('href') || '';
-          if (cName && cHref) {
-            latestChapter = {
-              name: cName,
-              path: cHref.replace(this.site, ''),
-            };
-          }
-        }
+
 
         if (name && path) {
           novels.push({
             name,
             path,
             cover: img,
-            latestChapter,
           });
         }
       });
@@ -150,7 +136,7 @@ class DevilNovels implements Plugin.PluginBase {
       } else {
         const firstP = entry
           .find('p')
-          .filter((i, el) => $(el).text().trim())
+          .filter((i, el) => !!$(el).text().trim())
           .first();
         if (firstP && firstP.length) novel.summary = firstP.text().trim();
       }

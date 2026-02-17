@@ -202,7 +202,7 @@ class StorySeedlingPlugin implements Plugin.PluginBase {
       }
     }
 
-    let html = text
+    const html = text
       .replace(/cls[a-f0-9]+/g, '')
       .split('')
       .map(char => {
@@ -214,7 +214,7 @@ class StorySeedlingPlugin implements Plugin.PluginBase {
           : char;
       })
       .join('');
-    let $ = load(html);
+    const $ = load(html);
 
     $('span').text((_, txt) =>
       txt.toLowerCase().includes('storyseedling') ||

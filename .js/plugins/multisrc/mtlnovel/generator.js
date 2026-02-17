@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateAll = void 0;
+/* eslint-disable no-undef, @typescript-eslint/no-var-requires */
 var sources_json_1 = __importDefault(require("./sources.json"));
 var fs_1 = require("fs");
 var url_1 = require("url");
@@ -17,7 +18,9 @@ var generateAll = function () {
             var filters = JSON.parse((0, fs_1.readFileSync)("".concat(__dirname, "/filters/mtlnovel.json"), 'utf-8'));
             source.filters = filters;
         }
-        catch (e) { }
+        catch (e) {
+            // ignore
+        }
         console.log("[mtlnovel] Generating: ".concat(source.id).padEnd(35), source.filters ? '🔎with filters🔍' : '🚫 no filters 🚫');
         return generator(source);
     });

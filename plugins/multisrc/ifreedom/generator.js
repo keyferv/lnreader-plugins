@@ -1,3 +1,4 @@
+/* eslint-disable no-undef, @typescript-eslint/no-var-requires */
 import list from './sources.json' with { type: 'json' };
 import defaultSettings from './settings.json' with { type: 'json' };
 import { readFileSync } from 'fs';
@@ -34,3 +35,4 @@ export default plugin;
     pluginScript,
   };
 };
+

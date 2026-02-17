@@ -236,7 +236,9 @@ class AuthorToday implements Plugin.PluginBase {
       headers: { 'User-Agent': this.userAgent },
     }).then(res => res.text());
 
-    let [workID, chapterID] = chapterPath.split('/');
+    const parts = chapterPath.split('/');
+    const workID = parts[0];
+    let chapterID = parts[1];
     const userRaw = html.match(/userId:(.*?),/)?.[1]?.trim();
     const userId = userRaw === 'null' ? '' : userRaw;
 

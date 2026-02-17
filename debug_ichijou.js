@@ -1,3 +1,4 @@
+/* eslint-disable no-undef, @typescript-eslint/no-var-requires */
 const https = require('https');
 
 const url =
@@ -23,3 +24,4 @@ https
   .on('error', err => {
     console.error('Error: ' + err.message);
   });
+

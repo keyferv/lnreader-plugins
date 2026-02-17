@@ -65,8 +65,8 @@ class ArchTranslation implements Plugin.PluginBase {
   }
 
   async parseNovel(novelPath: string): Promise<Plugin.SourceNovel> {
-    let body = await fetchText(this.site + novelPath);
-    let $ = loadCheerio(body);
+    const body = await fetchText(this.site + novelPath);
+    const $ = loadCheerio(body);
 
     // Selectores seguros
     let postBody = $('#postBody');
@@ -143,7 +143,7 @@ class ArchTranslation implements Plugin.PluginBase {
                   path: href.replace(this.site, ''),
                   releaseTime: null,
                   chapterNumber: chapters.length + 1,
-                  volume: currentVolume || undefined, // Agrupa en la UI si la app lo soporta
+                  // volume: currentVolume || undefined, // Agrupa en la UI si la app lo soporta
                 });
               }
             }
@@ -157,7 +157,7 @@ class ArchTranslation implements Plugin.PluginBase {
       let projectUrl: string | undefined;
 
       $('a[href*="/p/"]').each((_, el) => {
-        let href = $(el).attr('href');
+        const href = $(el).attr('href');
         const text = $(el).text().toLowerCase();
         if (href && href.includes(this.site)) {
           if (!text.includes('privacy') && !text.includes('dmca')) {

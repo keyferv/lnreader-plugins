@@ -47,6 +47,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ReadNovelFullPlugin = void 0;
 var htmlparser2_1 = require("htmlparser2");
 var fetch_1 = require("@libs/fetch");
 var novelStatus_1 = require("@libs/novelStatus");
@@ -96,12 +97,13 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                     state !== ParsingState.NovelName)
                     return;
                 switch (name) {
-                    case 'img':
+                    case 'img': {
                         var cover = attribs['data-src'] || attribs.src;
                         if (cover) {
                             tempNovel.cover = new URL(cover, _this.site).href;
                         }
                         break;
+                    }
                     case 'h3':
                         if (state === ParsingState.NovelList) {
                             pushState(ParsingState.NovelName);
@@ -145,18 +147,19 @@ var ReadNovelFullPlugin = /** @class */ (function () {
     };
     ReadNovelFullPlugin.prototype.popularNovels = function (pageNo_1, _a) {
         return __awaiter(this, arguments, void 0, function (pageNo, _b) {
-            var _c, _d, pageParam, novelListing, _e, typeParam, latestPage, _f, genreParam, _g, genreKey, langParam, urlLangCode, _h, noPages, _j, pageAsPath, url, params, basePage, result, html;
+            var filtersValues, _c, _d, pageParam, novelListing, _e, typeParam, latestPage, _f, genreParam, _g, genreKey, langParam, urlLangCode, _h, noPages, _j, pageAsPath, url, params, basePage, result, html;
             var filters = _b.filters, showLatestNovels = _b.showLatestNovels;
             return __generator(this, function (_k) {
                 switch (_k.label) {
                     case 0:
+                        filtersValues = filters;
                         _c = this.options, _d = _c.pageParam, pageParam = _d === void 0 ? 'page' : _d, novelListing = _c.novelListing, _e = _c.typeParam, typeParam = _e === void 0 ? 'type' : _e, latestPage = _c.latestPage, _f = _c.genreParam, genreParam = _f === void 0 ? 'category_novel' : _f, _g = _c.genreKey, genreKey = _g === void 0 ? 'id' : _g, langParam = _c.langParam, urlLangCode = _c.urlLangCode, _h = _c.noPages, noPages = _h === void 0 ? [] : _h, _j = _c.pageAsPath, pageAsPath = _j === void 0 ? false : _j;
                         // Skip Pagination for FWN & LR
                         if (pageNo !== 1 &&
                             !showLatestNovels &&
-                            !filters.genres.value.length &&
+                            !filtersValues.genres.value.length &&
                             noPages.length > 0 &&
-                            noPages.includes(filters.type.value)) {
+                            noPages.includes(filtersValues.type.value)) {
                             return [2 /*return*/, []];
                         }
                         url = '';
@@ -165,12 +168,12 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                             if (showLatestNovels) {
                                 params.append(typeParam, latestPage);
                             }
-                            else if (filters.genres.value.length) {
+                            else if (filtersValues.genres.value.length) {
                                 params.append(typeParam, genreParam);
-                                params.append(genreKey, filters.genres.value);
+                                params.append(genreKey, filtersValues.genres.value);
                             }
                             else {
-                                params.append(typeParam, filters.type.value);
+                                params.append(typeParam, filtersValues.type.value);
                             }
                             // Add language parameter if specified
                             if (langParam && urlLangCode) {
@@ -182,9 +185,9 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                         else {
                             basePage = showLatestNovels
                                 ? latestPage
-                                : filters.genres.value.length
-                                    ? filters.genres.value
-                                    : filters.type.value;
+                                : filtersValues.genres.value.length
+                                    ? filtersValues.genres.value
+                                    : filtersValues.type.value;
                             if (pageAsPath) {
                                 if (pageNo > 1) {
                                     url = "".concat(this.site).concat(basePage, "/").concat(pageNo.toString());
@@ -430,7 +433,7 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                                             case 'genre':
                                                 novel.genres = detail;
                                                 break;
-                                            case 'status':
+                                            case 'status': {
                                                 var map = {
                                                     ongoing: novelStatus_1.NovelStatus.Ongoing,
                                                     hiatus: novelStatus_1.NovelStatus.OnHiatus,
@@ -441,6 +444,7 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                                                 novel.status =
                                                     (_a = map[detail.toLowerCase()]) !== null && _a !== void 0 ? _a : novelStatus_1.NovelStatus.Unknown;
                                                 break;
+                                            }
                                             default:
                                                 return;
                                         }
@@ -554,7 +558,7 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                         popState = function () {
                             return stateStack.length > 1 ? stateStack.pop() : currentState();
                         };
-                        escapeRegex = /[&<>"' ]/g;
+                        escapeRegex = /[&<>"'\u00A0]/g;
                         escapeMap = {
                             '&': '&amp;',
                             '<': '&lt;',
@@ -720,6 +724,7 @@ var ReadNovelFullPlugin = /** @class */ (function () {
     };
     return ReadNovelFullPlugin;
 }());
+exports.ReadNovelFullPlugin = ReadNovelFullPlugin;
 var ParsingState;
 (function (ParsingState) {
     ParsingState[ParsingState["Idle"] = 0] = "Idle";

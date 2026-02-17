@@ -136,7 +136,9 @@ class Chrysanthemumgarden implements Plugin.PluginBase {
     );
   }
 
-  async getAllNovels() {}
+  async getAllNovels() {
+    // TODO: Implement
+  }
 
   resolveUrl = (path: string, isNovel?: boolean) =>
     this.site + (isNovel ? '/book/' : '/chapter/') + path;

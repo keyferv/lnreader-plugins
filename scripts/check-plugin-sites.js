@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-env node */ /* global process */
 
 import https from 'https';
 import http from 'http';
@@ -23,7 +24,7 @@ const results = {
 
 let totalSites = 0;
 let checkedSites = 0;
-let activeRequests = 0;
+
 
 function checkSite(url, pluginInfo) {
   return new Promise(resolve => {
@@ -115,7 +116,7 @@ async function processSites(sites) {
       return;
     }
 
-    activeRequests++;
+
     const { url, pluginInfo } = queue.shift();
 
     try {
@@ -149,7 +150,7 @@ async function processSites(sites) {
         `\r✗ ${checkedSites}/${totalSites} - ${pluginInfo.name || url} (Error)`,
       );
     } finally {
-      activeRequests--;
+
       await processNext();
     }
   }
@@ -338,3 +339,5 @@ main().catch(error => {
   console.error('Fatal error:', error);
   process.exit(1);
 });
+
+
