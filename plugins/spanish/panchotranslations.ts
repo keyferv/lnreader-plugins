@@ -18,7 +18,7 @@ class PanchoPlugin implements Plugin.PluginBase {
     this.name = 'Pancho Translations';
     this.icon = `multisrc/madara/panchotranslations/icon.png`;
     this.site = 'https://panchonovels.online/';
-    this.version = '1.1.4';
+    this.version = '1.1.5';
   }
 
   private decodeHtmlEntities(value: string): string {
@@ -29,11 +29,11 @@ class PanchoPlugin implements Plugin.PluginBase {
   }
 
   private extractArrayLiteral(source: string, key: string): string | undefined {
-    const keyMatch = new RegExp(`["']?${key}["']?\\s*:`).exec(source);
+    // Matches key followed by start of array [, handling quotes and whitespace
+    const keyMatch = new RegExp(`["']?${key}["']?\\s*:\\s*\\[`).exec(source);
     if (!keyMatch) return undefined;
 
-    const start = source.indexOf('[', keyMatch.index + keyMatch[0].length);
-    if (start === -1) return undefined;
+    const start = keyMatch.index + keyMatch[0].length - 1; // index of [
 
     let depth = 0;
     let inString = false;
@@ -144,68 +144,66 @@ class PanchoPlugin implements Plugin.PluginBase {
       }
     };
 
-    // 1. Parse Carousel (Popular)
-    $('div.embla > div.flex > div').each((i, el) => {
-      const name = $(el)
-        .find('span.text-white.text-base.font-semibold')
-        .text()
-        .trim();
-      const cover = $(el).find('img').attr('src');
-      const path = $(el).find('a').attr('href');
+    // 1. Parse Carousel (Popular) - ONLY if NOT showing latest (Recents)
+    if (!showLatestNovels) {
+      $('div.embla > div.flex > div').each((i, el) => {
+        const name = $(el)
+          .find('span.text-white.text-base.font-semibold')
+          .text()
+          .trim();
+        const cover = $(el).find('img').attr('src');
+        const path = $(el).find('a').attr('href');
 
-      if (name && path) {
-        addNovel({
-          name,
-          cover: cover || defaultCover,
-          path: path.replace(/^\//, ''),
-        });
-      }
-    });
+        if (name && path) {
+          addNovel({
+            name,
+            cover: cover || defaultCover,
+            path: path.replace(/^\//, ''),
+          });
+        }
+      });
+    }
 
+    // 2. Parse Main List (Grid) - Used for both Popular (after carousel) and Latest
     let otherNovels: Plugin.NovelItem[] = [];
 
-    if (showLatestNovels) {
-      const latestSection = $('section')
-        .filter((i, el) =>
-          $(el)
-            .find('h1')
-            .toArray()
-            .some(heading =>
-              /Novelas\s+Actualizadas/i.test($(heading).text().trim()),
-            ),
-        )
-        .first();
+    // Try to find the x-data containing "novels:" property
+    // We look specifically for the assignment `novels:` to avoid confusion with other x-data
+    let xDataString = $('[x-data*="novels"][x-data*=":"]')
+      .first()
+      .attr('x-data');
 
-      const latestFromXData = this.parseNovelsFromSource(
-        latestSection.find('[x-data*="novels"]').first().attr('x-data'),
-      );
-      if (latestFromXData.length) {
-        otherNovels = latestFromXData;
-      } else {
-        const latestFromSectionHtml = this.parseNovelsFromSource(
-          latestSection.html(),
-        );
-        if (latestFromSectionHtml.length) {
-          otherNovels = latestFromSectionHtml;
+    // If specific attribute search fails, iterate to find it
+    if (!xDataString) {
+      const allXData = $('[x-data]').toArray();
+      for (const el of allXData) {
+        const data = $(el).attr('x-data');
+        if (data && /novels\s*:/.test(data)) {
+          xDataString = data;
+          break;
         }
       }
-    } else {
-      otherNovels = this.parseNovelsFromSource(html);
-      if (otherNovels.length === 0) {
-        $('ul.grid li').each((i, el) => {
-          const name = $(el).find('h3').text().trim();
-          const cover = $(el).find('img').attr('src');
-          const path = $(el).find('picture a').attr('href');
+    }
 
-          if (name && path) {
-            otherNovels.push({
-              name,
-              cover: cover || defaultCover,
-              path: path.replace(/^\//, ''),
-            });
-          }
-        });
-      }
+    if (xDataString) {
+      otherNovels = this.parseNovelsFromSource(xDataString);
+    }
+
+    // Fallback to DOM parsing if JSON extraction failed or returned nothing
+    if (otherNovels.length === 0) {
+      $('ul.grid li').each((i, el) => {
+        const name = $(el).find('h3').text().trim();
+        const cover = $(el).find('img').attr('src');
+        const path = $(el).find('picture a').attr('href');
+
+        if (name && path) {
+          otherNovels.push({
+            name,
+            cover: cover || defaultCover,
+            path: path.replace(/^\//, ''),
+          });
+        }
+      });
     }
 
     otherNovels.forEach(addNovel);

@@ -2031,7 +2031,7 @@
 		"name": "Pancho Translations",
 		"site": "https://panchonovels.online/",
 		"lang": "Español",
-		"version": "1.1.4",
+		"version": "1.1.5",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/spanish/panchotranslations.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/multisrc/madara/panchotranslations/icon.png"
 	},
