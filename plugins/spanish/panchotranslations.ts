@@ -18,7 +18,7 @@ class PanchoPlugin implements Plugin.PluginBase {
     this.name = 'Pancho Translations';
     this.icon = `multisrc/madara/panchotranslations/icon.png`;
     this.site = 'https://panchonovels.online/';
-    this.version = '1.1.6';
+    this.version = '1.1.7';
   }
 
   private decodeHtmlEntities(value: string): string {
@@ -68,11 +68,14 @@ class PanchoPlugin implements Plugin.PluginBase {
     return undefined;
   }
 
-  private parseNovelsFromSource(source?: string | null): Plugin.NovelItem[] {
+  private parseNovelsFromSource(
+    source?: string | null,
+    key = 'novels',
+  ): Plugin.NovelItem[] {
     if (!source) return [];
 
     const normalizedSource = this.decodeHtmlEntities(source);
-    const novelsLiteral = this.extractArrayLiteral(normalizedSource, 'novels');
+    const novelsLiteral = this.extractArrayLiteral(normalizedSource, key);
     if (!novelsLiteral) return [];
 
     try {
@@ -112,6 +115,69 @@ class PanchoPlugin implements Plugin.PluginBase {
       });
 
       return novels;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  private parseChaptersFromSource(
+    source?: string | null,
+  ): Plugin.ChapterItem[] {
+    if (!source) return [];
+
+    const normalizedSource = this.decodeHtmlEntities(source);
+    const chaptersLiteral = this.extractArrayLiteral(
+      normalizedSource,
+      'chapters',
+    );
+    if (!chaptersLiteral) return [];
+
+    try {
+      const chaptersData = JSON.parse(chaptersLiteral);
+      if (!Array.isArray(chaptersData)) return [];
+
+      type PanchoChapter = {
+        chapterName?: string;
+        chapterNameExtended?: string | null;
+        chapterSlug?: string;
+        chapterDate?: string;
+        chapterIndex?: number;
+        chapterNumber?: number;
+      };
+
+      const chapters: Plugin.ChapterItem[] = [];
+
+      chaptersData.forEach(entry => {
+        const chapter =
+          typeof entry === 'object' && entry !== null
+            ? (entry as PanchoChapter)
+            : {};
+        const slug =
+          typeof chapter.chapterSlug === 'string'
+            ? chapter.chapterSlug.trim()
+            : '';
+        const name =
+          typeof chapter.chapterName === 'string'
+            ? chapter.chapterName.trim()
+            : '';
+
+        if (!slug || !name) return;
+
+        const extendedName =
+          typeof chapter.chapterNameExtended === 'string' &&
+          chapter.chapterNameExtended.trim()
+            ? ` - ${chapter.chapterNameExtended.trim()}`
+            : '';
+
+        chapters.push({
+          name: `${name}${extendedName}`,
+          path: slug,
+          releaseTime: chapter.chapterDate,
+          chapterNumber: chapter.chapterIndex ?? chapter.chapterNumber,
+        });
+      });
+
+      return chapters;
     } catch (e) {
       return [];
     }
@@ -164,30 +230,25 @@ class PanchoPlugin implements Plugin.PluginBase {
       });
     }
 
-    // 2. Parse Main List (Grid) - Used for both Popular (after carousel) and Latest
-    let otherNovels: Plugin.NovelItem[] = [];
+    // 2. Parse Main List (Grid) - Used for Latest/Recientes only
+    const otherNovels: Plugin.NovelItem[] = [];
 
-    // Try to find the x-data containing "novels:" property
-    // We look specifically for the assignment `novels:` to avoid confusion with other x-data
-    let xDataString = $('[x-data*="novels"][x-data*=":"]')
-      .first()
-      .attr('x-data');
+    if (showLatestNovels) {
+      const latestSection = $('div.pt-7.pb-20');
+      const allXData = latestSection.length
+        ? latestSection.find('[x-data]').toArray()
+        : $('[x-data]').toArray();
 
-    // If specific attribute search fails, iterate to find it
-    if (!xDataString) {
-      const allXData = $('[x-data]').toArray();
       for (const el of allXData) {
         const data = $(el).attr('x-data');
-        if (data && /novels\s*:/.test(data)) {
-          xDataString = data;
-          break;
-        }
-      }
-    }
+        if (!data) continue;
 
-    // Try parsed JSON list from x-data first (these are client-side novels)
-    if (xDataString) {
-      otherNovels = this.parseNovelsFromSource(xDataString);
+        const parsedNovels = /allNovels\s*:/.test(data)
+          ? this.parseNovelsFromSource(data, 'allNovels')
+          : this.parseNovelsFromSource(data);
+
+        otherNovels.push(...parsedNovels);
+      }
     }
 
     // Also parse the server-rendered DOM entries (first items are often server-side)
@@ -255,52 +316,26 @@ class PanchoPlugin implements Plugin.PluginBase {
       novel.status = NovelStatus.Unknown;
     }
 
-    // Logic to extract chapters from x-data blocks as requested
     const blocks = $('[x-data]').toArray();
     const chapterMap = new Map<string, Plugin.ChapterItem>();
-
-    interface PanchoChapter {
-      chapterName: string;
-      chapterSlug: string;
-      chapterDate?: string;
-      chapterNumber?: number;
-    }
 
     blocks.forEach(el => {
       const xdata = $(el).attr('x-data') || '';
       if (!xdata.includes('chapters:')) return;
 
-      const m = xdata.match(
-        /chapters\s*:\s*(\[[\s\S]*?\])\s*,\s*visibleChapters/,
-      );
-      if (!m) return;
+      const novelSlug = novelPath.split('/').filter(Boolean).pop() || '';
+      const chapters = this.parseChaptersFromSource(xdata);
 
-      try {
-        const jsonStr = m[1]
-          .replace(/\s+/g, ' ')
-          .replace(/([{,])\s*([a-zA-Z_$][\w$]*)\s*:/g, '$1"$2":')
-          .replace(/'/g, '"');
+      chapters.forEach(chapter => {
+        const path = `novel/${novelSlug}/${chapter.path}`;
 
-        const chaptersData: PanchoChapter[] = JSON.parse(jsonStr);
-        const novelSlug = novelPath.split('/').filter(Boolean).pop() || '';
-
-        chaptersData.forEach((ch, index) => {
-          if (!ch.chapterSlug || !ch.chapterName) return;
-
-          const path = `novel/${novelSlug}/${ch.chapterSlug}`;
-
-          if (!chapterMap.has(path)) {
-            chapterMap.set(path, {
-              name: ch.chapterName,
-              path: path,
-              releaseTime: ch.chapterDate,
-              chapterNumber: ch.chapterNumber, // If available in source, else could infer
-            });
-          }
-        });
-      } catch (e) {
-        // Ignore parsing errors for individual blocks
-      }
+        if (!chapterMap.has(path)) {
+          chapterMap.set(path, {
+            ...chapter,
+            path,
+          });
+        }
+      });
     });
 
     novel.chapters = Array.from(chapterMap.values());
@@ -313,8 +348,8 @@ class PanchoPlugin implements Plugin.PluginBase {
   async parseChapter(chapterPath: string): Promise<string> {
     const $ = await this.getCheerio(this.site + chapterPath);
 
-    // The content is usually in a div containing p.mb-2
-    const chapterText = $('p.mb-2').parent().first().html() || '';
+    const chapterText =
+      $('#chapterContent').html() || $('p.mb-2').parent().first().html() || '';
 
     return chapterText;
   }
