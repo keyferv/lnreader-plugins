@@ -18,7 +18,7 @@ class PanchoPlugin implements Plugin.PluginBase {
     this.name = 'Pancho Translations';
     this.icon = `multisrc/madara/panchotranslations/icon.png`;
     this.site = 'https://panchonovels.online/';
-    this.version = '1.1.7';
+    this.version = '1.1.8';
   }
 
   private decodeHtmlEntities(value: string): string {
@@ -145,6 +145,21 @@ class PanchoPlugin implements Plugin.PluginBase {
         chapterNumber?: number;
       };
 
+      // First pass: determine max chapter number for zero-padding width
+      let maxChapter = 0;
+      chaptersData.forEach(entry => {
+        const ch =
+          typeof entry === 'object' && entry !== null
+            ? (entry as PanchoChapter)
+            : {};
+        const num = ch.chapterIndex ?? ch.chapterNumber;
+        if (typeof num === 'number' && !isNaN(num) && num > maxChapter) {
+          maxChapter = num;
+        }
+      });
+
+      const paddingWidth = Math.max(4, String(Math.floor(maxChapter)).length);
+
       const chapters: Plugin.ChapterItem[] = [];
 
       chaptersData.forEach(entry => {
@@ -169,8 +184,24 @@ class PanchoPlugin implements Plugin.PluginBase {
             ? ` - ${chapter.chapterNameExtended.trim()}`
             : '';
 
+        // Zero-pad the numeric portion of chapter name for lexicographic sorting
+        const chapterNum = chapter.chapterIndex ?? chapter.chapterNumber;
+        let displayName = name;
+        if (typeof chapterNum === 'number' && !isNaN(chapterNum)) {
+          displayName = name.replace(/(\d+)/, match =>
+            match.padStart(paddingWidth, '0'),
+          );
+        } else {
+          const parsedNum = parseInt(name.match(/(\d+)/)?.[1] ?? '', 10);
+          if (!isNaN(parsedNum) && parsedNum > 0) {
+            displayName = name.replace(/(\d+)/, match =>
+              match.padStart(paddingWidth, '0'),
+            );
+          }
+        }
+
         chapters.push({
-          name: `${name}${extendedName}`,
+          name: `${displayName}${extendedName}`,
           path: slug,
           releaseTime: chapter.chapterDate,
           chapterNumber: chapter.chapterIndex ?? chapter.chapterNumber,
