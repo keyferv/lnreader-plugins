@@ -94,7 +94,7 @@ class IchijouTranslations implements Plugin.PluginBase {
   private readonly apiRoot = 'https://api.ichijoutranslations.com';
   cdnSite = 'https://cdn.ichijoutranslations.com';
   private readonly apiHomeBase = 'https://api.ichijoutranslations.com/api/home';
-  version = '1.2.0';
+  version = '1.3.0';
   icon = 'src/es/ichijoutranslations/icon.png';
   lang = 'Spanish';
 
@@ -108,6 +108,16 @@ class IchijouTranslations implements Plugin.PluginBase {
 
   private isPdfFile(fileUrl: string): boolean {
     return /\.pdf(\?|$)/i.test(fileUrl);
+  }
+
+  /** Genera un slug URL-friendly desde un título (similar al del sitio). */
+  private slugify(text: string): string {
+    return text
+      .toLowerCase()
+      .replace(/[',¡!¿?.:;()["]]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
   }
 
   filters = {
@@ -178,6 +188,10 @@ class IchijouTranslations implements Plugin.PluginBase {
     const body = (await result.json()) as IchijouWorkDetailsResponse;
     const work = body.data;
 
+    // Extraer workSlug para usar como fallback en parseChapter (nueva API).
+    // La nueva API usa el formato completo: {workId}-{workSlug}
+    const workSlug = slug ?? '';
+
     // Cover – obtener de workImages (card o cover)
     const coverImage =
       work.workImages?.find(
@@ -226,9 +240,11 @@ class IchijouTranslations implements Plugin.PluginBase {
         const fileUrl = chapter.fileUrl || chapter.chapterFile?.fileUrl;
         const pdfPath =
           fileUrl && this.isPdfFile(fileUrl) ? this.buildCdnUrl(fileUrl) : null;
+        // Incluir workSlug y chapterSlug para fallback a la nueva API
+        const chapterSlug = this.slugify(chapter.title);
         chapters.push({
           name: `Capítulo ${chapter.orderIndex}: ${chapter.title}`,
-          path: pdfPath ?? `/capitulo/${chapter.id}`,
+          path: pdfPath ?? `/capitulo/${chapter.id}/${workSlug}/${chapterSlug}`,
           releaseTime: chapter.createdAt,
           chapterNumber,
         });
@@ -275,40 +291,119 @@ class IchijouTranslations implements Plugin.PluginBase {
       );
     }
 
-    // Capítulos de texto: extraer ID y usar /api/home/chapter/{id}
+    // Capítulos con ruta /capitulo/{id}[/{workSlug}/{chapterSlug}]
     if (chapterPath.startsWith('/capitulo/')) {
-      const chapterId = chapterPath
-        .split('/')
-        .pop()
-        ?.match(/^(\d+)/)?.[1];
+      const parts = chapterPath.split('/').filter(Boolean); // ['capitulo', id, workSlug?, chapterSlug?]
+      const chapterId = parts[1]?.match(/^(\d+)/)?.[1];
       if (!chapterId) throw new Error('No se pudo obtener el ID del capítulo');
-      const url = `${this.apiSite}/home/chapter/${chapterId}`;
-      const result = await fetchApi(url);
-      const body = (await result.json()) as {
-        data?: { content?: string };
-        content?: string;
+
+      const workSlug = parts[2] ?? '';
+      const chapterSlug = parts[3] ?? '';
+
+      // ── Intento 1: API vieja /api/home/chapter/{id} ──
+      try {
+        const oldUrl = `${this.apiSite}/home/chapter/${chapterId}`;
+        const oldResult = await fetchApi(oldUrl);
+        if (oldResult.ok) {
+          const oldBody = (await oldResult.json()) as {
+            data?: { content?: string };
+            content?: string;
+          };
+          const oldContent = oldBody.data?.content ?? oldBody.content ?? '';
+          if (oldContent) return oldContent;
+        }
+      } catch {
+        // La API vieja falló (404 u otro error) — seguir al fallback
+      }
+
+      // ── Intento 2 (fallback): API nueva /api/home/works/{workSlug}/chapters/{id}-{slug} ──
+      if (workSlug && chapterSlug) {
+        const chapterKey = `${chapterId}-${chapterSlug}`;
+        const newUrl = `${this.apiHomeBase}/works/${workSlug}/chapters/${chapterKey}`;
+        const newResult = await fetchApi(newUrl);
+        const newBody = (await newResult.json()) as {
+          statusCode: number;
+          data?: {
+            chapter?: {
+              content?: string;
+            };
+          };
+        };
+
+        const content = newBody.data?.chapter?.content ?? '';
+        if (!content) throw new Error('No se encontró contenido del capítulo');
+
+        // Si el contenido es una URL de PDF → devolver HTML con link
+        // (WebViewReader intercepta clicks en .pdf y navega a PdfReaderScreen)
+        if (this.isPdfFile(content)) {
+          return (
+            '<div style="text-align:center;padding:32px 16px;font-family:sans-serif;">' +
+            '<p style="font-size:18px;margin-bottom:24px;">Este capítulo está en formato PDF.</p>' +
+            `<a href="${content}" style="display:inline-block;padding:14px 28px;` +
+            'background:#1976D2;color:#fff;text-decoration:none;border-radius:8px;' +
+            'font-size:16px;">Abrir PDF</a></div>'
+          );
+        }
+
+        return content;
+      }
+
+      // Sin workSlug/chapterSlug (formato viejo) y la API vieja falló
+      throw new Error('No se encontró contenido del capítulo');
+    }
+
+    // Fallback para rutas que no empiezan con /capitulo/
+    const parts = chapterPath.split('/').filter(Boolean);
+    const id = parts.pop()?.match(/^(\d+)/)?.[1];
+    if (!id) throw new Error('No se pudo obtener el ID del capítulo');
+
+    try {
+      const oldUrl = `${this.apiSite}/home/chapter/${id}`;
+      const oldResult = await fetchApi(oldUrl);
+      if (oldResult.ok) {
+        const oldBody = (await oldResult.json()) as {
+          data?: { content?: string };
+          content?: string;
+        };
+        const oldContent = oldBody.data?.content ?? oldBody.content ?? '';
+        if (oldContent) return oldContent;
+      }
+    } catch {
+      // fall through
+    }
+
+    // Si hay suficientes partes, intentar nueva API
+    const workSlug = parts.length >= 1 ? parts.join('/') : '';
+    const chapterSlug = parts.length >= 2 ? parts.pop() ?? '' : '';
+    if (workSlug && chapterSlug && id) {
+      const chapterKey = `${id}-${chapterSlug}`;
+      const newUrl = `${this.apiHomeBase}/works/${workSlug}/chapters/${chapterKey}`;
+      const newResult = await fetchApi(newUrl);
+      const newBody = (await newResult.json()) as {
+        statusCode: number;
+        data?: {
+          chapter?: {
+            content?: string;
+          };
+        };
       };
-      const content = body.data?.content ?? body.content ?? '';
+      const content = newBody.data?.chapter?.content ?? '';
       if (!content) throw new Error('No se encontró contenido del capítulo');
+
+      if (this.isPdfFile(content)) {
+        return (
+          '<div style="text-align:center;padding:32px 16px;font-family:sans-serif;">' +
+          '<p style="font-size:18px;margin-bottom:24px;">Este capítulo está en formato PDF.</p>' +
+          `<a href="${content}" style="display:inline-block;padding:14px 28px;` +
+          'background:#1976D2;color:#fff;text-decoration:none;border-radius:8px;' +
+          'font-size:16px;">Abrir PDF</a></div>'
+        );
+      }
+
       return content;
     }
 
-    // Fallback para rutas antiguas
-    const id = chapterPath
-      .split('/')
-      .pop()
-      ?.match(/^(\d+)/)?.[1];
-    if (!id) throw new Error('No se pudo obtener el ID del capítulo');
-    const url = `${this.apiSite}/home/chapter/${id}`;
-
-    const result = await fetchApi(url);
-    const body = (await result.json()) as {
-      data?: { content?: string };
-      content?: string;
-    };
-    const content = body.data?.content ?? body.content ?? '';
-    if (!content) throw new Error('No se encontró contenido del capítulo');
-    return content;
+    throw new Error('No se encontró contenido del capítulo');
   }
 
   async searchNovels(

@@ -1977,7 +1977,7 @@
 		"name": "Ichijou Translations",
 		"site": "https://www.ichijoutranslations.com",
 		"lang": "Español",
-		"version": "1.2.0",
+		"version": "1.3.0",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/.js/plugins/spanish/ichijoutranslations.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/master/public/static/src/es/ichijoutranslations/icon.png"
 	},
