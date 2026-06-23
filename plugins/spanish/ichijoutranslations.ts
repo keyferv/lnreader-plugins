@@ -94,7 +94,7 @@ class IchijouTranslations implements Plugin.PluginBase {
   private readonly apiRoot = 'https://api.ichijoutranslations.com';
   cdnSite = 'https://cdn.ichijoutranslations.com';
   private readonly apiHomeBase = 'https://api.ichijoutranslations.com/api/home';
-  version = '1.3.0';
+  version = '1.4.0';
   icon = 'src/es/ichijoutranslations/icon.png';
   lang = 'Spanish';
 
@@ -325,16 +325,36 @@ class IchijouTranslations implements Plugin.PluginBase {
           statusCode: number;
           data?: {
             chapter?: {
-              content?: string;
+              content?: string | null;
+              images?: Array<{
+                pageIndex: number;
+                imageUrl: string;
+                width?: number;
+                height?: number;
+              }>;
             };
           };
         };
 
-        const content = newBody.data?.chapter?.content ?? '';
+        const chapter = newBody.data?.chapter;
+        const content = chapter?.content ?? '';
+
+        // 1. Imágenes (manhwa) — ordenar por pageIndex y generar HTML
+        if (!content && chapter?.images?.length) {
+          const sortedImages = [...chapter.images].sort(
+            (a, b) => a.pageIndex - b.pageIndex,
+          );
+          return sortedImages
+            .map(
+              img =>
+                `<img src="${img.imageUrl}" style="display:block;width:100%;height:auto;margin:0;" />`,
+            )
+            .join('\n');
+        }
+
         if (!content) throw new Error('No se encontró contenido del capítulo');
 
-        // Si el contenido es una URL de PDF → devolver HTML con link
-        // (WebViewReader intercepta clicks en .pdf y navega a PdfReaderScreen)
+        // 2. PDF — URL de R2 con firma S3
         if (this.isPdfFile(content)) {
           return (
             '<div style="text-align:center;padding:32px 16px;font-family:sans-serif;">' +
@@ -345,6 +365,7 @@ class IchijouTranslations implements Plugin.PluginBase {
           );
         }
 
+        // 3. HTML viejo (si alguna vez vuelve a funcionar)
         return content;
       }
 
@@ -383,13 +404,35 @@ class IchijouTranslations implements Plugin.PluginBase {
         statusCode: number;
         data?: {
           chapter?: {
-            content?: string;
+            content?: string | null;
+            images?: Array<{
+              pageIndex: number;
+              imageUrl: string;
+              width?: number;
+              height?: number;
+            }>;
           };
         };
       };
-      const content = newBody.data?.chapter?.content ?? '';
+      const chapter = newBody.data?.chapter;
+      const content = chapter?.content ?? '';
+
+      // 1. Imágenes (manhwa)
+      if (!content && chapter?.images?.length) {
+        const sortedImages = [...chapter.images].sort(
+          (a, b) => a.pageIndex - b.pageIndex,
+        );
+        return sortedImages
+          .map(
+            img =>
+              `<img src="${img.imageUrl}" style="display:block;width:100%;height:auto;margin:0;" />`,
+          )
+          .join('\n');
+      }
+
       if (!content) throw new Error('No se encontró contenido del capítulo');
 
+      // 2. PDF
       if (this.isPdfFile(content)) {
         return (
           '<div style="text-align:center;padding:32px 16px;font-family:sans-serif;">' +
@@ -400,6 +443,7 @@ class IchijouTranslations implements Plugin.PluginBase {
         );
       }
 
+      // 3. HTML viejo
       return content;
     }
 
