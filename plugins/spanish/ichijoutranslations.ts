@@ -11,17 +11,21 @@ type IchijouResponse = {
   };
 };
 
+type IchijouWorkImage = {
+  imageTypeCode?: string;
+  imageUrl?: string;
+  image_type?: {
+    code?: string;
+  } | null;
+  image_url?: string;
+};
+
 type IchijouWork = {
   id: number;
   title: string;
   slug: string;
   synopsis: string;
-  workImages: {
-    image_url: string;
-    image_type: {
-      code: string;
-    };
-  }[];
+  workImages: IchijouWorkImage[];
   publicationStatus: {
     name: string;
   };
@@ -68,12 +72,8 @@ type IchijouWorkDetails = {
   id: number;
   title: string;
   synopsis: string;
-  workImages?: {
-    image_url: string;
-    image_type: {
-      code: string;
-    };
-  }[];
+  slug?: string;
+  workImages?: IchijouWorkImage[];
   publicationStatus?: {
     name: string;
   };
@@ -84,6 +84,24 @@ type IchijouWorkDetails = {
   }[];
   chapters?: IchijouDetailChapter[] | null;
   volumes?: IchijouVolume[] | null;
+};
+
+type IchijouContentChapter = {
+  id: number;
+  title: string;
+  displayNumber?: string | null;
+  orderIndex: number;
+  createdAt?: string;
+  volumeId?: number | null;
+};
+
+type IchijouContentResponse = {
+  statusCode: number;
+  message: string;
+  data: {
+    volumes?: IchijouVolume[] | null;
+    chapters?: IchijouContentChapter[] | null;
+  };
 };
 
 // ── Tiptap (ProseMirror) document types ──
@@ -137,7 +155,7 @@ class IchijouTranslations implements Plugin.PluginBase {
   private readonly apiRoot = 'https://api.ichijoutranslations.com';
   cdnSite = 'https://cdn.ichijoutranslations.com';
   private readonly apiHomeBase = 'https://api.ichijoutranslations.com/api/home';
-  version = '1.5.0';
+  version = '1.5.1';
   icon = 'src/es/ichijoutranslations/icon.png';
   lang = 'Spanish';
 
@@ -151,6 +169,24 @@ class IchijouTranslations implements Plugin.PluginBase {
 
   private isPdfFile(fileUrl: string): boolean {
     return /\.pdf(\?|$)/i.test(fileUrl);
+  }
+
+  /** URL de la imagen principal (card o cover) soportando ambas formas de la API. */
+  private getWorkImageUrl(
+    images?: IchijouWorkImage[] | null,
+  ): string | undefined {
+    if (!Array.isArray(images)) return undefined;
+    const findUrlByCode = (code: string): string | undefined => {
+      for (const img of images) {
+        if (!img) continue;
+        const imgCode = img.imageTypeCode ?? img.image_type?.code;
+        if (imgCode !== code) continue;
+        const url = img.imageUrl ?? img.image_url;
+        if (url) return url;
+      }
+      return undefined;
+    };
+    return findUrlByCode('card') ?? findUrlByCode('cover');
   }
 
   /** Genera un slug URL-friendly desde un título (similar al del sitio). */
@@ -289,17 +325,8 @@ class IchijouTranslations implements Plugin.PluginBase {
     const novels: Plugin.NovelItem[] = [];
 
     body.data.data.forEach(work => {
-      const coverImage =
-        work.workImages.find(
-          img => img.image_type.code === 'card' && img.image_url,
-        ) ||
-        work.workImages.find(
-          img => img.image_type.code === 'cover' && img.image_url,
-        );
-
-      const cover = coverImage?.image_url
-        ? this.buildCdnUrl(coverImage.image_url)
-        : undefined;
+      const coverUrl = this.getWorkImageUrl(work.workImages);
+      const cover = coverUrl ? this.buildCdnUrl(coverUrl) : undefined;
 
       novels.push({
         name: work.title,
@@ -323,17 +350,9 @@ class IchijouTranslations implements Plugin.PluginBase {
     const body = (await result.json()) as IchijouWorkDetailsResponse;
     const work = body.data;
 
-    // Cover – obtener de workImages (card o cover)
-    const coverImage =
-      work.workImages?.find(
-        img => img.image_type.code === 'card' && img.image_url,
-      ) ??
-      work.workImages?.find(
-        img => img.image_type.code === 'cover' && img.image_url,
-      );
-    const cover = coverImage?.image_url
-      ? this.buildCdnUrl(coverImage.image_url)
-      : undefined;
+    // Cover – obtener de workImages (card o cover) en ambas formas de la API
+    const coverUrl = this.getWorkImageUrl(work.workImages);
+    const cover = coverUrl ? this.buildCdnUrl(coverUrl) : undefined;
 
     // Genres
     const genres = work.workGenres?.map(g => g.genre.name) || [];
@@ -342,43 +361,85 @@ class IchijouTranslations implements Plugin.PluginBase {
     const chapters: Plugin.ChapterItem[] = [];
     let chapterNumber = 0;
 
-    const volumes = Array.isArray(work.volumes) ? work.volumes : [];
-    if (volumes.length) {
-      const sortedVolumes = [...volumes].sort(
-        (a, b) => a.orderIndex - b.orderIndex,
-      );
-      for (const volume of sortedVolumes) {
-        const fileUrl = volume.fileUrl || volume.volume_file?.fileUrl;
-        if (fileUrl && this.isPdfFile(fileUrl)) {
+    const slug = work.slug || workSlug;
+
+    // La API de detalle ya no incluye chapters/volumes: obtenerlos desde el
+    // endpoint de contenido (data.chapters[]) cuando esté disponible.
+    const contentChapters: Plugin.ChapterItem[] = [];
+    try {
+      const contentUrl = `${this.apiHomeBase}/getContentWork/work/${workId}`;
+      const contentResult = await fetchApi(contentUrl);
+      if (contentResult.ok) {
+        const contentBody =
+          (await contentResult.json()) as IchijouContentResponse;
+        const rawChapters = Array.isArray(contentBody.data?.chapters)
+          ? contentBody.data.chapters
+          : [];
+        if (rawChapters.length) {
+          const sortedChapters = [...rawChapters].sort(
+            (a, b) => a.orderIndex - b.orderIndex,
+          );
+          for (const chapter of sortedChapters) {
+            chapterNumber++;
+            const displayNumber =
+              chapter.displayNumber ?? String(chapter.orderIndex);
+            const chapterSlug = this.slugify(chapter.title);
+            contentChapters.push({
+              name: `Capítulo ${displayNumber}: ${chapter.title}`,
+              path: `/capitulo/${chapter.id}/${slug}/${chapterSlug}`,
+              releaseTime: chapter.createdAt,
+              chapterNumber,
+            });
+          }
+        }
+      }
+    } catch {
+      // El endpoint de contenido falló — se usan los datos legacy del detalle
+    }
+
+    if (contentChapters.length) {
+      chapters.push(...contentChapters);
+    } else {
+      const volumes = Array.isArray(work.volumes) ? work.volumes : [];
+      if (volumes.length) {
+        const sortedVolumes = [...volumes].sort(
+          (a, b) => a.orderIndex - b.orderIndex,
+        );
+        for (const volume of sortedVolumes) {
+          const fileUrl = volume.fileUrl || volume.volume_file?.fileUrl;
+          if (fileUrl && this.isPdfFile(fileUrl)) {
+            chapterNumber++;
+            chapters.push({
+              name: `Volumen ${volume.orderIndex}: ${volume.title}`,
+              path: this.buildCdnUrl(fileUrl),
+              releaseTime: volume.createdAt,
+              chapterNumber,
+            });
+          }
+        }
+      }
+
+      const rootChapters = Array.isArray(work.chapters) ? work.chapters : [];
+      if (rootChapters.length) {
+        const sortedChapters = [...rootChapters].sort(
+          (a, b) => a.orderIndex - b.orderIndex,
+        );
+        for (const chapter of sortedChapters) {
           chapterNumber++;
+          const fileUrl = chapter.fileUrl || chapter.chapterFile?.fileUrl;
+          const pdfPath =
+            fileUrl && this.isPdfFile(fileUrl)
+              ? this.buildCdnUrl(fileUrl)
+              : null;
+          // Incluir workSlug y chapterSlug para fallback a la nueva API
+          const chapterSlug = this.slugify(chapter.title);
           chapters.push({
-            name: `Volumen ${volume.orderIndex}: ${volume.title}`,
-            path: this.buildCdnUrl(fileUrl),
-            releaseTime: volume.createdAt,
+            name: `Capítulo ${chapter.orderIndex}: ${chapter.title}`,
+            path: pdfPath ?? `/capitulo/${chapter.id}/${slug}/${chapterSlug}`,
+            releaseTime: chapter.createdAt,
             chapterNumber,
           });
         }
-      }
-    }
-
-    const rootChapters = Array.isArray(work.chapters) ? work.chapters : [];
-    if (rootChapters.length) {
-      const sortedChapters = [...rootChapters].sort(
-        (a, b) => a.orderIndex - b.orderIndex,
-      );
-      for (const chapter of sortedChapters) {
-        chapterNumber++;
-        const fileUrl = chapter.fileUrl || chapter.chapterFile?.fileUrl;
-        const pdfPath =
-          fileUrl && this.isPdfFile(fileUrl) ? this.buildCdnUrl(fileUrl) : null;
-        // Incluir workSlug y chapterSlug para fallback a la nueva API
-        const chapterSlug = this.slugify(chapter.title);
-        chapters.push({
-          name: `Capítulo ${chapter.orderIndex}: ${chapter.title}`,
-          path: pdfPath ?? `/capitulo/${chapter.id}/${workSlug}/${chapterSlug}`,
-          releaseTime: chapter.createdAt,
-          chapterNumber,
-        });
       }
     }
 
@@ -659,17 +720,8 @@ class IchijouTranslations implements Plugin.PluginBase {
     const novels: Plugin.NovelItem[] = [];
 
     body.data.data.forEach(work => {
-      const coverImage =
-        work.workImages.find(
-          img => img.image_type.code === 'card' && img.image_url,
-        ) ||
-        work.workImages.find(
-          img => img.image_type.code === 'cover' && img.image_url,
-        );
-
-      const cover = coverImage?.image_url
-        ? this.buildCdnUrl(coverImage.image_url)
-        : undefined;
+      const coverUrl = this.getWorkImageUrl(work.workImages);
+      const cover = coverUrl ? this.buildCdnUrl(coverUrl) : undefined;
 
       novels.push({
         name: work.title,
