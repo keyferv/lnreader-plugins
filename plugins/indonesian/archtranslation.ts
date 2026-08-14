@@ -1,322 +1,374 @@
-import { fetchText } from '@libs/fetch';
+import { fetchApi } from '@libs/fetch';
 import { Plugin } from '@/types/plugin';
-import { load as loadCheerio } from 'cheerio';
+import { CheerioAPI, load as parseHTML } from 'cheerio';
 import { defaultCover } from '@libs/defaultCover';
 import { NovelStatus } from '@libs/novelStatus';
+import dayjs from 'dayjs';
+
+const includesAny = (str: string, keywords: string[]) =>
+  new RegExp(keywords.join('|')).test(str);
+
+const CURRENT_PATH_REGEX = /^\/?manga\//;
+const LEGACY_PATH_REGEX = /^\/?(\d{4})\/(\d{2})\/([^/]+)\.html\/?$/;
 
 class ArchTranslation implements Plugin.PluginBase {
   id = 'archtranslation';
   name = 'ArchTranslation';
-  site = 'https://www.archtranslation.com';
+  site = 'https://archtranslation.com/';
   icon = 'src/id/archtranslation/icon.png';
-  version = '1.1.1'; // Agrupación por Volúmenes
+  version = '1.3.0'; // Legacy Blogger path migration via WordPress search
 
-  async popularNovels(
-    pageNo: number,
-    { filters }: Plugin.PopularNovelsOptions,
-  ): Promise<Plugin.NovelItem[]> {
-    let url = `${this.site}/search/label/LN?max-results=6`;
+  getHostname(url: string): string {
+    url = url.split('/')[2];
+    const url_parts = url.split('.');
+    url_parts.pop(); // remove TLD
+    return url_parts.join('.');
+  }
 
-    if (pageNo > 1) {
-      let currentUrl = url;
-      for (let i = 1; i < pageNo; i++) {
-        const pageBody = await fetchText(currentUrl);
-        const page$ = loadCheerio(pageBody);
-        const nextUrl = page$('.blog-pager-older-link').attr('href');
-        if (!nextUrl) {
-          return [];
-        }
-        currentUrl = nextUrl;
-      }
-      url = currentUrl;
+  async getCheerio(url: string, search: boolean): Promise<CheerioAPI> {
+    const r = await fetchApi(url);
+    if (!r.ok && search != true)
+      throw new Error(
+        'Could not reach site (' + r.status + ') try to open in webview.',
+      );
+    const $ = parseHTML(await r.text());
+    const title = $('title').text().trim();
+    if (
+      this.getHostname(url) != this.getHostname(r.url) ||
+      title == 'Bot Verification' ||
+      title == 'You are being redirected...' ||
+      title == 'Un instant...' ||
+      title == 'Just a moment...' ||
+      title == 'Redirecting...'
+    )
+      throw new Error('Captcha error, please open in webview');
+    return $;
+  }
+
+  private async resolveLegacyPath(novelPath: string): Promise<string> {
+    if (
+      CURRENT_PATH_REGEX.test(novelPath) ||
+      !LEGACY_PATH_REGEX.test(novelPath)
+    ) {
+      return novelPath;
     }
 
-    const body = await fetchText(url);
-    const $ = loadCheerio(body);
+    const slug = novelPath.replace(LEGACY_PATH_REGEX, '$3');
+    const searchTerm = slug.replace(/-/g, ' ');
 
+    let loadedCheerio: CheerioAPI;
+    try {
+      loadedCheerio = await this.getCheerio(
+        this.site + '?s=' + encodeURIComponent(searchTerm),
+        true,
+      );
+    } catch {
+      return novelPath;
+    }
+
+    const candidates: string[] = [];
+    loadedCheerio('.page-item-detail .post-title a').each((_, element) => {
+      const href = loadedCheerio(element).attr('href');
+      if (!href) return;
+      const path = href.replace(/^https?:\/\/[^/]+\//, '');
+      if (/^manga\//.test(path)) candidates.push(path);
+    });
+
+    if (new Set(candidates).size !== 1) return novelPath;
+    return candidates[0];
+  }
+
+  parseNovels(loadedCheerio: CheerioAPI): Plugin.NovelItem[] {
     const novels: Plugin.NovelItem[] = [];
 
-    $('.blog-post').each((i, el) => {
-      let title = $(el).find('.entry-title a').text().trim();
-      const path = $(el).find('.entry-title a').attr('href');
+    loadedCheerio('.manga-title-badges').remove();
 
-      let img = $(el).find('.post-filter-image img');
-      if (img.length === 0) img = $(el).find('img');
-
-      let cover = img.first().attr('data-src') || img.first().attr('src');
-
-      if (cover) {
-        if (cover.startsWith('//')) cover = 'https:' + cover;
-        cover = cover.replace(/=[^=]+$/, '=s0');
-      }
-
-      title = title.replace(/(Chapter|Vol|Volume)\s*\d+.*/i, '').trim();
-
-      if (path && title) {
-        novels.push({
-          name: title,
-          path: path.replace(this.site, ''),
-          cover: cover || defaultCover,
-        });
-      }
-    });
+    loadedCheerio('.page-item-detail, .c-tabs-item__content').each(
+      (index, element) => {
+        const novelName = loadedCheerio(element)
+          .find('.post-title')
+          .text()
+          .trim();
+        const novelUrl =
+          loadedCheerio(element).find('.post-title').find('a').attr('href') ||
+          '';
+        if (!novelName || !novelUrl) return;
+        const image = loadedCheerio(element).find('img');
+        const novelCover =
+          image.attr('data-src') ||
+          image.attr('src') ||
+          image.attr('data-lazy-srcset') ||
+          defaultCover;
+        const novel: Plugin.NovelItem = {
+          name: novelName,
+          cover: novelCover,
+          path: novelUrl.replace(/https?:\/\/.*?\//, ''),
+        };
+        novels.push(novel);
+      },
+    );
 
     return novels;
   }
 
+  async popularNovels(
+    pageNo: number,
+    { showLatestNovels }: Plugin.PopularNovelsOptions,
+  ): Promise<Plugin.NovelItem[]> {
+    let url = this.site + '?m_orderby=rating&page=' + pageNo;
+    if (showLatestNovels) url = this.site + '?m_orderby=latest&page=' + pageNo;
+
+    const loadedCheerio = await this.getCheerio(url, pageNo != 1);
+    return this.parseNovels(loadedCheerio);
+  }
+
   async parseNovel(novelPath: string): Promise<Plugin.SourceNovel> {
-    const body = await fetchText(this.site + novelPath);
-    const $ = loadCheerio(body);
+    const resolvedPath = (await this.resolveLegacyPath(novelPath)).replace(
+      /^\/+/,
+      '',
+    );
+    const loadedCheerio = await this.getCheerio(
+      this.site + resolvedPath,
+      false,
+    );
 
-    // Selectores seguros
-    let postBody = $('#postBody');
-    if (postBody.length === 0) postBody = $('.post-body');
-    if (postBody.length === 0) postBody = $('.entry-content');
-
-    // --- 1. EXTRACCIÓN DE PORTADA ---
-    let coverUrl = defaultCover;
-    let coverImg = postBody.find('.separator img').first();
-    if (coverImg.length === 0) coverImg = postBody.find('img').first();
-
-    let rawCoverUrl = coverImg.attr('data-src') || coverImg.attr('src');
-    if (rawCoverUrl) {
-      if (rawCoverUrl.startsWith('//')) rawCoverUrl = 'https:' + rawCoverUrl;
-      else if (rawCoverUrl.startsWith('/'))
-        rawCoverUrl = this.site + rawCoverUrl;
-      rawCoverUrl = rawCoverUrl.replace(/=[^=]+$/, '=s0');
-      coverUrl = rawCoverUrl;
-    }
-
-    // --- 2. EXTRACCIÓN DE CAPÍTULOS CON VOLÚMENES ---
-    const chapters: Plugin.ChapterItem[] = [];
-    const chapterSet = new Set<string>();
-    let currentVolume = ''; // Variable para guardar el volumen actual
-
-    const chapterRegex =
-      /Chapter|Vol|Prolo|Epilo|Ilustra|Selingan|Short story|Side Story|Extras|Ekstra|Batch|Tamat|Bagian/i;
-
-    // Recorremos TODOS los elementos en orden para detectar encabezados de volumen
-    postBody.find('*').each((i, el) => {
-      const $el = $(el);
-
-      // A) Detección de Cabecera de Volumen
-      // Si el elemento contiene texto como "Volume 1", actualizamos currentVolume
-      // Ignoramos enlaces para esto, solo texto plano o contenedores
-      if (el.tagName !== 'a') {
-        const text = $el.text().trim();
-        // Regex estricto: Debe ser "Volume X" o "Vol X" exacto
-        if (/^(Volume|Vol\.?)\s*\d+$/i.test(text)) {
-          currentVolume = text;
-          return;
-        }
-      }
-
-      // B) Detección de Capítulo
-      if (el.tagName === 'a') {
-        let href = $el.attr('href');
-        const text = $el.text().trim();
-
-        if (href && text) {
-          if (href && href.startsWith('//')) href = 'https:' + href;
-          else if (href && href.startsWith('/')) href = this.site + href;
-
-          if (href && href.includes('archtranslation.com')) {
-            href = href.split('?')[0];
-
-            const isExcluded =
-              href.includes('/search/label') ||
-              href.includes('/author/') ||
-              href.replace(this.site, '') === novelPath;
-
-            if (chapterRegex.test(text) && !isExcluded) {
-              if (!chapterSet.has(href)) {
-                chapterSet.add(href);
-
-                // Construimos el nombre final
-                let displayName = text;
-                if (currentVolume) {
-                  displayName = `${currentVolume} ${text}`;
-                }
-
-                chapters.push({
-                  name: displayName,
-                  path: href.replace(this.site, ''),
-                  releaseTime: null,
-                  chapterNumber: chapters.length + 1,
-                  // volume: currentVolume || undefined, // Agrupa en la UI si la app lo soporta
-                });
-              }
-            }
-          }
-        }
-      }
-    });
-
-    // --- 3. REDIRECCIÓN (Fallback) ---
-    if (chapters.length === 0 && novelPath.match(/\/\d{4}\/\d{2}\//)) {
-      let projectUrl: string | undefined;
-
-      $('a[href*="/p/"]').each((_, el) => {
-        const href = $(el).attr('href');
-        const text = $(el).text().toLowerCase();
-        if (href && href.includes(this.site)) {
-          if (!text.includes('privacy') && !text.includes('dmca')) {
-            const currentTitle = $('.entry-title').text().trim().toLowerCase();
-            if (
-              currentTitle.includes(text) ||
-              text.includes('project') ||
-              text.includes('toc')
-            ) {
-              projectUrl = href;
-              return false;
-            }
-          }
-        }
-      });
-
-      if (projectUrl) {
-        const newPath = projectUrl.replace(this.site, '');
-        if (newPath !== novelPath) return this.parseNovel(newPath);
-      }
-    }
-
-    // --- 4. METADATOS ---
-    let contentText = '';
-    postBody.find('div, p, span, h4').each((_, el) => {
-      const t = $(el).text().trim();
-      if (t) contentText += t + '\n';
-    });
-
+    loadedCheerio('.manga-title-badges, #manga-title span').remove();
     const novel: Plugin.SourceNovel = {
-      path: novelPath,
-      name: $('.entry-title').text().trim() || 'Untitled',
-      cover: coverUrl,
-      chapters: chapters,
+      path: resolvedPath,
+      name:
+        loadedCheerio('.post-title h1').text().trim() ||
+        loadedCheerio('#manga-title h1').text().trim() ||
+        loadedCheerio('.manga-title').text().trim() ||
+        '',
     };
 
-    const authorMatch = contentText.match(/Author\s*:\s*(.+)/i);
-    const artistMatch = contentText.match(/Artist\s*:\s*(.+)/i);
-    const genreMatch = contentText.match(/Genre\s*:\s*(.+)/i);
-    const statusMatch = contentText.match(/Status\s*:\s*(.+)/i);
+    novel.cover =
+      loadedCheerio('.summary_image > a > img').attr('data-lazy-src') ||
+      loadedCheerio('.summary_image > a > img').attr('data-src') ||
+      loadedCheerio('.summary_image > a > img').attr('src') ||
+      defaultCover;
 
-    if (authorMatch) novel.author = authorMatch[1].trim();
-    if (artistMatch) novel.artist = artistMatch[1].trim();
-    if (genreMatch) novel.genres = genreMatch[1].trim();
-    if (statusMatch) {
-      const status = statusMatch[1].toLowerCase();
-      if (status.includes('ongoing')) novel.status = NovelStatus.Ongoing;
-      else if (status.includes('completed'))
-        novel.status = NovelStatus.Completed;
-      else if (status.includes('hiatus')) novel.status = NovelStatus.OnHiatus;
-      else novel.status = NovelStatus.Unknown;
-    }
+    loadedCheerio('.post-content_item, .post-content').each(function () {
+      const detailName = loadedCheerio(this).find('h5').text().trim();
+      const detail = loadedCheerio(this).find('.summary-content');
 
-    const sinopsisIndex = contentText.toLowerCase().indexOf('sinopsis');
-    if (sinopsisIndex !== -1) {
-      let summary = contentText.substring(sinopsisIndex + 9);
-      const nextSectionMatch = summary.match(
-        /(Volume \d+|Chapter \d+|Prolo(g|ue))/i,
-      );
-      if (nextSectionMatch && nextSectionMatch.index) {
-        summary = summary.substring(0, nextSectionMatch.index);
+      switch (detailName) {
+        case 'Genre(s)':
+        case 'Genre':
+        case 'Tags(s)':
+        case 'Tag(s)':
+        case 'Tags':
+        case 'Género(s)':
+        case 'Kategori':
+          if (novel.genres)
+            novel.genres +=
+              ', ' +
+              detail
+                .find('a')
+                .map((i, el) => loadedCheerio(el).text())
+                .get()
+                .join(', ');
+          else
+            novel.genres = detail
+              .find('a')
+              .map((i, el) => loadedCheerio(el).text())
+              .get()
+              .join(', ');
+          break;
+        case 'Author(s)':
+        case 'Author':
+        case 'Autor(es)':
+          novel.author = detail.text().trim();
+          break;
+        case 'Status':
+        case 'Novel':
+        case 'Estado':
+          novel.status =
+            detail.text().trim().includes('OnGoing') ||
+            detail.text().trim().includes('مستمرة')
+              ? NovelStatus.Ongoing
+              : NovelStatus.Completed;
+          break;
+        case 'Artist(s)':
+          novel.artist = detail.text().trim();
+          break;
       }
-      novel.summary = summary.trim();
-    } else {
-      novel.summary = contentText.substring(0, 300) + '...';
+    });
+
+    // Fallbacks for "Madara NovelHub" variant selectors
+    {
+      if (!novel.genres)
+        novel.genres = loadedCheerio('.genres-content').text().trim();
+      if (!novel.status)
+        novel.status = loadedCheerio('.manga-status')
+          .text()
+          .trim()
+          .includes('OnGoing')
+          ? NovelStatus.Ongoing
+          : NovelStatus.Completed;
+      if (!novel.author)
+        novel.author = loadedCheerio('.manga-author a').text().trim();
+      if (!novel.rating)
+        novel.rating = parseFloat(
+          loadedCheerio('.post-rating span').text().trim(),
+        );
     }
 
+    if (!novel.author)
+      novel.author = loadedCheerio('.manga-authors').text().trim();
+
+    loadedCheerio('div.summary__content .code-block,script,noscript').remove();
+    novel.summary =
+      loadedCheerio('div.summary__content').text().trim() ||
+      loadedCheerio('#tab-manga-about').text().trim() ||
+      loadedCheerio('.manga-summary p')
+        .map((i, el) => loadedCheerio(el).text())
+        .get()
+        .join('\n\n')
+        .trim() ||
+      loadedCheerio('.manga-excerpt p')
+        .map((i, el) => loadedCheerio(el).text())
+        .get()
+        .join('\n\n')
+        .trim();
+
+    const chapters: Plugin.ChapterItem[] = [];
+
+    const html = await fetchApi(this.site + resolvedPath + 'ajax/chapters/', {
+      method: 'POST',
+      referrer: this.site + resolvedPath,
+    }).then(res => res.text());
+
+    if (html !== '0') {
+      const chapterCheerio = parseHTML(html);
+      chapterCheerio('.wp-manga-chapter').each((chapterIndex, element) => {
+        const chapterName = chapterCheerio(element).find('a').text().trim();
+
+        let releaseDate = chapterCheerio(element)
+          .find('span.chapter-release-date')
+          .text()
+          .trim();
+
+        if (releaseDate) {
+          releaseDate = this.parseData(releaseDate);
+        } else {
+          releaseDate = dayjs().format('LL');
+        }
+
+        const chapterUrl = chapterCheerio(element).find('a').attr('href') || '';
+
+        if (chapterUrl && chapterUrl != '#') {
+          chapters.push({
+            name: chapterName,
+            path: chapterUrl.replace(/https?:\/\/.*?\//, ''),
+            releaseTime: releaseDate || null,
+            chapterNumber: chapterIndex + 1,
+          });
+        }
+      });
+    }
+
+    novel.chapters = chapters;
     return novel;
   }
 
   async parseChapter(chapterPath: string): Promise<string> {
-    const body = await fetchText(this.site + chapterPath);
-    const $ = loadCheerio(body);
+    const loadedCheerio = await this.getCheerio(this.site + chapterPath, false);
 
-    const content = $('.post-body');
+    const selectors = [
+      '.reading-content .text-left',
+      '.text-left',
+      '.text-right',
+      '.entry-content',
+      '.c-blog-post > div > div:nth-child(2)',
+    ];
 
-    content
-      .find(
-        '#bottom-ad-placeholder, .widget, .adsbygoogle, script, #related-post, .post-footer',
-      )
-      .remove();
-    content.find('.btn, .separator a').remove();
+    let chapterText = loadedCheerio('');
+    for (const selector of selectors) {
+      chapterText = loadedCheerio(selector);
+      if (chapterText.length > 0) break;
+    }
 
-    content.find('a').each((_, el) => {
-      const text = $(el).text().trim().toLowerCase();
-      if (
-        text === 'previous' ||
-        text === 'next' ||
-        text === 'contents' ||
-        text.includes('daftar isi')
-      ) {
-        $(el).remove();
-      }
-    });
-
-    content.find('img').each((i, el) => {
-      const dataSrc = $(el).attr('data-src');
-      if (dataSrc) {
-        $(el).attr('src', dataSrc);
-        $(el).removeAttr('data-src');
-      }
-
-      let src = $(el).attr('src');
-      if (src) {
-        if (src.includes('blogger.googleusercontent.com')) {
-          src = src.replace(/=[^=]+$/, '=s1600');
-        }
-        $(el).attr('src', src);
-      }
-
-      $(el).removeAttr('style');
-      $(el).removeAttr('height');
-      $(el).removeAttr('width');
-    });
-
-    content.find('.separator').removeAttr('style').css('text-align', 'center');
-
-    return content.html() || '';
+    return chapterText.html() || '';
   }
 
   async searchNovels(
     searchTerm: string,
     pageNo: number,
   ): Promise<Plugin.NovelItem[]> {
-    const url = `${this.site}/search?q=${encodeURIComponent(
-      searchTerm,
-    )}&max-results=20&start=${(pageNo - 1) * 20}`;
-    const body = await fetchText(url);
-    const $ = loadCheerio(body);
-
-    const novels: Plugin.NovelItem[] = [];
-
-    $('.blog-post').each((i, el) => {
-      let title = $(el).find('.entry-title a').text().trim();
-      const path = $(el).find('.entry-title a').attr('href');
-
-      let img = $(el).find('.post-filter-image img');
-      if (img.length === 0) img = $(el).find('img');
-
-      let cover = img.first().attr('data-src') || img.first().attr('src');
-
-      if (cover) {
-        if (cover.startsWith('//')) cover = 'https:' + cover;
-        cover = cover.replace(/=[^=]+$/, '=s0');
-      }
-
-      title = title.replace(/(Chapter|Vol|Volume)\s*\d+.*/i, '').trim();
-
-      if (path && title) {
-        novels.push({
-          name: title,
-          path: path.replace(this.site, ''),
-          cover: cover || defaultCover,
-        });
-      }
-    });
-
-    return novels;
+    const url =
+      this.site + '?s=' + encodeURIComponent(searchTerm) + '&page=' + pageNo;
+    const loadedCheerio = await this.getCheerio(url, true);
+    return this.parseNovels(loadedCheerio);
   }
+
+  parseData = (date: string) => {
+    let dayJSDate = dayjs(); // today
+    const timeAgo = date.match(/\d+/)?.[0] || '';
+    const timeAgoInt = parseInt(timeAgo, 10);
+
+    if (!timeAgo) return date; // there is no number!
+
+    if (includesAny(date, ['detik', 'segundo', 'second', 'วินาที'])) {
+      dayJSDate = dayJSDate.subtract(timeAgoInt, 'second'); // go back N seconds
+    } else if (
+      includesAny(date, [
+        'menit',
+        'dakika',
+        'min',
+        'minute',
+        'minuto',
+        'นาที',
+        'دقائق',
+      ])
+    ) {
+      dayJSDate = dayJSDate.subtract(timeAgoInt, 'minute'); // go back N minute
+    } else if (
+      includesAny(date, [
+        'jam',
+        'saat',
+        'heure',
+        'hora',
+        'hour',
+        'ชั่วโมง',
+        'giờ',
+        'ore',
+        'ساعة',
+        '小时',
+      ])
+    ) {
+      dayJSDate = dayJSDate.subtract(timeAgoInt, 'hours'); // go back N hours
+    } else if (
+      includesAny(date, [
+        'hari',
+        'gün',
+        'jour',
+        'día',
+        'dia',
+        'day',
+        'วัน',
+        'ngày',
+        'giorni',
+        'أيام',
+        '天',
+      ])
+    ) {
+      dayJSDate = dayJSDate.subtract(timeAgoInt, 'days'); // go back N days
+    } else if (includesAny(date, ['week', 'semana'])) {
+      dayJSDate = dayJSDate.subtract(timeAgoInt, 'week'); // go back N a week
+    } else if (includesAny(date, ['month', 'mes'])) {
+      dayJSDate = dayJSDate.subtract(timeAgoInt, 'month'); // go back N months
+    } else if (includesAny(date, ['year', 'año'])) {
+      dayJSDate = dayJSDate.subtract(timeAgoInt, 'year'); // go back N years
+    } else {
+      if (dayjs(date).format('LL') !== 'Invalid Date') {
+        return dayjs(date).format('LL');
+      }
+      return date;
+    }
+
+    return dayJSDate.format('LL');
+  };
 }
 
 export default new ArchTranslation();
