@@ -60,6 +60,7 @@ type IchijouVolume = {
     fileUrl: string;
   };
   fileUrl?: string;
+  chapters?: IchijouContentChapter[] | null;
 };
 
 type IchijouWorkDetailsResponse = {
@@ -101,6 +102,16 @@ type IchijouContentResponse = {
   data: {
     volumes?: IchijouVolume[] | null;
     chapters?: IchijouContentChapter[] | null;
+  };
+};
+
+type IchijouVolumeResponse = {
+  statusCode: number;
+  message: string;
+  data: {
+    volume: {
+      fileUrl?: string | null;
+    };
   };
 };
 
@@ -179,7 +190,7 @@ class IchijouTranslations implements Plugin.PluginBase {
   private readonly apiRoot = 'https://api.ichijoutranslations.com';
   cdnSite = 'https://cdn.ichijoutranslations.com';
   private readonly apiHomeBase = 'https://api.ichijoutranslations.com/api/home';
-  version = '1.5.3';
+  version = '1.5.6';
   icon = 'src/es/ichijoutranslations/icon.png';
   lang = 'Spanish';
 
@@ -445,15 +456,28 @@ class IchijouTranslations implements Plugin.PluginBase {
     // La API de detalle ya no incluye chapters/volumes: obtenerlos desde el
     // endpoint de contenido (data.chapters[]) cuando esté disponible.
     const contentChapters: Plugin.ChapterItem[] = [];
+    let contentVolumes: IchijouVolume[] = [];
     try {
       const contentUrl = `${this.apiHomeBase}/getContentWork/work/${workId}`;
       const contentResult = await fetchApi(contentUrl);
       if (contentResult.ok) {
         const contentBody =
           (await contentResult.json()) as IchijouContentResponse;
-        const rawChapters = Array.isArray(contentBody.data?.chapters)
-          ? contentBody.data.chapters
+        contentVolumes = Array.isArray(contentBody.data?.volumes)
+          ? contentBody.data.volumes
           : [];
+        // Los capítulos pueden venir a nivel raíz (data.chapters[]) o anidados
+        // en cada volumen (data.volumes[].chapters[]) según el tipo de obra.
+        const rawChapters = [
+          ...(Array.isArray(contentBody.data?.chapters)
+            ? contentBody.data.chapters
+            : []),
+          ...(Array.isArray(contentBody.data?.volumes)
+            ? contentBody.data.volumes.flatMap(volume =>
+                Array.isArray(volume.chapters) ? volume.chapters : [],
+              )
+            : []),
+        ];
         if (rawChapters.length) {
           const sortedChapters = [...rawChapters].sort(
             (a, b) => a.orderIndex - b.orderIndex,
@@ -479,18 +503,35 @@ class IchijouTranslations implements Plugin.PluginBase {
     if (contentChapters.length) {
       chapters.push(...contentChapters);
     } else {
-      const volumes = Array.isArray(work.volumes) ? work.volumes : [];
+      const volumes = contentVolumes.length
+        ? contentVolumes
+        : Array.isArray(work.volumes)
+          ? work.volumes
+          : [];
       if (volumes.length) {
         const sortedVolumes = [...volumes].sort(
           (a, b) => a.orderIndex - b.orderIndex,
         );
         for (const volume of sortedVolumes) {
-          const fileUrl = volume.fileUrl || volume.volume_file?.fileUrl;
+          let fileUrl = volume.fileUrl || volume.volume_file?.fileUrl;
+          if (!fileUrl) {
+            try {
+              const volumeUrl = `${this.apiHomeBase}/works/${workId}-${slug}/volumes/${volume.id}-vol-${volume.orderIndex}`;
+              const volumeResult = await fetchApi(volumeUrl);
+              if (volumeResult.ok) {
+                const volumeBody =
+                  (await volumeResult.json()) as IchijouVolumeResponse;
+                fileUrl = volumeBody.data?.volume?.fileUrl || undefined;
+              }
+            } catch {
+              // Keep the volume unavailable when its file endpoint fails.
+            }
+          }
           if (fileUrl && this.isPdfFile(fileUrl)) {
             chapterNumber++;
             chapters.push({
-              name: `Volumen ${volume.orderIndex}: ${volume.title}`,
-              path: this.buildCdnUrl(fileUrl),
+              name: volume.title || `Volumen ${volume.orderIndex}`,
+              path: `/obras/${workId}-${slug}/volumen/${volume.id}-vol-${volume.orderIndex}`,
               releaseTime: volume.createdAt,
               chapterNumber,
             });
@@ -562,6 +603,33 @@ class IchijouTranslations implements Plugin.PluginBase {
         'background:#1976D2;color:#fff;text-decoration:none;border-radius:8px;' +
         'font-size:16px;">Abrir PDF</a></div>'
       );
+    }
+
+    // Volúmenes PDF con ruta estable. La URL firmada se renueva al abrirlos.
+    if (
+      chapterPath.startsWith('/obras/') &&
+      chapterPath.includes('/volumen/')
+    ) {
+      const parts = chapterPath.split('/').filter(Boolean);
+      const workKey = parts[1] ?? '';
+      const volumeKey = parts[3] ?? '';
+      if (!workKey || !volumeKey) {
+        throw new Error('No se pudo obtener el ID del volumen');
+      }
+
+      const volumeUrl = `${this.apiHomeBase}/works/${workKey}/volumes/${volumeKey}`;
+      const volumeResult = await fetchApi(volumeUrl);
+      if (!volumeResult.ok) {
+        throw new Error('No se pudo obtener el PDF del volumen');
+      }
+
+      const volumeBody = (await volumeResult.json()) as IchijouVolumeResponse;
+      const pdfUrl = volumeBody.data?.volume?.fileUrl;
+      if (!pdfUrl || !this.isPdfFile(pdfUrl)) {
+        throw new Error('No se encontró un PDF para el volumen');
+      }
+
+      return this.renderPdfNotice(pdfUrl);
     }
 
     // Capítulos con ruta /obras/{workId}-{workSlug}/capitulo/{chapterId}-{chapterSlug}
