@@ -104,6 +104,30 @@ type IchijouContentResponse = {
   };
 };
 
+// ── Nueva API de capítulos (/works/{workKey}/chapters/{chapterKey}) ──
+
+type IchijouChapterImage = {
+  pageIndex: number;
+  imageUrl: string;
+  width?: number;
+  height?: number;
+};
+
+type IchijouChapterResponse = {
+  statusCode: number;
+  message: string;
+  data?: {
+    work?: {
+      id?: number;
+      slug?: string;
+    };
+    chapter?: {
+      content?: string | null | TiptapDoc;
+      images?: IchijouChapterImage[];
+    };
+  };
+};
+
 // ── Tiptap (ProseMirror) document types ──
 
 type TiptapDoc = {
@@ -155,7 +179,7 @@ class IchijouTranslations implements Plugin.PluginBase {
   private readonly apiRoot = 'https://api.ichijoutranslations.com';
   cdnSite = 'https://cdn.ichijoutranslations.com';
   private readonly apiHomeBase = 'https://api.ichijoutranslations.com/api/home';
-  version = '1.5.1';
+  version = '1.5.3';
   icon = 'src/es/ichijoutranslations/icon.png';
   lang = 'Spanish';
 
@@ -189,14 +213,14 @@ class IchijouTranslations implements Plugin.PluginBase {
     return findUrlByCode('card') ?? findUrlByCode('cover');
   }
 
-  /** Genera un slug URL-friendly desde un título (similar al del sitio). */
+  /** Genera un slug URL-friendly desde un título (igual al del sitio). */
   private slugify(text: string): string {
     return text
       .toLowerCase()
-      .replace(/[',¡!¿?.:;()["]]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
   }
 
   /** Escapa caracteres HTML en texto plano. */
@@ -286,6 +310,61 @@ class IchijouTranslations implements Plugin.PluginBase {
       .map(node => this.renderTiptapNode(node))
       .filter(Boolean)
       .join('\n');
+  }
+
+  /** Aviso HTML para capítulos en formato PDF. */
+  private renderPdfNotice(pdfUrl: string): string {
+    return (
+      '<div style="text-align:center;padding:32px 16px;font-family:sans-serif;">' +
+      '<p style="font-size:18px;margin-bottom:24px;">Este capítulo está en formato PDF.</p>' +
+      `<a href="${pdfUrl}" style="display:inline-block;padding:14px 28px;` +
+      'background:#1976D2;color:#fff;text-decoration:none;border-radius:8px;' +
+      'font-size:16px;">Abrir PDF</a></div>'
+    );
+  }
+
+  /** Renderiza el contenido de un capítulo de la API nueva (imágenes o string). */
+  private renderChapterContent(
+    chapter?: {
+      content?: string | null | TiptapDoc;
+      images?: IchijouChapterImage[];
+    } | null,
+  ): string | null {
+    if (!chapter) return null;
+    const rawContent = chapter.content;
+
+    // 1. Imágenes (manhwa) — ordenar por pageIndex y generar HTML
+    if (!rawContent && chapter.images?.length) {
+      const sortedImages = [...chapter.images].sort(
+        (a, b) => a.pageIndex - b.pageIndex,
+      );
+      return sortedImages
+        .map(
+          img =>
+            `<img src="${img.imageUrl}" style="display:block;width:100%;height:auto;margin:0;" />`,
+        )
+        .join('\n');
+    }
+
+    // 2. Contenido string: PDF o HTML
+    if (typeof rawContent === 'string' && rawContent.length > 0) {
+      if (this.isPdfFile(rawContent)) return this.renderPdfNotice(rawContent);
+      return rawContent;
+    }
+
+    // 3. Contenido es objeto Tiptap → el reader endpoint resuelve URLs de imágenes
+    return null;
+  }
+
+  /** Fetch a la API nueva de capítulos y devuelve HTML renderizado o null. */
+  private async fetchNewApiChapter(
+    workKey: string,
+    chapterKey: string,
+  ): Promise<string | null> {
+    const newUrl = `${this.apiHomeBase}/works/${workKey}/chapters/${chapterKey}`;
+    const newResult = await fetchApi(newUrl);
+    const newBody = (await newResult.json()) as IchijouChapterResponse;
+    return this.renderChapterContent(newBody.data?.chapter);
   }
 
   filters = {
@@ -386,7 +465,7 @@ class IchijouTranslations implements Plugin.PluginBase {
             const chapterSlug = this.slugify(chapter.title);
             contentChapters.push({
               name: `Capítulo ${displayNumber}: ${chapter.title}`,
-              path: `/capitulo/${chapter.id}/${slug}/${chapterSlug}`,
+              path: `/obras/${workId}-${slug}/capitulo/${chapter.id}-${chapterSlug}`,
               releaseTime: chapter.createdAt,
               chapterNumber,
             });
@@ -431,11 +510,13 @@ class IchijouTranslations implements Plugin.PluginBase {
             fileUrl && this.isPdfFile(fileUrl)
               ? this.buildCdnUrl(fileUrl)
               : null;
-          // Incluir workSlug y chapterSlug para fallback a la nueva API
+          // Incluir workId-slug y chapterSlug para fallback a la nueva API
           const chapterSlug = this.slugify(chapter.title);
           chapters.push({
             name: `Capítulo ${chapter.orderIndex}: ${chapter.title}`,
-            path: pdfPath ?? `/capitulo/${chapter.id}/${slug}/${chapterSlug}`,
+            path:
+              pdfPath ??
+              `/obras/${workId}-${slug}/capitulo/${chapter.id}-${chapterSlug}`,
             releaseTime: chapter.createdAt,
             chapterNumber,
           });
@@ -483,7 +564,58 @@ class IchijouTranslations implements Plugin.PluginBase {
       );
     }
 
-    // Capítulos con ruta /capitulo/{id}[/{workSlug}/{chapterSlug}]
+    // Capítulos con ruta /obras/{workId}-{workSlug}/capitulo/{chapterId}-{chapterSlug}
+    if (chapterPath.startsWith('/obras/')) {
+      const parts = chapterPath.split('/').filter(Boolean); // ['obras', workKey, 'capitulo', chapterKey]
+      const workKey = parts[1] ?? '';
+      const chapterKey = parts[3] ?? '';
+      const chapterId = chapterKey.match(/^(\d+)/)?.[1];
+      if (!workKey || !chapterKey || !chapterId) {
+        throw new Error('No se pudo obtener el ID del capítulo');
+      }
+
+      // ── Intento 1: API nueva /works/{workKey}/chapters/{chapterKey} ──
+      let chapterApiFailed = true;
+      try {
+        const html = await this.fetchNewApiChapter(workKey, chapterKey);
+        if (html !== null) {
+          chapterApiFailed = false;
+          return html;
+        }
+        // Contenido Tiptap → el reader endpoint resuelve URLs de imágenes
+      } catch {
+        // La API nueva falló — seguir al reader endpoint
+      }
+
+      // ── Intento 2 (fallback): Reader endpoint /api/home/{chapterId}/reader ──
+      try {
+        const readerUrl = `${this.apiHomeBase}/${chapterId}/reader`;
+        const readerResult = await fetchApi(readerUrl);
+        if (readerResult.ok) {
+          const readerBody =
+            (await readerResult.json()) as IchijouReaderResponse;
+          const readerContent = readerBody.data?.content;
+          if (readerContent?.content?.length) {
+            return this.renderTiptap(readerContent);
+          }
+        }
+      } catch {
+        // El reader endpoint también falló
+      }
+
+      if (!chapterApiFailed) {
+        // La API de capítulo dijo que sí encontró algo pero no pudimos
+        // renderizarlo — probablemente Tiptap sin URLs de imagen
+        throw new Error(
+          'No se pudo renderizar el contenido Tiptap del capítulo',
+        );
+      }
+
+      throw new Error('No se encontró contenido del capítulo');
+    }
+
+    // Backward compat: capítulos con ruta antigua
+    // /capitulo/{id}[/{workSlug}/{chapterSlug}]
     if (chapterPath.startsWith('/capitulo/')) {
       const parts = chapterPath.split('/').filter(Boolean); // ['capitulo', id, workSlug?, chapterSlug?]
       const chapterId = parts[1]?.match(/^(\d+)/)?.[1];
@@ -512,68 +644,20 @@ class IchijouTranslations implements Plugin.PluginBase {
       let chapterApiFailed = true;
       if (workSlug && chapterSlug) {
         const chapterKey = `${chapterId}-${chapterSlug}`;
-        const newUrl = `${this.apiHomeBase}/works/${workSlug}/chapters/${chapterKey}`;
 
         try {
-          const newResult = await fetchApi(newUrl);
-          const newBody = (await newResult.json()) as {
-            statusCode: number;
-            data?: {
-              chapter?: {
-                content?: string | null | TiptapDoc;
-                images?: Array<{
-                  pageIndex: number;
-                  imageUrl: string;
-                  width?: number;
-                  height?: number;
-                }>;
-              };
-            };
-          };
-
-          const chapter = newBody.data?.chapter;
-          const rawContent = chapter?.content;
-
-          // 1. Imágenes (manhwa) — ordenar por pageIndex y generar HTML
-          if (!rawContent && chapter?.images?.length) {
+          const html = await this.fetchNewApiChapter(workSlug, chapterKey);
+          if (html !== null) {
             chapterApiFailed = false;
-            const sortedImages = [...chapter.images].sort(
-              (a, b) => a.pageIndex - b.pageIndex,
-            );
-            return sortedImages
-              .map(
-                img =>
-                  `<img src="${img.imageUrl}" style="display:block;width:100%;height:auto;margin:0;" />`,
-              )
-              .join('\n');
+            return html;
           }
-
-          // 2. Contenido string: PDF o HTML
-          if (typeof rawContent === 'string' && rawContent.length > 0) {
-            chapterApiFailed = false;
-            if (this.isPdfFile(rawContent)) {
-              return (
-                '<div style="text-align:center;padding:32px 16px;font-family:sans-serif;">' +
-                '<p style="font-size:18px;margin-bottom:24px;">Este capítulo está en formato PDF.</p>' +
-                `<a href="${rawContent}" style="display:inline-block;padding:14px 28px;` +
-                'background:#1976D2;color:#fff;text-decoration:none;border-radius:8px;' +
-                'font-size:16px;">Abrir PDF</a></div>'
-              );
-            }
-            return rawContent; // HTML viejo
-          }
-
-          // 3. Contenido es objeto Tiptap → el reader endpoint resuelve URLs de imágenes
-          if (rawContent && typeof rawContent === 'object') {
-            // Caemos al intento 3 (reader) que devuelve URLs firmadas de R2
-          }
+          // Contenido Tiptap → el reader endpoint resuelve URLs de imágenes
         } catch {
           // La API nueva falló — seguir al reader endpoint
         }
       }
 
       // ── Intento 3 (fallback): Reader endpoint /api/home/{chapterId}/reader ──
-      // Devuelve Tiptap JSON con urls de imágenes ya resueltas (R2 firmadas)
       try {
         const readerUrl = `${this.apiHomeBase}/${chapterId}/reader`;
         const readerResult = await fetchApi(readerUrl);
@@ -626,57 +710,14 @@ class IchijouTranslations implements Plugin.PluginBase {
     const chapterSlug = parts.length >= 2 ? parts.pop() ?? '' : '';
     if (workSlug && chapterSlug && id) {
       const chapterKey = `${id}-${chapterSlug}`;
-      const newUrl = `${this.apiHomeBase}/works/${workSlug}/chapters/${chapterKey}`;
 
       try {
-        const newResult = await fetchApi(newUrl);
-        const newBody = (await newResult.json()) as {
-          statusCode: number;
-          data?: {
-            chapter?: {
-              content?: string | null | TiptapDoc;
-              images?: Array<{
-                pageIndex: number;
-                imageUrl: string;
-                width?: number;
-                height?: number;
-              }>;
-            };
-          };
-        };
-        const chapter = newBody.data?.chapter;
-        const rawContent = chapter?.content;
-
-        // 1. Imágenes (manhwa)
-        if (!rawContent && chapter?.images?.length) {
+        const html = await this.fetchNewApiChapter(workSlug, chapterKey);
+        if (html !== null) {
           fallbackChapterApiFailed = false;
-          const sortedImages = [...chapter.images].sort(
-            (a, b) => a.pageIndex - b.pageIndex,
-          );
-          return sortedImages
-            .map(
-              img =>
-                `<img src="${img.imageUrl}" style="display:block;width:100%;height:auto;margin:0;" />`,
-            )
-            .join('\n');
+          return html;
         }
-
-        // 2. Contenido string: PDF o HTML
-        if (typeof rawContent === 'string' && rawContent.length > 0) {
-          fallbackChapterApiFailed = false;
-          if (this.isPdfFile(rawContent)) {
-            return (
-              '<div style="text-align:center;padding:32px 16px;font-family:sans-serif;">' +
-              '<p style="font-size:18px;margin-bottom:24px;">Este capítulo está en formato PDF.</p>' +
-              `<a href="${rawContent}" style="display:inline-block;padding:14px 28px;` +
-              'background:#1976D2;color:#fff;text-decoration:none;border-radius:8px;' +
-              'font-size:16px;">Abrir PDF</a></div>'
-            );
-          }
-          return rawContent; // HTML viejo
-        }
-
-        // 3. Tiptap objeto → caer al reader endpoint
+        // Contenido Tiptap → el reader endpoint resuelve URLs de imágenes
       } catch {
         // fall through
       }
