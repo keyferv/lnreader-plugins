@@ -3,6 +3,7 @@ import { fetchApi } from '@libs/fetch';
 import { Plugin } from '@/types/plugin';
 import { NovelStatus } from '@libs/novelStatus';
 import { Filters } from '@libs/filterInputs';
+import { load } from 'cheerio';
 
 type ReadNovelFullOptions = {
   lang?: string;
@@ -23,6 +24,8 @@ type ReadNovelFullOptions = {
   noAjax?: boolean;
   noPages?: string[];
   pageAsPath?: boolean;
+  customJs?: string;
+  chapterListPaginated?: boolean;
 };
 
 export type ReadNovelFullMetadata = {
@@ -140,6 +143,133 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
 
     return novels;
   }
+
+  // ===========================================================================
+  //                              HELPERS (chapter-list pagination)
+  // ===========================================================================
+
+  parseChapterListFragment(
+    html: string,
+    startIndex: number,
+  ): Plugin.ChapterItem[] {
+    const chapters: Plugin.ChapterItem[] = [];
+    let tempChapter: Partial<Plugin.ChapterItem> = {};
+    let i = startIndex;
+    let inChapter = false;
+
+    const parser = new Parser({
+      onopentag: (name, attribs) => {
+        if (name === 'a' && attribs.href) {
+          i++;
+          inChapter = true;
+          tempChapter.name = attribs.title || `Chapter ${i}`;
+          tempChapter.releaseTime = null;
+          tempChapter.chapterNumber = i;
+          tempChapter.path = attribs.href.startsWith('/')
+            ? attribs.href.substring(1)
+            : attribs.href;
+        }
+      },
+      onclosetag: name => {
+        if (name === 'a' && inChapter) {
+          if (tempChapter.name && tempChapter.path) {
+            chapters.push({ ...tempChapter } as Plugin.ChapterItem);
+          }
+          tempChapter = {};
+          inChapter = false;
+        }
+      },
+    });
+
+    parser.write(html);
+    parser.end();
+    return chapters;
+  }
+
+  async fetchAllChaptersViaJsonAjax(
+    novelPath: string,
+  ): Promise<Plugin.ChapterItem[]> {
+    const pageSize = 40;
+    const rateLimitState = { backoffUntil: 0 };
+
+    const first = await this.fetchChapterPageWithRetry(
+      novelPath,
+      1,
+      pageSize,
+      rateLimitState,
+    );
+    if (!first) {
+      return [];
+    }
+
+    const allChapters: Plugin.ChapterItem[] = [...first.chapters];
+
+    if (first.totalPages > 1) {
+      for (let page = 2; page <= first.totalPages; page++) {
+        const result = await this.fetchChapterPageWithRetry(
+          novelPath,
+          page,
+          pageSize,
+          rateLimitState,
+        );
+        if (result) {
+          allChapters.push(...result.chapters);
+        }
+      }
+    }
+
+    return allChapters;
+  }
+
+  private async fetchChapterPageWithRetry(
+    novelPath: string,
+    page: number,
+    pageSize: number,
+    rateLimitState: { backoffUntil: number },
+  ): Promise<{ totalPages: number; chapters: Plugin.ChapterItem[] } | null> {
+    const url = `${this.site}${novelPath}?ajax=chapters&page=${page}&pageSize=${pageSize}`;
+    const maxAttempts = 3;
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      // Wait out any rate-limit cooldown before sending.
+      const waitMs = rateLimitState.backoffUntil - Date.now();
+      if (waitMs > 0) {
+        await this.sleep(waitMs);
+      }
+
+      try {
+        const result = await fetchApi(url);
+        if (result.ok) {
+          const json = await result.json();
+          const chapters = this.parseChapterListFragment(
+            json.html || '',
+            (page - 1) * pageSize,
+          );
+          await this.sleep(150); // pacing delay — confirmed safe (zero 429s) across multiple runs/novels
+          return { totalPages: json.totalPage || 1, chapters };
+        }
+
+        if (result.status === 429) {
+          const retryAfterHeader = result.headers?.get?.('Retry-After');
+          const retryAfterMs = retryAfterHeader
+            ? Number(retryAfterHeader) * 1000
+            : 3000 * (attempt + 1); // fallback: 3s, 6s, 9s
+          const cooldownUntil = Date.now() + retryAfterMs;
+          // Only extend the cooldown, never shorten it
+          if (cooldownUntil > rateLimitState.backoffUntil) {
+            rateLimitState.backoffUntil = cooldownUntil;
+          }
+        } else {
+          await this.sleep(800 * (attempt + 1));
+        }
+      } catch (err) {
+        await this.sleep(800 * (attempt + 1));
+      }
+    }
+
+    return null;
+  }
+  // ============================================================================================
 
   async popularNovels(
     pageNo: number,
@@ -469,7 +599,9 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
     parser.write(body);
     parser.end();
 
-    if (this.options.noAjax && chapters.length > 0) {
+    if (this.options.chapterListPaginated) {
+      novel.chapters = await this.fetchAllChaptersViaJsonAjax(novelPath);
+    } else if (this.options.noAjax && chapters.length > 0) {
       novel.chapters = chapters;
     } else if (novelId !== null) {
       const chapterListing =
@@ -549,7 +681,17 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
 
   async parseChapter(chapterPath: string): Promise<string> {
     const response = await fetchApi(this.site + chapterPath);
-    const html = await response.text();
+    let html = await response.text();
+    if (this.options?.customJs) {
+      try {
+        const $ = load(html);
+        // CustomJS HERE
+        html = $.html();
+      } catch (error) {
+        console.error('Error executing customJs:', error);
+        throw error;
+      }
+    }
 
     let depth: number;
     let depthHide: number;

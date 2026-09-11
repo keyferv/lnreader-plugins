@@ -63,7 +63,9 @@
       "postSearch": true,
       "noAjax": true,
       "noPages": ["sort/most-popular"],
-      "pageAsPath": true
+      "pageAsPath": true,
+      "chapterListPaginated": true,
+      "versionIncrements": 3
     }
   },
   {
