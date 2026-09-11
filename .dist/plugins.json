@@ -743,9 +743,9 @@
 		"name": "LightNovelCave",
 		"site": "https://www.lightnovelcave.com/",
 		"lang": "English",
-		"version": "1.0.1",
-		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/LightNovelCave[lightnovelworld].js",
-		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/lightnovelworld/lightnovelcave/icon.png"
+		"version": "1.0.2",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/LightNovelCave[webnovelworld].js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/webnovelworld/lightnovelcave/icon.png"
 	},
 	{
 		"id": "lightnovelplus",
@@ -770,9 +770,9 @@
 		"name": "LightNovelPub Vip",
 		"site": "https://lightnovelpub.vip/",
 		"lang": "English",
-		"version": "1.0.1",
-		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/LightNovelPubVip[lightnovelworld].js",
-		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/lightnovelworld/lightnovelpubvip/icon.png"
+		"version": "1.0.2",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/LightNovelPubVip[webnovelworld].js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/webnovelworld/lightnovelpubvip/icon.png"
 	},
 	{
 		"id": "lightnoveltranslations",
@@ -791,6 +791,15 @@
 		"version": "1.0.8",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/LightNovelUpdates[madara].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/madara/lightnovelupdates/icon.png"
+	},
+	{
+		"id": "lightnovelworld",
+		"name": "LightNovelWorld",
+		"site": "https://lightnovelworld.org/",
+		"lang": "English",
+		"version": "1.0.2",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/lightnovelworld.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/lightnovelworld/icon.png"
 	},
 	{
 		"id": "lilyonthevalley",
@@ -1473,9 +1482,9 @@
 		"name": "Web Novel Pub",
 		"site": "https://www.webnovelworld.org/",
 		"lang": "English",
-		"version": "1.0.1",
-		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/WebNovelPub[lightnovelworld].js",
-		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/lightnovelworld/webnovelworld/icon.png"
+		"version": "1.0.2",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/WebNovelPub[webnovelworld].js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/webnovelworld/webnovelworld/icon.png"
 	},
 	{
 		"id": "whitemoonlightnovels",
