@@ -46,11 +46,21 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReadNovelFullPlugin = void 0;
 var htmlparser2_1 = require("htmlparser2");
 var fetch_1 = require("@libs/fetch");
 var novelStatus_1 = require("@libs/novelStatus");
+var cheerio_1 = require("cheerio");
 var ReadNovelFullPlugin = /** @class */ (function () {
     function ReadNovelFullPlugin(metadata) {
         var _a;
@@ -145,6 +155,141 @@ var ReadNovelFullPlugin = /** @class */ (function () {
         parser.end();
         return novels;
     };
+    // ===========================================================================
+    //                              HELPERS (chapter-list pagination)
+    // ===========================================================================
+    ReadNovelFullPlugin.prototype.parseChapterListFragment = function (html, startIndex) {
+        var chapters = [];
+        var tempChapter = {};
+        var i = startIndex;
+        var inChapter = false;
+        var parser = new htmlparser2_1.Parser({
+            onopentag: function (name, attribs) {
+                if (name === 'a' && attribs.href) {
+                    i++;
+                    inChapter = true;
+                    tempChapter.name = attribs.title || "Chapter ".concat(i);
+                    tempChapter.releaseTime = null;
+                    tempChapter.chapterNumber = i;
+                    tempChapter.path = attribs.href.startsWith('/')
+                        ? attribs.href.substring(1)
+                        : attribs.href;
+                }
+            },
+            onclosetag: function (name) {
+                if (name === 'a' && inChapter) {
+                    if (tempChapter.name && tempChapter.path) {
+                        chapters.push(__assign({}, tempChapter));
+                    }
+                    tempChapter = {};
+                    inChapter = false;
+                }
+            },
+        });
+        parser.write(html);
+        parser.end();
+        return chapters;
+    };
+    ReadNovelFullPlugin.prototype.fetchAllChaptersViaJsonAjax = function (novelPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var pageSize, rateLimitState, first, allChapters, page, result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        pageSize = 40;
+                        rateLimitState = { backoffUntil: 0 };
+                        return [4 /*yield*/, this.fetchChapterPageWithRetry(novelPath, 1, pageSize, rateLimitState)];
+                    case 1:
+                        first = _a.sent();
+                        if (!first) {
+                            return [2 /*return*/, []];
+                        }
+                        allChapters = __spreadArray([], first.chapters, true);
+                        if (!(first.totalPages > 1)) return [3 /*break*/, 5];
+                        page = 2;
+                        _a.label = 2;
+                    case 2:
+                        if (!(page <= first.totalPages)) return [3 /*break*/, 5];
+                        return [4 /*yield*/, this.fetchChapterPageWithRetry(novelPath, page, pageSize, rateLimitState)];
+                    case 3:
+                        result = _a.sent();
+                        if (result) {
+                            allChapters.push.apply(allChapters, result.chapters);
+                        }
+                        _a.label = 4;
+                    case 4:
+                        page++;
+                        return [3 /*break*/, 2];
+                    case 5: return [2 /*return*/, allChapters];
+                }
+            });
+        });
+    };
+    ReadNovelFullPlugin.prototype.fetchChapterPageWithRetry = function (novelPath, page, pageSize, rateLimitState) {
+        return __awaiter(this, void 0, void 0, function () {
+            var url, maxAttempts, attempt, waitMs, result, json, chapters, retryAfterHeader, retryAfterMs, cooldownUntil, err_1;
+            var _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        url = "".concat(this.site).concat(novelPath, "?ajax=chapters&page=").concat(page, "&pageSize=").concat(pageSize);
+                        maxAttempts = 3;
+                        attempt = 0;
+                        _c.label = 1;
+                    case 1:
+                        if (!(attempt < maxAttempts)) return [3 /*break*/, 14];
+                        waitMs = rateLimitState.backoffUntil - Date.now();
+                        if (!(waitMs > 0)) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.sleep(waitMs)];
+                    case 2:
+                        _c.sent();
+                        _c.label = 3;
+                    case 3:
+                        _c.trys.push([3, 11, , 13]);
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(url)];
+                    case 4:
+                        result = _c.sent();
+                        if (!result.ok) return [3 /*break*/, 7];
+                        return [4 /*yield*/, result.json()];
+                    case 5:
+                        json = _c.sent();
+                        chapters = this.parseChapterListFragment(json.html || '', (page - 1) * pageSize);
+                        return [4 /*yield*/, this.sleep(150)];
+                    case 6:
+                        _c.sent(); // pacing delay — confirmed safe (zero 429s) across multiple runs/novels
+                        return [2 /*return*/, { totalPages: json.totalPage || 1, chapters: chapters }];
+                    case 7:
+                        if (!(result.status === 429)) return [3 /*break*/, 8];
+                        retryAfterHeader = (_b = (_a = result.headers) === null || _a === void 0 ? void 0 : _a.get) === null || _b === void 0 ? void 0 : _b.call(_a, 'Retry-After');
+                        retryAfterMs = retryAfterHeader
+                            ? Number(retryAfterHeader) * 1000
+                            : 3000 * (attempt + 1);
+                        cooldownUntil = Date.now() + retryAfterMs;
+                        // Only extend the cooldown, never shorten it
+                        if (cooldownUntil > rateLimitState.backoffUntil) {
+                            rateLimitState.backoffUntil = cooldownUntil;
+                        }
+                        return [3 /*break*/, 10];
+                    case 8: return [4 /*yield*/, this.sleep(800 * (attempt + 1))];
+                    case 9:
+                        _c.sent();
+                        _c.label = 10;
+                    case 10: return [3 /*break*/, 13];
+                    case 11:
+                        err_1 = _c.sent();
+                        return [4 /*yield*/, this.sleep(800 * (attempt + 1))];
+                    case 12:
+                        _c.sent();
+                        return [3 /*break*/, 13];
+                    case 13:
+                        attempt++;
+                        return [3 /*break*/, 1];
+                    case 14: return [2 /*return*/, null];
+                }
+            });
+        });
+    };
+    // ============================================================================================
     ReadNovelFullPlugin.prototype.popularNovels = function (pageNo_1, _a) {
         return __awaiter(this, arguments, void 0, function (pageNo, _b) {
             var filtersValues, _c, _d, pageParam, novelListing, _e, typeParam, latestPage, _f, genreParam, _g, genreKey, langParam, urlLangCode, _h, noPages, _j, pageAsPath, url, params, basePage, result, html;
@@ -216,19 +361,19 @@ var ReadNovelFullPlugin = /** @class */ (function () {
     };
     ReadNovelFullPlugin.prototype.parseNovel = function (novelPath) {
         return __awaiter(this, void 0, void 0, function () {
-            var url, result, body, novel, summaryParts, statusParts, authorParts, genreArray, infoParts, chapters, novelId, tempChapter, i, depth, stateStack, currentState, pushState, popState, parser, chapterListing, ajaxParam, params, chaptersUrl, ajaxResult, ajaxBody, ajaxChapters_1, tempAjaxChapter_1, ajaxParser;
-            var _a;
+            var url, result, body, novel, summaryParts, statusParts, authorParts, genreArray, infoParts, chapters, novelId, tempChapter, i, depth, stateStack, currentState, pushState, popState, parser, _a, chapterListing, ajaxParam, params, chaptersUrl, ajaxResult, ajaxBody, ajaxChapters_1, tempAjaxChapter_1, ajaxParser;
+            var _b;
             var _this = this;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
                         url = this.site + novelPath;
                         return [4 /*yield*/, (0, fetch_1.fetchApi)(url)];
                     case 1:
-                        result = _b.sent();
+                        result = _c.sent();
                         return [4 /*yield*/, result.text()];
                     case 2:
-                        body = _b.sent();
+                        body = _c.sent();
                         novel = {
                             path: novelPath,
                             chapters: [],
@@ -467,25 +612,32 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                         });
                         parser.write(body);
                         parser.end();
-                        if (!(this.options.noAjax && chapters.length > 0)) return [3 /*break*/, 3];
-                        novel.chapters = chapters;
-                        return [3 /*break*/, 7];
+                        if (!this.options.chapterListPaginated) return [3 /*break*/, 4];
+                        _a = novel;
+                        return [4 /*yield*/, this.fetchAllChaptersViaJsonAjax(novelPath)];
                     case 3:
-                        if (!(novelId !== null)) return [3 /*break*/, 7];
+                        _a.chapters = _c.sent();
+                        return [3 /*break*/, 9];
+                    case 4:
+                        if (!(this.options.noAjax && chapters.length > 0)) return [3 /*break*/, 5];
+                        novel.chapters = chapters;
+                        return [3 /*break*/, 9];
+                    case 5:
+                        if (!(novelId !== null)) return [3 /*break*/, 9];
                         chapterListing = this.options.chapterListing || 'ajax/chapter-archive';
                         ajaxParam = this.options.chapterParam || 'novelId';
-                        params = new URLSearchParams((_a = {}, _a[ajaxParam] = novelId, _a));
+                        params = new URLSearchParams((_b = {}, _b[ajaxParam] = novelId, _b));
                         chaptersUrl = "".concat(this.site).concat(chapterListing, "?").concat(params.toString());
                         return [4 /*yield*/, (0, fetch_1.fetchApi)(chaptersUrl)];
-                    case 4:
-                        ajaxResult = _b.sent();
-                        if (!!ajaxResult.ok) return [3 /*break*/, 5];
+                    case 6:
+                        ajaxResult = _c.sent();
+                        if (!!ajaxResult.ok) return [3 /*break*/, 7];
                         console.error("Failed to fetch chapters: ".concat(ajaxResult.status));
                         novel.chapters = [];
-                        return [3 /*break*/, 7];
-                    case 5: return [4 /*yield*/, ajaxResult.text()];
-                    case 6:
-                        ajaxBody = _b.sent();
+                        return [3 /*break*/, 9];
+                    case 7: return [4 /*yield*/, ajaxResult.text()];
+                    case 8:
+                        ajaxBody = _c.sent();
                         ajaxChapters_1 = [];
                         tempAjaxChapter_1 = {};
                         ajaxParser = new htmlparser2_1.Parser({
@@ -532,23 +684,35 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                         ajaxParser.write(ajaxBody);
                         ajaxParser.end();
                         novel.chapters = ajaxChapters_1;
-                        _b.label = 7;
-                    case 7: return [2 /*return*/, novel];
+                        _c.label = 9;
+                    case 9: return [2 /*return*/, novel];
                 }
             });
         });
     };
     ReadNovelFullPlugin.prototype.parseChapter = function (chapterPath) {
         return __awaiter(this, void 0, void 0, function () {
-            var response, html, depth, depthHide, chapterHtml, skipClosingTag, currentTagToSkip, stateStack, currentState, pushState, popState, escapeRegex, escapeMap, escapeHtml, parser;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var response, html, $, depth, depthHide, chapterHtml, skipClosingTag, currentTagToSkip, stateStack, currentState, pushState, popState, escapeRegex, escapeMap, escapeHtml, parser;
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + chapterPath)];
                     case 1:
-                        response = _a.sent();
+                        response = _b.sent();
                         return [4 /*yield*/, response.text()];
                     case 2:
-                        html = _a.sent();
+                        html = _b.sent();
+                        if ((_a = this.options) === null || _a === void 0 ? void 0 : _a.customJs) {
+                            try {
+                                $ = (0, cheerio_1.load)(html);
+                                // CustomJS HERE
+                                html = $.html();
+                            }
+                            catch (error) {
+                                console.error('Error executing customJs:', error);
+                                throw error;
+                            }
+                        }
                         chapterHtml = [];
                         skipClosingTag = false;
                         currentTagToSkip = '';

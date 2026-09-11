@@ -260,7 +260,7 @@ var MadaraPlugin = /** @class */ (function () {
     };
     MadaraPlugin.prototype.parseNovel = function (novelPath) {
         return __awaiter(this, void 0, void 0, function () {
-            var loadedCheerio, novel, chapters, html, novelId, formData, totalChapters;
+            var loadedCheerio, novel, chapters, html, $firstPage_1, pageLinks, maxPage, lastHref, queryIndex, queryTemplate, page, pageHtml, novelId, formData, totalChapters;
             var _this = this;
             var _a;
             return __generator(this, function (_b) {
@@ -374,15 +374,40 @@ var MadaraPlugin = /** @class */ (function () {
                                     .trim();
                         chapters = [];
                         html = '';
-                        if (!((_a = this.options) === null || _a === void 0 ? void 0 : _a.useNewChapterEndpoint)) return [3 /*break*/, 3];
+                        if (!((_a = this.options) === null || _a === void 0 ? void 0 : _a.useNewChapterEndpoint)) return [3 /*break*/, 7];
                         return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + novelPath + 'ajax/chapters/', {
                                 method: 'POST',
                                 referrer: this.site + novelPath,
                             }).then(function (res) { return res.text(); })];
                     case 2:
                         html = _b.sent();
-                        return [3 /*break*/, 5];
+                        $firstPage_1 = (0, cheerio_1.load)(html);
+                        pageLinks = $firstPage_1('.pagination a[data-page]');
+                        if (!(pageLinks.length > 0)) return [3 /*break*/, 6];
+                        maxPage = Math.max.apply(Math, pageLinks
+                            .map(function (_, el) {
+                            return parseInt($firstPage_1(el).attr('data-page') || '1', 10);
+                        })
+                            .get());
+                        lastHref = pageLinks.last().attr('href') || '';
+                        queryIndex = lastHref.indexOf('?');
+                        if (!(queryIndex !== -1)) return [3 /*break*/, 6];
+                        queryTemplate = lastHref.slice(queryIndex).replace(/\d+$/, '');
+                        page = 2;
+                        _b.label = 3;
                     case 3:
+                        if (!(page <= maxPage)) return [3 /*break*/, 6];
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + novelPath + 'ajax/chapters/' + queryTemplate + page, { method: 'POST', referrer: this.site + novelPath }).then(function (res) { return res.text(); })];
+                    case 4:
+                        pageHtml = _b.sent();
+                        if (pageHtml && pageHtml !== '0')
+                            html += pageHtml;
+                        _b.label = 5;
+                    case 5:
+                        page++;
+                        return [3 /*break*/, 3];
+                    case 6: return [3 /*break*/, 9];
+                    case 7:
                         novelId = loadedCheerio('.rating-post-id').attr('value') ||
                             loadedCheerio('#manga-chapters-holder').attr('data-id') ||
                             '';
@@ -393,10 +418,10 @@ var MadaraPlugin = /** @class */ (function () {
                                 method: 'POST',
                                 body: formData,
                             }).then(function (res) { return res.text(); })];
-                    case 4:
+                    case 8:
                         html = _b.sent();
-                        _b.label = 5;
-                    case 5:
+                        _b.label = 9;
+                    case 9:
                         if (html !== '0') {
                             loadedCheerio = (0, cheerio_1.load)(html);
                         }
