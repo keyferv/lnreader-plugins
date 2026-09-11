@@ -8,7 +8,7 @@ import { localStorage, storage } from '@libs/storage';
 class NovelFire implements Plugin.PluginBase {
   id = 'novelfire';
   name = 'Novel Fire';
-  version = '1.0.21';
+  version = '1.0.22';
   icon = 'src/en/novelfire/icon.png';
   site = 'https://novelfire.net/';
 
@@ -241,6 +241,18 @@ class NovelFire implements Plugin.PluginBase {
   }
 
   private extractPostIdFromChaptersHtml(html: string): string | undefined {
+    // Upstream-proven primary source (multisrc template parseNovel):
+    // <... id="novel-report" report-post_id="2888">. More robust than
+    // regexes because it doesn't depend on inline script formatting.
+    try {
+      const reportId = load(html)('#novel-report').attr('report-post_id');
+      if (reportId && /^\d+$/.test(reportId.trim())) {
+        return reportId.trim();
+      }
+    } catch {
+      // ignore and fall through to regex fallbacks
+    }
+
     // Seen patterns:
     // - listChapterDataAjax?post_id=2888
     // - post_id: 2888
@@ -252,6 +264,21 @@ class NovelFire implements Plugin.PluginBase {
 
     const keyVal = html.match(/\bpost_id\b\s*[:=]\s*["']?(\d+)["']?/i)?.[1];
     return keyVal;
+  }
+
+  private cleanChapterTitle(raw: string | undefined | null): string {
+    // Upstream-proven (multisrc getAllChapters): strip zero-width chars
+    // that the site embeds in chapter titles.
+    // Same set as upstream multisrc getAllChapters (U+200B..U+200D, U+FEFF),
+    // compared by code point to keep this file free of invisible literals.
+    const cleaned = [...(raw || '')]
+      .filter(char => {
+        const code = char.codePointAt(0) || 0;
+        return !(code >= 0x200b && code <= 0x200d) && code !== 0xfeff;
+      })
+      .join('')
+      .trim();
+    return cleaned || 'No Title Found';
   }
 
   private extractChapterItemsFromAjaxPayload(
@@ -267,7 +294,7 @@ class NovelFire implements Plugin.PluginBase {
       const path = this.toPath(abs);
       if (!path || seen.has(path)) return;
       seen.add(path);
-      items.push({ name: (name || '').trim() || 'No Title Found', path });
+      items.push({ name: this.cleanChapterTitle(name), path });
     };
 
     const tryFromHtmlString = (html: string) => {
@@ -335,6 +362,12 @@ class NovelFire implements Plugin.PluginBase {
     //   );
 
     const $ = load(html);
+
+    // Narrow, upstream-proven anti-bot signal: only the <title>, never body
+    // text, so a novel mentioning "cloudflare" can't become a false block.
+    if ($('title').text().includes('Cloudflare')) {
+      throw new NovelFireCloudflareError();
+    }
 
     return $;
   }
@@ -503,9 +536,12 @@ class NovelFire implements Plugin.PluginBase {
       const postId = this.extractPostIdFromChaptersHtml(chaptersHtml);
 
       if (postId) {
-        const ajaxUrl = new URL(
-          this.resolveAbsUrl('/listChapterDataAjax', this.site),
-        );
+        // Local root endpoint first (current behavior), upstream
+        // `ajax/listChapterDataAjax` as fallback. The winner is locked in
+        // on first contact, so steady state costs no extra requests and a
+        // permanently-moved endpoint costs exactly one probe per call.
+        const ajaxPaths = ['/listChapterDataAjax', '/ajax/listChapterDataAjax'];
+        let ajaxPath = ajaxPaths[0];
         let draw = 1;
         let start = 0;
         // Match captured request defaults more closely.
@@ -514,63 +550,72 @@ class NovelFire implements Plugin.PluginBase {
         const all: Plugin.ChapterItem[] = [];
         const seenAll = new Set<string>();
 
-        // Loop until we reach recordsTotal or no progress
-        // DataTables uses many query params; we provide the essentials.
-        for (let guard = 0; guard < 500; guard++) {
-          ajaxUrl.search = '';
-          ajaxUrl.searchParams.set('post_id', postId);
-          ajaxUrl.searchParams.set('draw', String(draw++));
-          ajaxUrl.searchParams.set('start', String(start));
-          ajaxUrl.searchParams.set('length', String(length));
-          ajaxUrl.searchParams.set('order[0][column]', '2');
-          ajaxUrl.searchParams.set('order[0][dir]', 'asc');
-
-          // Columns (mirrors captured request)
-          ajaxUrl.searchParams.set('columns[0][data]', 'title');
-          ajaxUrl.searchParams.set('columns[0][name]', '');
-          ajaxUrl.searchParams.set('columns[0][searchable]', 'true');
-          ajaxUrl.searchParams.set('columns[0][orderable]', 'false');
-          ajaxUrl.searchParams.set('columns[0][search][value]', '');
-          ajaxUrl.searchParams.set('columns[0][search][regex]', 'false');
-
-          ajaxUrl.searchParams.set('columns[1][data]', 'created_at');
-          ajaxUrl.searchParams.set('columns[1][name]', '');
-          ajaxUrl.searchParams.set('columns[1][searchable]', 'true');
-          ajaxUrl.searchParams.set('columns[1][orderable]', 'true');
-          ajaxUrl.searchParams.set('columns[1][search][value]', '');
-          ajaxUrl.searchParams.set('columns[1][search][regex]', 'false');
-
-          ajaxUrl.searchParams.set('columns[2][data]', 'n_sort');
-          ajaxUrl.searchParams.set('columns[2][name]', '');
-          ajaxUrl.searchParams.set('columns[2][searchable]', 'false');
-          ajaxUrl.searchParams.set('columns[2][orderable]', 'true');
-          ajaxUrl.searchParams.set('columns[2][search][value]', '');
-          ajaxUrl.searchParams.set('columns[2][search][regex]', 'false');
-
-          ajaxUrl.searchParams.set('search[value]', '');
-          ajaxUrl.searchParams.set('search[regex]', 'false');
-
-          // Cache-buster used by DataTables in browsers
-          ajaxUrl.searchParams.set('_', String(Date.now()));
-
-          const r = await this.fetchAjax(ajaxUrl.toString(), referer);
-          if (!r.ok) break;
+        const fetchChapterPayload = async (
+          path: string,
+          params: URLSearchParams,
+        ) => {
+          const ajaxUrl = `${this.resolveAbsUrl(path, this.site)}?${params.toString()}`;
+          const r = await this.fetchAjax(ajaxUrl, referer);
+          if (!r.ok) return null;
 
           const contentType = (
             r.headers.get('content-type') || ''
           ).toLowerCase();
-          let payload: any = null;
           if (contentType.includes('application/json')) {
-            payload = await r.json().catch(() => null);
-          } else {
-            const text = await r.text().catch(() => '');
-            // const ajaxBlockReason = this.detectBlockReason(text);
-            // if (ajaxBlockReason) {
-            //   throw new Error(
-            //     `${ajaxBlockReason}. Provide the Cloudflare cookie (cf_clearance). Other cookies may be set automatically after a successful open in webview.`,
-            //   );
-            // }
-            payload = null;
+            return await r.json().catch(() => null);
+          }
+          const text = await r.text().catch(() => '');
+          // Non-JSON body: surface anti-bot pages as errors, never as
+          // an empty-but-successful chapter list.
+          if (/<title>[^<]*Cloudflare/i.test(text)) {
+            throw new NovelFireCloudflareError();
+          }
+          return null;
+        };
+
+        // Loop until we reach recordsTotal or no progress
+        // DataTables uses many query params; we provide the essentials.
+        for (let guard = 0; guard < 500; guard++) {
+          const params = new URLSearchParams();
+          params.set('post_id', postId);
+          params.set('draw', String(draw++));
+          params.set('start', String(start));
+          params.set('length', String(length));
+          params.set('order[0][column]', '2');
+          params.set('order[0][dir]', 'asc');
+
+          // Columns (mirrors captured request)
+          params.set('columns[0][data]', 'title');
+          params.set('columns[0][name]', '');
+          params.set('columns[0][searchable]', 'true');
+          params.set('columns[0][orderable]', 'false');
+          params.set('columns[0][search][value]', '');
+          params.set('columns[0][search][regex]', 'false');
+
+          params.set('columns[1][data]', 'created_at');
+          params.set('columns[1][name]', '');
+          params.set('columns[1][searchable]', 'true');
+          params.set('columns[1][orderable]', 'true');
+          params.set('columns[1][search][value]', '');
+          params.set('columns[1][search][regex]', 'false');
+
+          params.set('columns[2][data]', 'n_sort');
+          params.set('columns[2][name]', '');
+          params.set('columns[2][searchable]', 'false');
+          params.set('columns[2][orderable]', 'true');
+          params.set('columns[2][search][value]', '');
+          params.set('columns[2][search][regex]', 'false');
+
+          params.set('search[value]', '');
+          params.set('search[regex]', 'false');
+
+          // Cache-buster used by DataTables in browsers
+          params.set('_', String(Date.now()));
+
+          let payload: any = await fetchChapterPayload(ajaxPath, params);
+          if (!payload && guard === 0 && ajaxPath === ajaxPaths[0]) {
+            payload = await fetchChapterPayload(ajaxPaths[1], params);
+            if (payload) ajaxPath = ajaxPaths[1];
           }
           if (!payload) break;
 
@@ -602,7 +647,10 @@ class NovelFire implements Plugin.PluginBase {
 
         if (all.length) return all;
       }
-    } catch {
+    } catch (e) {
+      // Anti-bot failures must stay visible: falling back to HTML parsing
+      // would turn them into a misleading "could not parse" error.
+      if (e instanceof NovelFireCloudflareError) throw e;
       // ignore and fallback to HTML parsing
     }
 
@@ -613,6 +661,10 @@ class NovelFire implements Plugin.PluginBase {
       const body = await result.text();
 
       const loadedCheerio = load(body);
+
+      if (loadedCheerio('title').text().includes('Cloudflare')) {
+        throw new NovelFireCloudflareError();
+      }
 
       if (loadedCheerio.text().includes('You are being rate limited')) {
         throw new NovelFireThrottlingError();
@@ -629,10 +681,9 @@ class NovelFire implements Plugin.PluginBase {
         const path = this.toPath(abs);
         if (!path || seen.has(path)) return;
 
-        const name =
-          loadedCheerio(a).text().trim() ||
-          loadedCheerio(a).attr('title') ||
-          'No Title Found';
+        const name = this.cleanChapterTitle(
+          loadedCheerio(a).text() || loadedCheerio(a).attr('title'),
+        );
         seen.add(path);
         chapters.push({ name, path });
       });
@@ -646,10 +697,9 @@ class NovelFire implements Plugin.PluginBase {
           const path = this.toPath(abs);
           if (!path || seen.has(path)) return;
 
-          const name =
-            loadedCheerio(a).attr('title') ||
-            loadedCheerio(a).text().trim() ||
-            'No Title Found';
+          const name = this.cleanChapterTitle(
+            loadedCheerio(a).attr('title') || loadedCheerio(a).text(),
+          );
           seen.add(path);
           chapters.push({ name, path });
         });
@@ -745,14 +795,24 @@ class NovelFire implements Plugin.PluginBase {
       .toArray()
       .join(',');
 
-    let summary = $('.summary .content').text().trim();
+    // Upstream-proven summary cleanup (multisrc parseNovel): drop the
+    // expand toggle and restore paragraph breaks before extracting text.
+    // Local contract preserved: 'Show More' strip + 'No Summary Found'.
+    const summaryEl = $('.summary .content');
+    summaryEl.find('.expand').remove();
+    summaryEl.find('br').replaceWith('\n');
+    summaryEl.find('p').before('\n').after('\n\n');
 
-    if (summary) {
-      summary = summary.replace('Show More', '');
-      novel.summary = summary;
-    } else {
-      novel.summary = 'No Summary Found';
-    }
+    const summaryRaw = summaryEl
+      .text()
+      .split('\n')
+      .map(line => line.trim())
+      .join('\n')
+      ?.replace(/\n{3,}/g, '\n\n')
+      .trim()
+      .replace('Show More', '');
+
+    novel.summary = summaryRaw || 'No Summary Found';
 
     novel.author =
       $('.author .property-item > span').text() || 'No Author Found';
@@ -813,6 +873,10 @@ class NovelFire implements Plugin.PluginBase {
 
     const loadedCheerio = load(body);
 
+    if (loadedCheerio('title').text().includes('Cloudflare')) {
+      throw new NovelFireCloudflareError();
+    }
+
     const bloatElements = [
       '.box-ads',
       '.box-notification',
@@ -830,16 +894,29 @@ class NovelFire implements Plugin.PluginBase {
       }
     });
 
+    // Local fallback chain preserved (#content first, then legacy
+    // containers); upstream e1dcd06 proved that returning empty HTML
+    // silently is worse than throwing with a retry hint.
     const html =
       loadedCheerio('#content').html() ||
       loadedCheerio('.chapter-content').html() ||
       loadedCheerio('article').html();
 
     if (!html) {
-      throw new Error('Could not parse chapter content.');
+      throw new Error(
+        `Chapter content container (#content) not found for ${chapterPath} — possible transient fetch issue. Retry`,
+      );
     }
 
-    return html;
+    const cleaned = html.replace(/&nbsp;/g, ' ');
+
+    if (!cleaned.trim()) {
+      throw new Error(
+        `Chapter content was empty after parsing for ${chapterPath}.`,
+      );
+    }
+
+    return cleaned;
   }
 
   async searchNovels(
@@ -1032,5 +1109,14 @@ class NovelFireThrottlingError extends Error {
   constructor(message = 'Novel Fire is rate limiting requests') {
     super(message);
     this.name = 'NovelFireError';
+  }
+}
+
+// Custom error for Cloudflare/anti-bot blocks. Thrown (never swallowed)
+// so a block can't surface as an empty-but-successful result.
+class NovelFireCloudflareError extends Error {
+  constructor(message = 'Cloudflare is blocking requests. Try again later.') {
+    super(message);
+    this.name = 'NovelFireCloudflareError';
   }
 }
