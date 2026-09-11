@@ -36,6 +36,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/lightnovelwp/freekolnovel/icon.png"
 	},
 	{
+		"id": "galaxynovels",
+		"name": "Galaxy Novels",
+		"site": "https://galaxynovels.com/",
+		"lang": "‎العربية",
+		"version": "1.1.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/arabic/galaxynovels.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/ar/galaxynovels/icon.png"
+	},
+	{
 		"id": "hizomanga",
 		"name": "HizoManga",
 		"site": "https://hizomanga.net/",
@@ -90,6 +99,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/madara/olaoe/icon.png"
 	},
 	{
+		"id": "rewayahfans",
+		"name": "روايه فانز",
+		"site": "https://rewayahfans.net/",
+		"lang": "‎العربية",
+		"version": "1.0.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/arabic/rewayahfans.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/ar/rewayahfans/icon.png"
+	},
+	{
 		"id": "rewayatclub",
 		"name": "Rewayat Club",
 		"site": "https://rewayat.club/",
@@ -99,6 +117,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/ar/rewayatclub/icon.png"
 	},
 	{
+		"id": "rewayatfans",
+		"name": "روايات فانز",
+		"site": "https://rewayatfans.com/",
+		"lang": "‎العربية",
+		"version": "4.2.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/arabic/rewayatfans.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/ar/rewayatfans/icon.png"
+	},
+	{
 		"id": "riwyat",
 		"name": "Riwyat",
 		"site": "https://cenele.com/",
@@ -106,6 +133,15 @@
 		"version": "1.0.13",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/arabic/Riwyat[madara].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/madara/riwyat/icon.png"
+	},
+	{
+		"id": "seanovel",
+		"name": "Seanovel",
+		"site": "https://seanovel.org/",
+		"lang": "‎العربية",
+		"version": "1.0.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/arabic/seanovel.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/ar/seanovel/icon.png"
 	},
 	{
 		"id": "sunovels",
@@ -216,6 +252,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/readnovelfull/anf.net/icon.png"
 	},
 	{
+		"id": "animeanyway",
+		"name": "Anime Anyway",
+		"site": "https://animeanyway.com/",
+		"lang": "English",
+		"version": "1.0.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/animeAnyway.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/animeanyway/icon.png"
+	},
+	{
 		"id": "arcane",
 		"name": "Arcane Translations",
 		"site": "https://arcanetranslations.com/",
@@ -243,6 +288,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/madara/asuralightnovel/icon.png"
 	},
 	{
+		"id": "bakatsuki",
+		"name": "Baka-Tsuki",
+		"site": "https://www.baka-tsuki.org/project/",
+		"lang": "English",
+		"version": "1.1.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/bakaTsuki.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/bakatsuki/icon.png"
+	},
+	{
 		"id": "bellereservoir",
 		"name": "Belle Reservoir",
 		"site": "https://bellereservoir.com/",
@@ -268,6 +322,15 @@
 		"version": "2.1.2",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/BoxNovel[readnovelfull].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/readnovelfull/boxnovel/icon.png"
+	},
+	{
+		"id": "chikari",
+		"name": "Chikari",
+		"site": "https://chikari.moe",
+		"lang": "English",
+		"version": "1.0.1",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/chikari.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/chikari/icon.png"
 	},
 	{
 		"id": "chrysanthemumgarden",
@@ -387,6 +450,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/dreambigtl/icon.png"
 	},
 	{
+		"id": "dreamyTranslations",
+		"name": "Dreamy Translations",
+		"site": "https://dreamy-translations.com",
+		"lang": "English",
+		"version": "1.0.1",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/dreamyTranslations.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/dreamyTranslations/icon.png"
+	},
+	{
 		"id": "duskblossoms",
 		"name": "Dusk Blossoms",
 		"site": "https://duskblossoms.com/",
@@ -486,6 +558,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/foxteller/icon.png"
 	},
 	{
+		"id": "FuckNovelpia",
+		"name": "FuckNovelpia",
+		"site": "https://fucknovelpia.com/",
+		"lang": "English",
+		"version": "1.1.1",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/fucknovelpia.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/fucknovelpia/icon.png"
+	},
+	{
 		"id": "FWK.US",
 		"name": "Faq Wiki",
 		"site": "https://faqwiki.us/novel",
@@ -559,6 +640,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/hotnovelpub/hotnovelpub/icon.png"
 	},
 	{
+		"id": "indratranslations",
+		"name": "Indra Translations",
+		"site": "https://indratranslations.com",
+		"lang": "English",
+		"version": "1.2.1",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/indraTranslations.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/indratranslations/icon.png"
+	},
+	{
 		"id": "inkitt",
 		"name": "Inkitt",
 		"site": "https://www.inkitt.com",
@@ -566,6 +656,15 @@
 		"version": "1.0.1",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/inkitt.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/inkitt/icon.png"
+	},
+	{
+		"id": "inoveltranslation",
+		"name": "iNovelTranslation",
+		"site": "https://inoveltranslation.com",
+		"lang": "English",
+		"version": "1.0.2",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/inoveltranslation.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/inoveltranslation/icon.png"
 	},
 	{
 		"id": "ippotranslations",
@@ -602,6 +701,15 @@
 		"version": "1.1.9",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/KnoxT[lightnovelwp].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/lightnovelwp/knoxt/icon.png"
+	},
+	{
+		"id": "konkon",
+		"name": "Konkon",
+		"site": "https://konkon.ink",
+		"lang": "English",
+		"version": "1.0.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/konkon.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/konkon/icon.png"
 	},
 	{
 		"id": "lazygirltranslations",
@@ -712,6 +820,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/lnmtl/icon.png"
 	},
 	{
+		"id": "lnori",
+		"name": "LNORI",
+		"site": "https://lnori.com/",
+		"lang": "English",
+		"version": "1.0.1",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/lnori.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/lnori/icon.png"
+	},
+	{
 		"id": "lorenovels",
 		"name": "Lore Novels",
 		"site": "https://lorenovels.com",
@@ -820,6 +937,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/mvlempyr/icon.png"
 	},
 	{
+		"id": "mynovels",
+		"name": "Mynovels",
+		"site": "https://mynovels.su/",
+		"lang": "English",
+		"version": "1.0.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/mynovels.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/mynovels/icon.png"
+	},
+	{
 		"id": "mysticalmerries",
 		"name": "MysticalSeries",
 		"site": "https://mysticalmerries.com/",
@@ -872,6 +998,15 @@
 		"version": "1.0.8",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/NoiceTranslations[madara].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/madara/noicetranslations/icon.png"
+	},
+	{
+		"id": "novel7s",
+		"name": "Novel7s",
+		"site": "https://novel7s.com",
+		"lang": "English",
+		"version": "1.0.1",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/novel7s.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/novel7s/icon.png"
 	},
 	{
 		"id": "novelarrow",
@@ -935,6 +1070,15 @@
 		"version": "1.0.3",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/novelhall.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/novelhall/icon.png"
+	},
+	{
+		"id": "novelhi",
+		"name": "NovelHi",
+		"site": "https://novelhi.com/",
+		"lang": "English",
+		"version": "1.1.1",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/novelhi.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/novelhi/icon.png"
 	},
 	{
 		"id": "novelib",
@@ -1046,6 +1190,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/pawread/icon.png"
 	},
 	{
+		"id": "peachpuff",
+		"name": "Peach Puff Translations",
+		"site": "https://peachpuff.in/",
+		"lang": "English",
+		"version": "1.0.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/peachpuff.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/english/peachpuff/icon.png"
+	},
+	{
 		"id": "penguinsquad",
 		"name": "Penguin Squad",
 		"site": "https://penguin-squad.com",
@@ -1062,6 +1215,15 @@
 		"version": "1.1.0",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/Prizma[fictioneer].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/ifreedom/prizmatranslation/icon.png"
+	},
+	{
+		"id": "puffinfolio",
+		"name": "Puffin Folio",
+		"site": "https://www.puffinfolio.com/",
+		"lang": "English",
+		"version": "1.0.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/puffinFolio.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/puffinfolio/icon.png"
 	},
 	{
 		"id": "rainofsnow",
@@ -1170,6 +1332,15 @@
 		"version": "1.0.2",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/scribblehub.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/scribblehub/icon.png"
+	},
+	{
+		"id": "skythewoodtranslations",
+		"name": "Skythewood Translations",
+		"site": "https://skythewood.blogspot.com",
+		"lang": "English",
+		"version": "1.0.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/skythewood.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/skythewood/icon.png"
 	},
 	{
 		"id": "sleeptTLS",
@@ -1316,6 +1487,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/lightnovelwp/whitemoonlightnovels/icon.png"
 	},
 	{
+		"id": "witchculttranslations",
+		"name": "Witch Cult Translations",
+		"site": "https://witchculttranslation.com",
+		"lang": "English",
+		"version": "1.0.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/wct.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/wct/icon.png"
+	},
+	{
 		"id": "wooksteahouse",
 		"name": "Wook's Teahouse",
 		"site": "https://wooksteahouse.com/",
@@ -1433,6 +1613,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/fr/harkeneliwood/icon.png"
 	},
 	{
+		"id": "jgarden",
+		"name": "J-Garden",
+		"site": "https://j-garden.fr/",
+		"lang": "Français",
+		"version": "1.0.5",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/french/jgarden.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/fr/jgarden/icon.png"
+	},
+	{
 		"id": "kisswood",
 		"name": "KissWood",
 		"site": "https://kisswood.eu",
@@ -1449,6 +1638,15 @@
 		"version": "1.1.9",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/french/LighNovelFR[lightnovelwp].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/lightnovelwp/lightnovelfr/icon.png"
+	},
+	{
+		"id": "lightnovelvf",
+		"name": "LightNovelVF",
+		"site": "https://www.lightnovelvf.com/",
+		"lang": "Français",
+		"version": "1.0.4",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/french/lightnovelvf.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/fr/lightnovelvf/icon.png"
 	},
 	{
 		"id": "massnovel",
@@ -1478,6 +1676,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/fr/noveldeglace/icon.png"
 	},
 	{
+		"id": "novelfrance",
+		"name": "NovelFrance",
+		"site": "https://novelfrance.fr/",
+		"lang": "Français",
+		"version": "1.0.1",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/french/novelfrance.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/fr/novelfrance/icon.png"
+	},
+	{
 		"id": "novhell",
 		"name": "Novhell",
 		"site": "https://novhell.org",
@@ -1494,6 +1701,24 @@
 		"version": "1.0.1",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/french/phenixscans.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/fr/phenixscans/icon.png"
+	},
+	{
+		"id": "rezerowebnovelfr",
+		"name": "Re:Zero Web Novel FR",
+		"site": "https://rezerowebnovelfr.wordpress.com",
+		"lang": "Français",
+		"version": "1.0.3",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/french/rezerowebnovelfr.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/fr/rezerowebnovelfr/icon.png"
+	},
+	{
+		"id": "tradindex",
+		"name": "Trad-Index",
+		"site": "https://trad-index.com/",
+		"lang": "Français",
+		"version": "1.0.8",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/french/tradindex.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/fr/tradindex/icon.png"
 	},
 	{
 		"id": "warriorlegendtrad",
@@ -1692,6 +1917,15 @@
 		"version": "1.1.9",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/portuguese/CentralNovel[lightnovelwp].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/lightnovelwp/centralnovel/icon.png"
+	},
+	{
+		"id": "illusia",
+		"name": "Illusia",
+		"site": "https://illusia.com.br",
+		"lang": "Português",
+		"version": "1.0.2",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/portuguese/illusia.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/pt-br/illusia/icon.png"
 	},
 	{
 		"id": "kiniga",
@@ -2027,6 +2261,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/mtlnovel/mtlnovel/icon.png"
 	},
 	{
+		"id": "nova",
+		"name": "NOVA",
+		"site": "https://novelasligeras.net",
+		"lang": "Español",
+		"version": "1.1.1",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/spanish/NOVA.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/es/nova/icon.png"
+	},
+	{
 		"id": "novelasligera",
 		"name": "Novelas Ligera",
 		"site": "https://novelasligera.com/",
@@ -2043,6 +2286,15 @@
 		"version": "1.0.1",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/spanish/novelasligerasnet.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/es/novelasligerasnet/icon.png"
+	},
+	{
+		"id": "novelyra",
+		"name": "Novelyra",
+		"site": "https://novelyra.com/",
+		"lang": "Español",
+		"version": "1.0.1",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/spanish/novelyra.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/es/novelyra/icon.png"
 	},
 	{
 		"id": "oasistranslations",
@@ -2341,6 +2593,15 @@
 		"version": "1.0.2",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/vietnamese/truyenfull.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/vi/truyenfull/icon.png"
+	},
+	{
+		"id": "truyenss.com",
+		"name": "TruyenSS",
+		"site": "https://truyenss.com",
+		"lang": "Tiếng Việt",
+		"version": "1.0.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/vietnamese/truyenss.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/vi/truyenss/icon.png"
 	},
 	{
 		"id": "komga",
