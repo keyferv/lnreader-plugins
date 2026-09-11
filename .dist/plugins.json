@@ -64,12 +64,12 @@
 	},
 	{
 		"id": "markazriwayat",
-		"name": "Markazriwayat",
+		"name": "مركز الروايات",
 		"site": "https://markazriwayat.com/",
 		"lang": "‎العربية",
-		"version": "1.0.8",
-		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/arabic/Markazriwayat[madara].js",
-		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/madara/markazriwayat/icon.png"
+		"version": "1.0.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/arabic/Markazriwayat.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/ar/markazriwayat/icon.png"
 	},
 	{
 		"id": "novel4up",
@@ -317,11 +317,11 @@
 	{
 		"id": "boxnovel",
 		"name": "BoxNovel",
-		"site": "https://novlove.com/",
+		"site": "https://novelnice.com/",
 		"lang": "English",
-		"version": "2.1.2",
-		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/BoxNovel[readnovelfull].js",
-		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/readnovelfull/boxnovel/icon.png"
+		"version": "1.0.10",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/BoxNovel[madara].js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/madara/boxnovel/icon.png"
 	},
 	{
 		"id": "chikari",
@@ -1058,9 +1058,9 @@
 		"name": "Novel Fire",
 		"site": "https://novelfire.net/",
 		"lang": "English",
-		"version": "1.0.22",
-		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/novelfire.js",
-		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/src/en/novelfire/icon.png"
+		"version": "1.4.4",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/NovelFire[novelfire].js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/novelfire/novelfire/icon.png"
 	},
 	{
 		"id": "novelfull",
@@ -1117,6 +1117,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/madara/novelmultiverse/icon.png"
 	},
 	{
+		"id": "novelnice",
+		"name": "Novel Nice",
+		"site": "https://novelnice.com/",
+		"lang": "English",
+		"version": "1.0.8",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/NovelNice[madara].js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/madara/novelnice/icon.png"
+	},
+	{
 		"id": "novelninja",
 		"name": "Novel Ninja",
 		"site": "https://novelninja.xyz/",
@@ -1124,6 +1133,15 @@
 		"version": "1.0.8",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/NovelNinja[madara].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/madara/novelninja/icon.png"
+	},
+	{
+		"id": "novelphoenix",
+		"name": "Novel Phoenix",
+		"site": "https://novelphoenix.com/",
+		"lang": "English",
+		"version": "1.0.2",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/.js/plugins/english/NovelPhoenix[novelfire].js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/fix/selective-upstream-sync-2026-09/public/static/multisrc/novelfire/novelphoenix/icon.png"
 	},
 	{
 		"id": "novelrest",

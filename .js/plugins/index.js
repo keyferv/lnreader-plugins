@@ -7,14 +7,18 @@ var ArNovel_madara_1 = __importDefault(require("@plugins/arabic/ArNovel[madara]"
 var Azora_madara_1 = __importDefault(require("@plugins/arabic/Azora[madara]"));
 var dilartube_1 = __importDefault(require("@plugins/arabic/dilartube"));
 var FreeKolNovel_lightnovelwp_1 = __importDefault(require("@plugins/arabic/FreeKolNovel[lightnovelwp]"));
+var galaxynovels_1 = __importDefault(require("@plugins/arabic/galaxynovels"));
 var HizoManga_madara_1 = __importDefault(require("@plugins/arabic/HizoManga[madara]"));
 var KolNovel_lightnovelwp_1 = __importDefault(require("@plugins/arabic/KolNovel[lightnovelwp]"));
 var Markazriwayat_madara_1 = __importDefault(require("@plugins/arabic/Markazriwayat[madara]"));
 var Novel4Up_madara_1 = __importDefault(require("@plugins/arabic/Novel4Up[madara]"));
 var NovelsParadise_lightnovelwp_1 = __importDefault(require("@plugins/arabic/NovelsParadise[lightnovelwp]"));
 var Olaoecyou_madara_1 = __importDefault(require("@plugins/arabic/Olaoecyou[madara]"));
+var rewayahfans_1 = __importDefault(require("@plugins/arabic/rewayahfans"));
 var rewayatclub_1 = __importDefault(require("@plugins/arabic/rewayatclub"));
+var rewayatfans_1 = __importDefault(require("@plugins/arabic/rewayatfans"));
 var Riwyat_madara_1 = __importDefault(require("@plugins/arabic/Riwyat[madara]"));
+var seanovel_1 = __importDefault(require("@plugins/arabic/seanovel"));
 var sunovels_1 = __importDefault(require("@plugins/arabic/sunovels"));
 var _69shu_1 = __importDefault(require("@plugins/chinese/69shu"));
 var ixdzs8_1 = __importDefault(require("@plugins/chinese/ixdzs8"));
@@ -25,10 +29,13 @@ var novel543_1 = __importDefault(require("@plugins/chinese/novel543"));
 var Quanben_1 = __importDefault(require("@plugins/chinese/Quanben"));
 var AllNovel_readnovelfull_1 = __importDefault(require("@plugins/english/AllNovel[readnovelfull]"));
 var AllNovelFull_readnovelfull_1 = __importDefault(require("@plugins/english/AllNovelFull[readnovelfull]"));
+var animeAnyway_1 = __importDefault(require("@plugins/english/animeAnyway"));
 var ao3_1 = __importDefault(require("@plugins/english/ao3"));
 var ArcaneTranslations_lightnovelwp_1 = __importDefault(require("@plugins/english/ArcaneTranslations[lightnovelwp]"));
+var bakaTsuki_1 = __importDefault(require("@plugins/english/bakaTsuki"));
 var BelleReservoir_madara_1 = __importDefault(require("@plugins/english/BelleReservoir[madara]"));
 var BoxNovel_readnovelfull_1 = __importDefault(require("@plugins/english/BoxNovel[readnovelfull]"));
+var chikari_1 = __importDefault(require("@plugins/english/chikari"));
 var chrysanthemumgarden_1 = __importDefault(require("@plugins/english/chrysanthemumgarden"));
 var CitrusAurora_madara_1 = __importDefault(require("@plugins/english/CitrusAurora[madara]"));
 var CoralBoutique_madara_1 = __importDefault(require("@plugins/english/CoralBoutique[madara]"));
@@ -42,6 +49,7 @@ var divinedaolibrary_1 = __importDefault(require("@plugins/english/divinedaolibr
 var Dragonholic_madara_1 = __importDefault(require("@plugins/english/Dragonholic[madara]"));
 var DragonTea_madara_1 = __importDefault(require("@plugins/english/DragonTea[madara]"));
 var dreambigtl_1 = __importDefault(require("@plugins/english/dreambigtl"));
+var dreamyTranslations_1 = __importDefault(require("@plugins/english/dreamyTranslations"));
 var DuskBlossoms_madara_1 = __importDefault(require("@plugins/english/DuskBlossoms[madara]"));
 var ElloTL_lightnovelwp_1 = __importDefault(require("@plugins/english/ElloTL[lightnovelwp]"));
 var Eternalune_madara_1 = __importDefault(require("@plugins/english/Eternalune[madara]"));
@@ -56,29 +64,36 @@ var FirstKissNovel_madara_1 = __importDefault(require("@plugins/english/FirstKis
 var Foxaholic_madara_1 = __importDefault(require("@plugins/english/Foxaholic[madara]"));
 var foxteller_1 = __importDefault(require("@plugins/english/foxteller"));
 var FreeWebNovel_readnovelfull_1 = __importDefault(require("@plugins/english/FreeWebNovel[readnovelfull]"));
+var fucknovelpia_1 = __importDefault(require("@plugins/english/fucknovelpia"));
 var GalaxyTranslations_madara_1 = __importDefault(require("@plugins/english/GalaxyTranslations[madara]"));
 var genesis_1 = __importDefault(require("@plugins/english/genesis"));
 var Guavaread_madara_1 = __importDefault(require("@plugins/english/Guavaread[madara]"));
+var HangulPlanet_madara_1 = __importDefault(require("@plugins/english/HangulPlanet[madara]"));
 var HiraethTranslation_madara_1 = __importDefault(require("@plugins/english/HiraethTranslation[madara]"));
 var HotNovelPub_hotnovelpub_1 = __importDefault(require("@plugins/english/HotNovelPub[hotnovelpub]"));
+var indraTranslations_1 = __importDefault(require("@plugins/english/indraTranslations"));
 var inkitt_1 = __importDefault(require("@plugins/english/inkitt"));
+var inoveltranslation_1 = __importDefault(require("@plugins/english/inoveltranslation"));
 var Ippotranslations_lightnovelwp_1 = __importDefault(require("@plugins/english/Ippotranslations[lightnovelwp]"));
 var KDTNovels_lightnovelwp_1 = __importDefault(require("@plugins/english/KDTNovels[lightnovelwp]"));
 var KeopiTranslations_lightnovelwp_1 = __importDefault(require("@plugins/english/KeopiTranslations[lightnovelwp]"));
 var KnoxT_lightnovelwp_1 = __importDefault(require("@plugins/english/KnoxT[lightnovelwp]"));
+var konkon_1 = __importDefault(require("@plugins/english/konkon"));
 var LazyGirlTranslations_lightnovelwp_1 = __importDefault(require("@plugins/english/LazyGirlTranslations[lightnovelwp]"));
 var leafstudio_1 = __importDefault(require("@plugins/english/leafstudio"));
 var LibRead_readnovelfull_1 = __importDefault(require("@plugins/english/LibRead[readnovelfull]"));
-var LightNovelCave_lightnovelworld_1 = __importDefault(require("@plugins/english/LightNovelCave[lightnovelworld]"));
+var LightNovelCave_webnovelworld_1 = __importDefault(require("@plugins/english/LightNovelCave[webnovelworld]"));
 var LightNovelHeaven_madara_1 = __importDefault(require("@plugins/english/LightNovelHeaven[madara]"));
 var LightNovelPlus_readnovelfull_1 = __importDefault(require("@plugins/english/LightNovelPlus[readnovelfull]"));
-var LightNovelPubVip_lightnovelworld_1 = __importDefault(require("@plugins/english/LightNovelPubVip[lightnovelworld]"));
+var LightNovelPubVip_webnovelworld_1 = __importDefault(require("@plugins/english/LightNovelPubVip[webnovelworld]"));
 var lightnoveltranslation_1 = __importDefault(require("@plugins/english/lightnoveltranslation"));
 var LightNovelUpdates_madara_1 = __importDefault(require("@plugins/english/LightNovelUpdates[madara]"));
-var LightNovelWord_lightnovelworld_1 = __importDefault(require("@plugins/english/LightNovelWord[lightnovelworld]"));
+var lightnovelworld_1 = __importDefault(require("@plugins/english/lightnovelworld"));
 var LilyontheValley_fictioneer_1 = __importDefault(require("@plugins/english/LilyontheValley[fictioneer]"));
 var lnmtl_1 = __importDefault(require("@plugins/english/lnmtl"));
+var lnori_1 = __importDefault(require("@plugins/english/lnori"));
 var lorenovels_1 = __importDefault(require("@plugins/english/lorenovels"));
+var Lovelyblossoms_madara_1 = __importDefault(require("@plugins/english/Lovelyblossoms[madara]"));
 var Ltnovel_readwn_1 = __importDefault(require("@plugins/english/Ltnovel[readwn]"));
 var LulloBox_madara_1 = __importDefault(require("@plugins/english/LulloBox[madara]"));
 var LunarLetters_madara_1 = __importDefault(require("@plugins/english/LunarLetters[madara]"));
@@ -89,31 +104,38 @@ var MTLNovel_madara_1 = __importDefault(require("@plugins/english/MTLNovel[madar
 var MTLNovel_mtlnovel_1 = __importDefault(require("@plugins/english/MTLNovel[mtlnovel]"));
 var mtlreader_1 = __importDefault(require("@plugins/english/mtlreader"));
 var mvlempyr_1 = __importDefault(require("@plugins/english/mvlempyr"));
+var mynovels_1 = __importDefault(require("@plugins/english/mynovels"));
 var MysticalSeries_madara_1 = __importDefault(require("@plugins/english/MysticalSeries[madara]"));
 var NeoSekaiTranslations_madara_1 = __importDefault(require("@plugins/english/NeoSekaiTranslations[madara]"));
 var NitroManga_madara_1 = __importDefault(require("@plugins/english/NitroManga[madara]"));
 var NobleMTL_lightnovelwp_1 = __importDefault(require("@plugins/english/NobleMTL[lightnovelwp]"));
 var NoiceTranslations_madara_1 = __importDefault(require("@plugins/english/NoiceTranslations[madara]"));
+var novel7s_1 = __importDefault(require("@plugins/english/novel7s"));
+var novelarrow_1 = __importDefault(require("@plugins/english/novelarrow"));
 var NovelBin_readnovelfull_1 = __importDefault(require("@plugins/english/NovelBin[readnovelfull]"));
 var novelbuddy_1 = __importDefault(require("@plugins/english/novelbuddy"));
 var NovelCool_novelcool_1 = __importDefault(require("@plugins/english/NovelCool[novelcool]"));
 var novelfire_1 = __importDefault(require("@plugins/english/novelfire"));
 var NovelFull_readnovelfull_1 = __importDefault(require("@plugins/english/NovelFull[readnovelfull]"));
 var novelhall_1 = __importDefault(require("@plugins/english/novelhall"));
+var novelhi_1 = __importDefault(require("@plugins/english/novelhi"));
 var novelight_1 = __importDefault(require("@plugins/english/novelight"));
 var NovelLib_fictioneer_1 = __importDefault(require("@plugins/english/NovelLib[fictioneer]"));
 var NovelMultiverse_madara_1 = __importDefault(require("@plugins/english/NovelMultiverse[madara]"));
 var NovelNinja_madara_1 = __importDefault(require("@plugins/english/NovelNinja[madara]"));
 var NovelOnline_1 = __importDefault(require("@plugins/english/NovelOnline"));
 var novelrest_1 = __importDefault(require("@plugins/english/novelrest"));
+var NovelShort_madara_1 = __importDefault(require("@plugins/english/NovelShort[madara]"));
 var NovelsKnight_lightnovelwp_1 = __importDefault(require("@plugins/english/NovelsKnight[lightnovelwp]"));
 var NovelTranslate_madara_1 = __importDefault(require("@plugins/english/NovelTranslate[madara]"));
 var novelupdates_1 = __importDefault(require("@plugins/english/novelupdates"));
 var PandaMachineTranslations_lightnovelwp_1 = __importDefault(require("@plugins/english/PandaMachineTranslations[lightnovelwp]"));
 var PastelTales_madara_1 = __importDefault(require("@plugins/english/PastelTales[madara]"));
 var pawread_1 = __importDefault(require("@plugins/english/pawread"));
+var peachpuff_1 = __importDefault(require("@plugins/english/peachpuff"));
 var PenguinSquad_fictioneer_1 = __importDefault(require("@plugins/english/PenguinSquad[fictioneer]"));
 var Prizma_fictioneer_1 = __importDefault(require("@plugins/english/Prizma[fictioneer]"));
+var puffinFolio_1 = __importDefault(require("@plugins/english/puffinFolio"));
 var rainofsnow_1 = __importDefault(require("@plugins/english/rainofsnow"));
 var Ranobes_ranobes_1 = __importDefault(require("@plugins/english/Ranobes[ranobes]"));
 var Ranovel_madara_1 = __importDefault(require("@plugins/english/Ranovel[madara]"));
@@ -125,6 +147,7 @@ var RequiemTranslations_lightnovelwp_1 = __importDefault(require("@plugins/engli
 var royalroad_1 = __importDefault(require("@plugins/english/royalroad"));
 var SalmonLatte_madara_1 = __importDefault(require("@plugins/english/SalmonLatte[madara]"));
 var scribblehub_1 = __importDefault(require("@plugins/english/scribblehub"));
+var skythewood_1 = __importDefault(require("@plugins/english/skythewood"));
 var SleepyTranslations_madara_1 = __importDefault(require("@plugins/english/SleepyTranslations[madara]"));
 var SonicMTL_madara_1 = __importDefault(require("@plugins/english/SonicMTL[madara]"));
 var SrankManga_madara_1 = __importDefault(require("@plugins/english/SrankManga[madara]"));
@@ -137,9 +160,10 @@ var UniversalNovel_lightnovelwp_1 = __importDefault(require("@plugins/english/Un
 var VandyTranslate_lightnovelwp_1 = __importDefault(require("@plugins/english/VandyTranslate[lightnovelwp]"));
 var VioletLily_madara_1 = __importDefault(require("@plugins/english/VioletLily[madara]"));
 var vynovel_1 = __importDefault(require("@plugins/english/vynovel"));
+var wct_1 = __importDefault(require("@plugins/english/wct"));
 var webnovel_1 = __importDefault(require("@plugins/english/webnovel"));
 var WebNovelLover_madara_1 = __importDefault(require("@plugins/english/WebNovelLover[madara]"));
-var WebNovelPub_lightnovelworld_1 = __importDefault(require("@plugins/english/WebNovelPub[lightnovelworld]"));
+var WebNovelPub_webnovelworld_1 = __importDefault(require("@plugins/english/WebNovelPub[webnovelworld]"));
 var WebNovelTranslation_madara_1 = __importDefault(require("@plugins/english/WebNovelTranslation[madara]"));
 var WhiteMoonlightNovels_lightnovelwp_1 = __importDefault(require("@plugins/english/WhiteMoonlightNovels[lightnovelwp]"));
 var WooksTeahouse_madara_1 = __importDefault(require("@plugins/english/WooksTeahouse[madara]"));
@@ -154,12 +178,17 @@ var WuxiaWorldSite_madara_1 = __importDefault(require("@plugins/english/WuxiaWor
 var ZetroTranslation_madara_1 = __importDefault(require("@plugins/english/ZetroTranslation[madara]"));
 var chireads_1 = __importDefault(require("@plugins/french/chireads"));
 var harkeneliwood_1 = __importDefault(require("@plugins/french/harkeneliwood"));
+var jgarden_1 = __importDefault(require("@plugins/french/jgarden"));
 var kisswood_1 = __importDefault(require("@plugins/french/kisswood"));
 var LighNovelFR_lightnovelwp_1 = __importDefault(require("@plugins/french/LighNovelFR[lightnovelwp]"));
+var lightnovelvf_1 = __importDefault(require("@plugins/french/lightnovelvf"));
 var MassNovel_madara_1 = __importDefault(require("@plugins/french/MassNovel[madara]"));
 var MTLNovel_FR__mtlnovel_1 = __importDefault(require("@plugins/french/MTLNovel(FR)[mtlnovel]"));
 var noveldeglace_1 = __importDefault(require("@plugins/french/noveldeglace"));
+var novelfrance_1 = __importDefault(require("@plugins/french/novelfrance"));
 var novhell_1 = __importDefault(require("@plugins/french/novhell"));
+var rezerowebnovelfr_1 = __importDefault(require("@plugins/french/rezerowebnovelfr"));
+var tradindex_1 = __importDefault(require("@plugins/french/tradindex"));
 var warriorlegendtrad_1 = __importDefault(require("@plugins/french/warriorlegendtrad"));
 var WorldNovel_madara_1 = __importDefault(require("@plugins/french/WorldNovel[madara]"));
 var wuxialnscantrad_1 = __importDefault(require("@plugins/french/wuxialnscantrad"));
@@ -183,6 +212,7 @@ var novelki_1 = __importDefault(require("@plugins/polish/novelki"));
 var BetterNovels_lightnovelwp_1 = __importDefault(require("@plugins/portuguese/BetterNovels[lightnovelwp]"));
 var blogdoamonnovels_1 = __importDefault(require("@plugins/portuguese/blogdoamonnovels"));
 var CentralNovel_lightnovelwp_1 = __importDefault(require("@plugins/portuguese/CentralNovel[lightnovelwp]"));
+var illusia_1 = __importDefault(require("@plugins/portuguese/illusia"));
 var Kiniga_madara_1 = __importDefault(require("@plugins/portuguese/Kiniga[madara]"));
 var LaNovels_hotnovelpub_1 = __importDefault(require("@plugins/portuguese/LaNovels[hotnovelpub]"));
 var LightNovelBrasil_lightnovelwp_1 = __importDefault(require("@plugins/portuguese/LightNovelBrasil[lightnovelwp]"));
@@ -217,9 +247,11 @@ var hasutl_1 = __importDefault(require("@plugins/spanish/hasutl"));
 var ichijoutranslations_1 = __importDefault(require("@plugins/spanish/ichijoutranslations"));
 var LightNovelDaily_hotnovelpub_1 = __importDefault(require("@plugins/spanish/LightNovelDaily[hotnovelpub]"));
 var MTLNovel_ES__mtlnovel_1 = __importDefault(require("@plugins/spanish/MTLNovel(ES)[mtlnovel]"));
+var NOVA_1 = __importDefault(require("@plugins/spanish/NOVA"));
 var novelasligera_1 = __importDefault(require("@plugins/spanish/novelasligera"));
 var novelasligerasnet_1 = __importDefault(require("@plugins/spanish/novelasligerasnet"));
 var novelawuxia_1 = __importDefault(require("@plugins/spanish/novelawuxia"));
+var novelyra_1 = __importDefault(require("@plugins/spanish/novelyra"));
 var oasistranslations_1 = __importDefault(require("@plugins/spanish/oasistranslations"));
 var panchotranslations_1 = __importDefault(require("@plugins/spanish/panchotranslations"));
 var skynovels_1 = __importDefault(require("@plugins/spanish/skynovels"));
@@ -248,19 +280,24 @@ var smakolykytl_1 = __importDefault(require("@plugins/ukrainian/smakolykytl"));
 var lightnovelvn_1 = __importDefault(require("@plugins/vietnamese/lightnovelvn"));
 var LNHako_1 = __importDefault(require("@plugins/vietnamese/LNHako"));
 var nettruyen_1 = __importDefault(require("@plugins/vietnamese/nettruyen"));
+var truyenss_1 = __importDefault(require("@plugins/vietnamese/truyenss"));
 var PLUGINS = [
     ArNovel_madara_1.default,
     Azora_madara_1.default,
     dilartube_1.default,
     FreeKolNovel_lightnovelwp_1.default,
+    galaxynovels_1.default,
     HizoManga_madara_1.default,
     KolNovel_lightnovelwp_1.default,
     Markazriwayat_madara_1.default,
     Novel4Up_madara_1.default,
     NovelsParadise_lightnovelwp_1.default,
     Olaoecyou_madara_1.default,
+    rewayahfans_1.default,
     rewayatclub_1.default,
+    rewayatfans_1.default,
     Riwyat_madara_1.default,
+    seanovel_1.default,
     sunovels_1.default,
     _69shu_1.default,
     ixdzs8_1.default,
@@ -271,10 +308,13 @@ var PLUGINS = [
     Quanben_1.default,
     AllNovel_readnovelfull_1.default,
     AllNovelFull_readnovelfull_1.default,
+    animeAnyway_1.default,
     ao3_1.default,
     ArcaneTranslations_lightnovelwp_1.default,
+    bakaTsuki_1.default,
     BelleReservoir_madara_1.default,
     BoxNovel_readnovelfull_1.default,
+    chikari_1.default,
     chrysanthemumgarden_1.default,
     CitrusAurora_madara_1.default,
     CoralBoutique_madara_1.default,
@@ -288,6 +328,7 @@ var PLUGINS = [
     Dragonholic_madara_1.default,
     DragonTea_madara_1.default,
     dreambigtl_1.default,
+    dreamyTranslations_1.default,
     DuskBlossoms_madara_1.default,
     ElloTL_lightnovelwp_1.default,
     Eternalune_madara_1.default,
@@ -302,29 +343,36 @@ var PLUGINS = [
     Foxaholic_madara_1.default,
     foxteller_1.default,
     FreeWebNovel_readnovelfull_1.default,
+    fucknovelpia_1.default,
     GalaxyTranslations_madara_1.default,
     genesis_1.default,
     Guavaread_madara_1.default,
+    HangulPlanet_madara_1.default,
     HiraethTranslation_madara_1.default,
     HotNovelPub_hotnovelpub_1.default,
+    indraTranslations_1.default,
     inkitt_1.default,
+    inoveltranslation_1.default,
     Ippotranslations_lightnovelwp_1.default,
     KDTNovels_lightnovelwp_1.default,
     KeopiTranslations_lightnovelwp_1.default,
     KnoxT_lightnovelwp_1.default,
+    konkon_1.default,
     LazyGirlTranslations_lightnovelwp_1.default,
     leafstudio_1.default,
     LibRead_readnovelfull_1.default,
-    LightNovelCave_lightnovelworld_1.default,
+    LightNovelCave_webnovelworld_1.default,
     LightNovelHeaven_madara_1.default,
     LightNovelPlus_readnovelfull_1.default,
-    LightNovelPubVip_lightnovelworld_1.default,
+    LightNovelPubVip_webnovelworld_1.default,
     lightnoveltranslation_1.default,
     LightNovelUpdates_madara_1.default,
-    LightNovelWord_lightnovelworld_1.default,
+    lightnovelworld_1.default,
     LilyontheValley_fictioneer_1.default,
     lnmtl_1.default,
+    lnori_1.default,
     lorenovels_1.default,
+    Lovelyblossoms_madara_1.default,
     Ltnovel_readwn_1.default,
     LulloBox_madara_1.default,
     LunarLetters_madara_1.default,
@@ -335,31 +383,38 @@ var PLUGINS = [
     MTLNovel_mtlnovel_1.default,
     mtlreader_1.default,
     mvlempyr_1.default,
+    mynovels_1.default,
     MysticalSeries_madara_1.default,
     NeoSekaiTranslations_madara_1.default,
     NitroManga_madara_1.default,
     NobleMTL_lightnovelwp_1.default,
     NoiceTranslations_madara_1.default,
+    novel7s_1.default,
+    novelarrow_1.default,
     NovelBin_readnovelfull_1.default,
     novelbuddy_1.default,
     NovelCool_novelcool_1.default,
     novelfire_1.default,
     NovelFull_readnovelfull_1.default,
     novelhall_1.default,
+    novelhi_1.default,
     novelight_1.default,
     NovelLib_fictioneer_1.default,
     NovelMultiverse_madara_1.default,
     NovelNinja_madara_1.default,
     NovelOnline_1.default,
     novelrest_1.default,
+    NovelShort_madara_1.default,
     NovelsKnight_lightnovelwp_1.default,
     NovelTranslate_madara_1.default,
     novelupdates_1.default,
     PandaMachineTranslations_lightnovelwp_1.default,
     PastelTales_madara_1.default,
     pawread_1.default,
+    peachpuff_1.default,
     PenguinSquad_fictioneer_1.default,
     Prizma_fictioneer_1.default,
+    puffinFolio_1.default,
     rainofsnow_1.default,
     Ranobes_ranobes_1.default,
     Ranovel_madara_1.default,
@@ -371,6 +426,7 @@ var PLUGINS = [
     royalroad_1.default,
     SalmonLatte_madara_1.default,
     scribblehub_1.default,
+    skythewood_1.default,
     SleepyTranslations_madara_1.default,
     SonicMTL_madara_1.default,
     SrankManga_madara_1.default,
@@ -383,9 +439,10 @@ var PLUGINS = [
     VandyTranslate_lightnovelwp_1.default,
     VioletLily_madara_1.default,
     vynovel_1.default,
+    wct_1.default,
     webnovel_1.default,
     WebNovelLover_madara_1.default,
-    WebNovelPub_lightnovelworld_1.default,
+    WebNovelPub_webnovelworld_1.default,
     WebNovelTranslation_madara_1.default,
     WhiteMoonlightNovels_lightnovelwp_1.default,
     WooksTeahouse_madara_1.default,
@@ -400,12 +457,17 @@ var PLUGINS = [
     ZetroTranslation_madara_1.default,
     chireads_1.default,
     harkeneliwood_1.default,
+    jgarden_1.default,
     kisswood_1.default,
     LighNovelFR_lightnovelwp_1.default,
+    lightnovelvf_1.default,
     MassNovel_madara_1.default,
     MTLNovel_FR__mtlnovel_1.default,
     noveldeglace_1.default,
+    novelfrance_1.default,
     novhell_1.default,
+    rezerowebnovelfr_1.default,
+    tradindex_1.default,
     warriorlegendtrad_1.default,
     WorldNovel_madara_1.default,
     wuxialnscantrad_1.default,
@@ -429,6 +491,7 @@ var PLUGINS = [
     BetterNovels_lightnovelwp_1.default,
     blogdoamonnovels_1.default,
     CentralNovel_lightnovelwp_1.default,
+    illusia_1.default,
     Kiniga_madara_1.default,
     LaNovels_hotnovelpub_1.default,
     LightNovelBrasil_lightnovelwp_1.default,
@@ -463,9 +526,11 @@ var PLUGINS = [
     ichijoutranslations_1.default,
     LightNovelDaily_hotnovelpub_1.default,
     MTLNovel_ES__mtlnovel_1.default,
+    NOVA_1.default,
     novelasligera_1.default,
     novelasligerasnet_1.default,
     novelawuxia_1.default,
+    novelyra_1.default,
     oasistranslations_1.default,
     panchotranslations_1.default,
     skynovels_1.default,
@@ -494,5 +559,6 @@ var PLUGINS = [
     lightnovelvn_1.default,
     LNHako_1.default,
     nettruyen_1.default,
+    truyenss_1.default,
 ];
 exports.default = PLUGINS;
