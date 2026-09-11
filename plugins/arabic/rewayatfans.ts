@@ -8,7 +8,7 @@ type WPPage = {
   date: string;
   featured_media: number;
   _embedded?: {
-    'wp:featuredmedia'?: Array<{ source_url: string }>;
+    'wp:featuredmedia'?: { source_url: string }[];
   };
 };
 
