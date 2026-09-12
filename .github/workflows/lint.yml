@@ -45,7 +45,9 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review 
-          eslint_flags: "${{ steps.changed-files.outputs.all_changed_files }}"
+          # Lint the repository instead of passing changed-file paths through
+          # the action output, which corrupts non-ASCII filenames on Linux.
+          eslint_flags: .
           filter_mode: diff_context 
           fail_on_error: false
           
