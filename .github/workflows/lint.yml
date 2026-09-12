@@ -2,7 +2,7 @@ name: Lint Check
 
 on:
   pull_request:
-    branches: [ master ]
+    branches: [master]
   workflow_dispatch:
 
 concurrency:
@@ -24,6 +24,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Preserve Unicode Paths
+        run: git config core.quotePath false
+
       - name: Get Changed Files
         id: changed-files
         uses: tj-actions/changed-files@48d8f15b2aaa3d255ca5af3eba4870f807ce6b3c # v45
@@ -44,10 +47,7 @@ jobs:
         uses: reviewdog/action-eslint@556a3fdaf8b4201d4d74d406013386aa4f7dab96 # v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          reporter: github-pr-review 
-          # Lint the repository instead of passing changed-file paths through
-          # the action output, which corrupts non-ASCII filenames on Linux.
-          eslint_flags: .
-          filter_mode: diff_context 
+          reporter: github-pr-review
+          eslint_flags: '${{ steps.changed-files.outputs.all_changed_files }}'
+          filter_mode: diff_context
           fail_on_error: false
-          
