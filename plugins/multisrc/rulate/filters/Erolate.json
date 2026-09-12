@@ -3,7 +3,7 @@
     "genres": {
       "type": "Checkbox",
       "label": "Жанры: все жанры любой жанр",
-      "value": "",
+      "value": [],
       "options": [
         {
           "label": "анал",

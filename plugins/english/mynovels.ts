@@ -235,7 +235,11 @@ class Mynovels implements Plugin.PagePlugin {
       rangeEnd: number;
     }[] = [];
     loadedCheerio('#select-pagination-chapter > option').each((_, el) => {
-      const sp = parseInt(loadedCheerio(el).val() || '1', 10);
+      const rawVal = loadedCheerio(el).val();
+      const valStr = Array.isArray(rawVal)
+        ? (rawVal[0] ?? '1')
+        : (rawVal ?? '1');
+      const sp = parseInt(valStr, 10);
       const text = loadedCheerio(el).text().trim();
       const match = text.match(/([0-9]+)\s*-\s*([0-9]+)/);
       if (match) {

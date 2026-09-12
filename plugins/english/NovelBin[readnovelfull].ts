@@ -1,8 +1,8 @@
 import { Parser } from 'htmlparser2';
-import { fetchApi } from '@libs/fetch';
+import { fetchApi, FetchInit } from '@libs/fetch';
 import { Plugin } from '@/types/plugin';
 import { NovelStatus } from '@libs/novelStatus';
-import { Filters } from '@libs/filterInputs';
+import { Filters, FilterTypes } from '@libs/filterInputs';
 import { load } from 'cheerio';
 
 type ReadNovelFullOptions = {
@@ -33,7 +33,7 @@ export type ReadNovelFullMetadata = {
   sourceSite: string;
   sourceName: string;
   options: ReadNovelFullOptions;
-  filters?: any;
+  filters?: Filters;
 };
 
 export class ReadNovelFullPlugin implements Plugin.PluginBase {
@@ -51,7 +51,7 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
     this.icon = `multisrc/readnovelfull/${metadata.id.toLowerCase()}/icon.png`;
     this.site = metadata.sourceSite;
     const versionIncrements = metadata.options?.versionIncrements || 0;
-    this.version = `2.1.${2 + versionIncrements}`;
+    this.version = `2.2.${1 + versionIncrements}`;
     this.options = metadata.options;
     this.filters = metadata.filters;
   }
@@ -79,8 +79,7 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
         const state = currentState();
         if (
           attribs.class?.includes('archive') ||
-          attribs.class === 'col-content' ||
-          attribs.class?.includes('list-novel')
+          attribs.class === 'col-content'
         ) {
           pushState(ParsingState.NovelList);
           depth = 0;
@@ -93,13 +92,14 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
           return;
 
         switch (name) {
-          case 'img': {
-            const cover = attribs['data-src'] || attribs.src;
-            if (cover) {
-              tempNovel.cover = new URL(cover, this.site).href;
+          case 'img':
+            {
+              const cover = attribs['data-src'] || attribs.src;
+              if (cover) {
+                tempNovel.cover = new URL(cover, this.site).href;
+              }
             }
             break;
-          }
           case 'h3':
             if (state === ParsingState.NovelList) {
               pushState(ParsingState.NovelName);
@@ -203,6 +203,7 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
     }
 
     const allChapters: Plugin.ChapterItem[] = [...first.chapters];
+    let fetchedPages = 1;
 
     if (first.totalPages > 1) {
       for (let page = 2; page <= first.totalPages; page++) {
@@ -214,6 +215,7 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
         );
         if (result) {
           allChapters.push(...result.chapters);
+          fetchedPages++;
         }
       }
     }
@@ -273,9 +275,11 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
 
   async popularNovels(
     pageNo: number,
-    { filters, showLatestNovels }: Plugin.PopularNovelsOptions,
+    {
+      filters,
+      showLatestNovels,
+    }: Plugin.PopularNovelsOptions<typeof this.filters>,
   ): Promise<Plugin.NovelItem[]> {
-    const filtersValues = filters as any;
     const {
       pageParam = 'page',
       novelListing,
@@ -289,13 +293,19 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
       pageAsPath = false,
     } = this.options;
 
+    const genreValues = Array.isArray(filters?.genres?.value)
+      ? filters.genres.value
+      : [];
+    const typeValue =
+      typeof filters?.type?.value === 'string' ? filters.type.value : '';
+
     // Skip Pagination for FWN & LR
     if (
       pageNo !== 1 &&
       !showLatestNovels &&
-      !filtersValues.genres.value.length &&
+      !genreValues.length &&
       noPages.length > 0 &&
-      noPages.includes(filtersValues.type.value)
+      noPages.includes(typeValue)
     ) {
       return [];
     }
@@ -308,11 +318,11 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
 
       if (showLatestNovels) {
         params.append(typeParam, latestPage);
-      } else if (filtersValues.genres.value.length) {
+      } else if (genreValues.length) {
         params.append(typeParam, genreParam);
-        params.append(genreKey, filtersValues.genres.value);
+        params.append(genreKey, genreValues.join(','));
       } else {
-        params.append(typeParam, filtersValues.type.value);
+        params.append(typeParam, typeValue);
       }
 
       // Add language parameter if specified
@@ -326,9 +336,9 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
       // URL structure with path segments
       const basePage = showLatestNovels
         ? latestPage
-        : filtersValues.genres.value.length
-          ? filtersValues.genres.value
-          : filtersValues.type.value;
+        : genreValues.length
+          ? genreValues.join(',')
+          : typeValue;
 
       if (pageAsPath) {
         if (pageNo > 1) {
@@ -367,6 +377,8 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
     const infoParts: string[] = [];
     const chapters: Plugin.ChapterItem[] = [];
     let novelId: string | null = null;
+    let totalChapter: number | null = null;
+    let novelTitle: string | null = null;
     let tempChapter: Partial<Plugin.ChapterItem> = {};
     let i = 0;
     let depth: number;
@@ -389,6 +401,7 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
                 return;
               case 'inner':
               case 'desc-text':
+              case 'desc-text desc-text-collapsed':
                 if (state === ParsingState.Cover) popState();
                 pushState(ParsingState.Summary);
                 break;
@@ -399,6 +412,10 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
             }
             if (!this.options.noAjax && attribs.id === 'rating') {
               novelId = attribs['data-novel-id'];
+            }
+            if (attribs.id === 'indexListPage') {
+              novelId = attribs['data-novel-id'];
+              totalChapter = Number(attribs['data-total-chapters']);
             }
             if (state === ParsingState.Info) depth++;
             break;
@@ -432,6 +449,9 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
 
               if (newState) pushState(newState);
             }
+            if (attribs.class?.includes('disqus')) {
+              novelTitle = attribs['data-disqus-identifier'];
+            }
             break;
           case 'br':
             if (state === ParsingState.Summary) {
@@ -447,6 +467,9 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
             }
             break;
           case 'a':
+            if (attribs.class?.includes('set-case')) {
+              novelId = attribs['data-articleid'];
+            }
             if (state === ParsingState.ChapterList) {
               i++;
               const href = attribs.href;
@@ -459,6 +482,9 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
                 href?.substring(1) ||
                 novelPath.replace('.html', `/chapter-${i}.html`);
             }
+            break;
+          case 'script':
+            pushState(ParsingState.Hidden);
             break;
         }
       },
@@ -486,6 +512,12 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
           case ParsingState.Status:
             statusParts.push(text);
             break;
+          case ParsingState.Hidden:
+            if (text.includes('window.chapterPagination')) {
+              totalChapter = Number(text.match(/totalChapters:\s*(\d+)/)![1])!;
+            } else if (text.includes('sourceid')) {
+              novelId = text.match(/sourceid=(\d+)/)![1]!;
+            }
         }
       },
 
@@ -536,6 +568,9 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
                 break;
             }
             break;
+          case 'script':
+            if (state === ParsingState.Hidden) popState();
+            break;
           default:
             return;
         }
@@ -563,18 +598,19 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
                 case 'genre':
                   novel.genres = detail;
                   break;
-                case 'status': {
-                  const map: Record<string, string> = {
-                    ongoing: NovelStatus.Ongoing,
-                    hiatus: NovelStatus.OnHiatus,
-                    dropped: NovelStatus.Cancelled,
-                    cancelled: NovelStatus.Cancelled,
-                    completed: NovelStatus.Completed,
-                  };
-                  novel.status =
-                    map[detail.toLowerCase()] ?? NovelStatus.Unknown;
+                case 'status':
+                  {
+                    const map: Record<string, string> = {
+                      ongoing: NovelStatus.Ongoing,
+                      hiatus: NovelStatus.OnHiatus,
+                      dropped: NovelStatus.Cancelled,
+                      cancelled: NovelStatus.Cancelled,
+                      completed: NovelStatus.Completed,
+                    };
+                    novel.status =
+                      map[detail.toLowerCase()] ?? NovelStatus.Unknown;
+                  }
                   break;
-                }
                 default:
                   return;
               }
@@ -601,21 +637,48 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
 
     if (this.options.chapterListPaginated) {
       novel.chapters = await this.fetchAllChaptersViaJsonAjax(novelPath);
-    } else if (this.options.noAjax && chapters.length > 0) {
+    } else if (this.options.noAjax && chapters.length > 0 && !totalChapter) {
       novel.chapters = chapters;
     } else if (novelId !== null) {
       const chapterListing =
         this.options.chapterListing || 'ajax/chapter-archive';
       const ajaxParam = this.options.chapterParam || 'novelId';
       const params = new URLSearchParams({ [ajaxParam]: novelId });
-      const chaptersUrl = `${this.site}${chapterListing}?${params.toString()}`;
 
-      const ajaxResult = await fetchApi(chaptersUrl);
+      let chaptersUrl: string;
+      let fetchOptions: FetchInit | undefined;
+
+      if (totalChapter) {
+        chaptersUrl = `${this.site}${chapterListing}`;
+        params.set('acode', novelTitle || novelPath.split('/').pop()!);
+        params.set('cid', String(Math.floor(Math.random() * totalChapter)));
+        fetchOptions = {
+          method: 'POST',
+          body: params.toString(),
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+        };
+      } else {
+        chaptersUrl = `${this.site}${chapterListing}?${params.toString()}`;
+      }
+
+      const ajaxResult = await fetchApi(chaptersUrl, fetchOptions);
       if (!ajaxResult.ok) {
         console.error(`Failed to fetch chapters: ${ajaxResult.status}`);
         novel.chapters = [];
       } else {
         const ajaxBody = await ajaxResult.text();
+        let ajaxHtml = ajaxBody;
+        try {
+          const json = JSON.parse(ajaxBody);
+          if (typeof json.html === 'string') {
+            ajaxHtml = json.html;
+          }
+        } catch {
+          // eslint
+        }
         const ajaxChapters: Plugin.ChapterItem[] = [];
         let tempAjaxChapter: Partial<Plugin.ChapterItem> = {};
 
@@ -635,8 +698,10 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
             }
 
             if (chapterHref !== undefined) {
-              const href = new URL(chapterHref, this.site);
-              tempAjaxChapter.path = href.pathname.substring(1);
+              const path = chapterHref.startsWith('/')
+                ? chapterHref.slice(1)
+                : chapterHref.replace(this.site + '/', '');
+              tempAjaxChapter.path = path;
               tempAjaxChapter.name = initialName;
             }
           },
@@ -670,7 +735,7 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
           },
         });
 
-        ajaxParser.write(ajaxBody);
+        ajaxParser.write(ajaxHtml);
         ajaxParser.end();
         novel.chapters = ajaxChapters;
       }
@@ -685,7 +750,7 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
     if (this.options?.customJs) {
       try {
         const $ = load(html);
-        // CustomJS HERE
+        $('[class*="app-promo"]').remove();
         html = $.html();
       } catch (error) {
         console.error('Error executing customJs:', error);
@@ -705,18 +770,17 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
     const popState = () =>
       stateStack.length > 1 ? stateStack.pop() : currentState();
 
-    type EscapeChar = '&' | '<' | '>' | '"' | "'" | ' ';
-    const escapeRegex = /[&<>"'\u00A0]/g;
-    const escapeMap: Record<EscapeChar, string> = {
+    const escapeMap: Record<string, string> = {
       '&': '&amp;',
       '<': '&lt;',
       '>': '&gt;',
       '"': '&quot;',
       "'": '&#39;',
-      ' ': '&nbsp;',
+      ' ': '&nbsp;',
+      '\u200C': '', // this is probably a breaking change, report if paragraphs look weird
     };
-    const escapeHtml = (text: string): string =>
-      text.replace(escapeRegex, char => escapeMap[char as EscapeChar]);
+    const escapeHtml = (text: string) =>
+      text.replace(/[&<>"'\xA0\u200C]/g, char => escapeMap[char]);
 
     const parser = new Parser({
       onopentag(name, attribs) {
@@ -734,7 +798,7 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
             }
             break;
           case ParsingState.Chapter:
-            if (name === 'sub') {
+            if (name === 'sub' || name === 'iframe') {
               pushState(ParsingState.Hidden);
             } else if (name === 'div') {
               depth++;
@@ -787,7 +851,8 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
 
       ontext(text) {
         if (currentState() === ParsingState.Chapter) {
-          chapterHtml.push(escapeHtml(text));
+          const data = escapeHtml(text);
+          chapterHtml.push(data.trim().replace(/\s\s+/, ' '));
         }
       },
 
@@ -795,7 +860,7 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
         const state = currentState();
 
         if (state === ParsingState.Hidden) {
-          if (name === 'sub') {
+          if (name === 'sub' || name === 'iframe') {
             popState();
           } else if (name === 'div') {
             depthHide--;
@@ -860,8 +925,7 @@ export class ReadNovelFullPlugin implements Plugin.PluginBase {
 
     const url = `${this.site}${searchPage}${!postSearch ? `?${params.toString()}` : ''}`;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const fetchOptions: any = postSearch
+    const fetchOptions: FetchInit | undefined = postSearch
       ? {
           method: 'POST',
           body: params.toString(),
@@ -904,5 +968,5 @@ enum ParsingState {
   NovelList,
 }
 
-const plugin = new ReadNovelFullPlugin({"id":"novelbin","sourceSite":"https://novelbin.com/","sourceName":"Novel Bin","options":{"latestPage":"sort/novelbin-daily-update","searchPage":"search","lang":"English","versionIncrements":4},"filters":{"type":{"type":"Picker","label":"Novel Listing","value":"sort/top-view-novel","options":[{"label":"Hot Novel","value":"sort/top-hot-novel"},{"label":"Completed Novel","value":"sort/completed"},{"label":"Most Popular","value":"sort/top-view-novel"}]},"genres":{"type":"Picker","label":"Genre (Cancels out 'Novel Listing')","value":"","options":[{"label":"Action","value":"genre/action"},{"label":"Adventure","value":"genre/adventure"},{"label":"Anime & comics","value":"genre/anime-&-comics"},{"label":"Comedy","value":"genre/comedy"},{"label":"Drama","value":"genre/drama"},{"label":"Eastern","value":"genre/eastern"},{"label":"Fan-fiction","value":"genre/fan-fiction"},{"label":"Fanfiction","value":"genre/fanfiction"},{"label":"Fantasy","value":"genre/fantasy"},{"label":"Game","value":"genre/game"},{"label":"Games","value":"genre/games"},{"label":"Gender bender","value":"genre/gender-bender"},{"label":"General","value":"genre/general"},{"label":"Harem","value":"genre/harem"},{"label":"Historical","value":"genre/historical"},{"label":"Horror","value":"genre/horror"},{"label":"Isekai","value":"genre/isekai"},{"label":"Josei","value":"genre/josei"},{"label":"Litrpg","value":"genre/litrpg"},{"label":"Magic","value":"genre/magic"},{"label":"Magical realism","value":"genre/magical-realism"},{"label":"Martial arts","value":"genre/martial-arts"},{"label":"Mature","value":"genre/mature"},{"label":"Mecha","value":"genre/mecha"},{"label":"Military","value":"genre/military"},{"label":"Modern life","value":"genre/modern-life"},{"label":"Myster","value":"genre/myster"},{"label":"Mystery","value":"genre/mystery"},{"label":"Other","value":"genre/other"},{"label":"Other","value":"genre/other"},{"label":"Psychological","value":"genre/psychological"},{"label":"Reincarnation","value":"genre/reincarnation"},{"label":"Romance","value":"genre/romance"},{"label":"Romance.smut","value":"genre/romance.smut"},{"label":"School life","value":"genre/school-life"},{"label":"Sci-fi","value":"genre/sci-fi"},{"label":"Seinen","value":"genre/seinen"},{"label":"Shoujo","value":"genre/shoujo"},{"label":"Shoujo ai","value":"genre/shoujo-ai"},{"label":"Shounen","value":"genre/shounen"},{"label":"Shounen ai","value":"genre/shounen-ai"},{"label":"Slice of life","value":"genre/slice-of-life"},{"label":"Smut","value":"genre/smut"},{"label":"Sports","value":"genre/sports"},{"label":"Supernatural","value":"genre/supernatural"},{"label":"System","value":"genre/system"},{"label":"Thriller","value":"genre/thriller"},{"label":"Tragedy","value":"genre/tragedy"},{"label":"Urban","value":"genre/urban"},{"label":"Urban life","value":"genre/urban-life"},{"label":"Video games","value":"genre/video-games"},{"label":"War","value":"genre/war"},{"label":"Wuxia","value":"genre/wuxia"},{"label":"Xianxia","value":"genre/xianxia"},{"label":"Xuanhuan","value":"genre/xuanhuan"},{"label":"Yaoi","value":"genre/yaoi"},{"label":"Yuri","value":"genre/yuri"}]},"complete":{"type":"Switch","label":"Show Completed Novels Only","value":false}}});
+const plugin = new ReadNovelFullPlugin({"id":"novelbin","sourceSite":"https://novelbin.com/","sourceName":"Novel Bin","options":{"latestPage":"sort/latest","searchPage":"search","versionIncrements":1,"customJs":"$('[class*=\"app-promo\"]').remove();"},"filters":{"type":{"type":FilterTypes.Picker,"label":"Novel Listing","value":"sort/top-view-novel","options":[{"label":"Hot Novel","value":"sort/top-hot-novel"},{"label":"Completed Novel","value":"sort/completed"},{"label":"Most Popular","value":"sort/top-view-novel"}]},"genres":{"type":FilterTypes.Picker,"label":"Genre (Cancels out 'Novel Listing')","value":"","options":[{"label":"Action","value":"genre/action"},{"label":"Adventure","value":"genre/adventure"},{"label":"Anime & comics","value":"genre/anime-&-comics"},{"label":"Comedy","value":"genre/comedy"},{"label":"Drama","value":"genre/drama"},{"label":"Eastern","value":"genre/eastern"},{"label":"Fan-fiction","value":"genre/fan-fiction"},{"label":"Fanfiction","value":"genre/fanfiction"},{"label":"Fantasy","value":"genre/fantasy"},{"label":"Game","value":"genre/game"},{"label":"Games","value":"genre/games"},{"label":"Gender bender","value":"genre/gender-bender"},{"label":"General","value":"genre/general"},{"label":"Harem","value":"genre/harem"},{"label":"Historical","value":"genre/historical"},{"label":"Horror","value":"genre/horror"},{"label":"Isekai","value":"genre/isekai"},{"label":"Josei","value":"genre/josei"},{"label":"Litrpg","value":"genre/litrpg"},{"label":"Magic","value":"genre/magic"},{"label":"Magical realism","value":"genre/magical-realism"},{"label":"Martial arts","value":"genre/martial-arts"},{"label":"Mature","value":"genre/mature"},{"label":"Mecha","value":"genre/mecha"},{"label":"Military","value":"genre/military"},{"label":"Modern life","value":"genre/modern-life"},{"label":"Myster","value":"genre/myster"},{"label":"Mystery","value":"genre/mystery"},{"label":"Other","value":"genre/other"},{"label":"Other","value":"genre/other"},{"label":"Psychological","value":"genre/psychological"},{"label":"Reincarnation","value":"genre/reincarnation"},{"label":"Romance","value":"genre/romance"},{"label":"Romance.smut","value":"genre/romance.smut"},{"label":"School life","value":"genre/school-life"},{"label":"Sci-fi","value":"genre/sci-fi"},{"label":"Seinen","value":"genre/seinen"},{"label":"Shoujo","value":"genre/shoujo"},{"label":"Shoujo ai","value":"genre/shoujo-ai"},{"label":"Shounen","value":"genre/shounen"},{"label":"Shounen ai","value":"genre/shounen-ai"},{"label":"Slice of life","value":"genre/slice-of-life"},{"label":"Smut","value":"genre/smut"},{"label":"Sports","value":"genre/sports"},{"label":"Supernatural","value":"genre/supernatural"},{"label":"System","value":"genre/system"},{"label":"Thriller","value":"genre/thriller"},{"label":"Tragedy","value":"genre/tragedy"},{"label":"Urban","value":"genre/urban"},{"label":"Urban life","value":"genre/urban-life"},{"label":"Video games","value":"genre/video-games"},{"label":"War","value":"genre/war"},{"label":"Wuxia","value":"genre/wuxia"},{"label":"Xianxia","value":"genre/xianxia"},{"label":"Xuanhuan","value":"genre/xuanhuan"},{"label":"Yaoi","value":"genre/yaoi"},{"label":"Yuri","value":"genre/yuri"}]},"complete":{"type":FilterTypes.Switch,"label":"Show Completed Novels Only","value":false}}});
 export default plugin;

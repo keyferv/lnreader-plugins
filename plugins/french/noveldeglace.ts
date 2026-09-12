@@ -88,7 +88,9 @@ class NovelDeGlacePlugin implements Plugin.PluginBase {
 
     novel.name =
       (
-        $('div.entry-content > div > strong')[0].nextSibling as string | null
+        $('div.entry-content > div > strong')[0].nextSibling as unknown as {
+          nodeValue?: string | null;
+        } | null
       )?.nodeValue?.trim() || 'Untitled';
 
     novel.cover = $('.su-row > div > div > img').attr('src') || defaultCover;

@@ -14,6 +14,8 @@ type LightNovelWPOptions = {
   seriesPath?: string;
   customJs?: string;
   hasLocked?: boolean;
+  down?: boolean;
+  downSince?: number;
 };
 
 export type LightNovelWPMetadata = {

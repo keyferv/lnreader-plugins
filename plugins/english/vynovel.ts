@@ -23,7 +23,7 @@ class VyNovel implements Plugin.PluginBase {
   ): Promise<Plugin.NovelItem[]> {
     const data = new URLSearchParams({
       sort: showLatestNovels ? 'updated_at' : filters?.sort?.value || 'viewed',
-      page,
+      page: String(page),
     });
     if (searchTerm) data.append('q', searchTerm);
 
@@ -128,29 +128,30 @@ class VyNovel implements Plugin.PluginBase {
       const [value, type] = date.split(' ');
       if (!value || !type) return null;
 
+      let timestamp: number | undefined;
       switch (type.toLowerCase()) {
         case 'minutes': {
           const minutes = parseInt(value, 10);
-          date = Date.now() - minutes * 60 * 1000;
+          timestamp = Date.now() - minutes * 60 * 1000;
           break;
         }
         case 'hour':
         case 'hours': {
           const hours = parseInt(value, 10);
-          date = Date.now() - hours * 60 * 60 * 1000;
+          timestamp = Date.now() - hours * 60 * 60 * 1000;
           break;
         }
         case 'day':
         case 'days': {
           const days = parseInt(value, 10);
-          date = Date.now() - days * 24 * 60 * 60 * 1000;
+          timestamp = Date.now() - days * 24 * 60 * 60 * 1000;
           break;
         }
         default:
           console.log(date);
-          date = undefined;
+          timestamp = undefined;
       }
-      return dayjs(date).format('LLL');
+      return dayjs(timestamp).format('LLL');
     }
     return date;
   };

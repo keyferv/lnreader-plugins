@@ -21,6 +21,10 @@
     "sourceSite": "https://lilyonthevalley.com",
     "sourceName": "Lily on the Valley",
     "options": {
+      "customJs": {
+          "chapterTransform": "custom/lillyonthevalley/chapterTransform.js"
+      },
+      "versionIncrements": 1,
       "browsePage": "stories"
     }
   },
@@ -48,6 +52,18 @@
       "browsePage": "stories",
       "down": true,
       "downSince": 1768289212907
+    }
+  },
+  {
+    "id": "cherrymistcafe",
+    "sourceSite": "https://cherrymist.cafe/",
+    "sourceName": "Cherry Mist Cafe",
+    "options": {
+      "customJs": {
+          "chapterTransform": "custom/cherrymistcafe/chapterTransform.js"
+      },
+      "versionIncrements": 1,
+      "browsePage": "stories"
     }
   }
 ]

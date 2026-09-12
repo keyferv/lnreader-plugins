@@ -1,4 +1,5 @@
-import { Cheerio, CheerioAPI, load, Element } from 'cheerio';
+import { Cheerio, CheerioAPI, load } from 'cheerio';
+import type { Element } from 'domhandler';
 import { fetchApi } from '@libs/fetch';
 import { Plugin } from '@/types/plugin';
 import { defaultCover } from '@libs/defaultCover';

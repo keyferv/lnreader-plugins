@@ -91,14 +91,15 @@ class MVLEMPYRPlugin implements Plugin.PluginBase {
   }
 
   convertNovelId(e: bigint) {
-    const t = 1999999997n;
-    let u = 1n,
-      c = 7n % t,
+    const ONE = BigInt(1);
+    const t = BigInt(1999999997);
+    let u = ONE,
+      c = BigInt(7) % t,
       d = e;
     for (
       ;
       d > 0;
-      (1n & d) === 1n && (u = (u * c) % t), c = (c * c) % t, d >>= 1n
+      (ONE & d) === ONE && (u = (u * c) % t), c = (c * c) % t, d >>= ONE
     );
     return u;
   }
@@ -121,7 +122,8 @@ class MVLEMPYRPlugin implements Plugin.PluginBase {
         '&per_page=500&page=1',
     );
 
-    const pages = parseInt(firstPostsReq.headers.get('X-Wp-Totalpages')) || 1;
+    const pages =
+      parseInt(firstPostsReq.headers.get('X-Wp-Totalpages') ?? '') || 1;
 
     const posts = [
       await firstPostsReq.json(),
@@ -156,16 +158,26 @@ class MVLEMPYRPlugin implements Plugin.PluginBase {
         }))
         .reverse(),
       status: loadedCheerio('.novelstatustextlarge').text(),
-      author: loadedCheerio(
-        'div.additionalinfo.tm10 > div.textwrapper:nth-child(1)',
-      )
-        .toArray()
-        .filter(e => {
-          return (
-            e.children.length == 2 &&
-            e.children[0].children[0].data === 'Author:'
-          );
-        })[0].children[1].children[0].data,
+      author: (() => {
+        const match = loadedCheerio(
+          'div.additionalinfo.tm10 > div.textwrapper:nth-child(1)',
+        )
+          .toArray()
+          .find(e => {
+            if (!('children' in e) || e.children.length !== 2) return false;
+            const label = e.children[0];
+            if (!label || !('children' in label)) return false;
+            const labelText = label.children[0];
+            return (
+              !!labelText && 'data' in labelText && labelText.data === 'Author:'
+            );
+          });
+        if (!match || !('children' in match)) return '';
+        const value = match.children[1];
+        if (!value || !('children' in value)) return '';
+        const valueText = value.children[0];
+        return valueText && 'data' in valueText ? (valueText.data ?? '') : '';
+      })(),
       genres: loadedCheerio('.genre-tags')
         .map((i, el) => loadedCheerio(el).text())
         .toArray()

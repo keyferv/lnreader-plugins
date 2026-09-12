@@ -20,7 +20,7 @@ async function fetchCheckedHtml(
     throw new Error(`HTTP ${response.status} while loading ${url}`);
   const html = await response.text();
   const title = html
-    .match(/<title[^>]*>(.*?)<\/title>/is)?.[1]
+    .match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]
     ?.replace(/<[^>]+>/g, '')
     .replace(/\s+/g, ' ')
     .trim()

@@ -2,7 +2,7 @@ import { CheerioAPI, load } from 'cheerio';
 import { fetchApi } from '@libs/fetch';
 import { Plugin } from '@/types/plugin';
 import { NovelStatus } from '@libs/novelStatus';
-import { Filters } from '@libs/filterInputs';
+import { Filters, FilterTypes, filterStringArrayValue, filterStringValue } from '@libs/filterInputs';
 import { defaultCover } from '@/types/constants';
 import { storage } from '@libs/storage';
 
@@ -59,7 +59,7 @@ export class NovelFirePlugin implements Plugin.PagePlugin {
     const versionIncrement = metadata.options?.versionIncrement || 0;
     this.version = `${majorVer}.${minorVer}.${versionIncrement}`;
     this.options = metadata.options;
-    this.filters = metadata.filters satisfies Filters;
+    this.filters = metadata.filters;
   }
 
   async getCheerio(url: string, search: boolean): Promise<CheerioAPI> {
@@ -135,30 +135,30 @@ export class NovelFirePlugin implements Plugin.PagePlugin {
     const url = this.site + 'search-adv';
     const params = new URLSearchParams();
 
-    for (const language of filters?.language?.value || []) {
+    for (const language of filterStringArrayValue(filters?.language?.value)) {
       params.append('country_id[]', language);
     }
-    params.append('ctgcon', filters?.genre_operator?.value || 'and');
-    for (const genre of filters?.genres?.value || []) {
+    params.append('ctgcon', filterStringValue(filters?.genre_operator?.value, 'and'));
+    for (const genre of filterStringArrayValue(filters?.genres?.value)) {
       params.append('categories[]', genre);
     }
-    params.append('totalchapter', filters?.chapters?.value || '0');
-    params.append('ratcon', filters?.rating_operator?.value || 'min');
-    params.append('rating', filters?.rating?.value || '0');
-    params.append('status', filters?.status?.value || '-1');
+    params.append('totalchapter', filterStringValue(filters?.chapters?.value, '0'));
+    params.append('ratcon', filterStringValue(filters?.rating_operator?.value, 'min'));
+    params.append('rating', filterStringValue(filters?.rating?.value, '0'));
+    params.append('status', filterStringValue(filters?.status?.value, '-1'));
     params.append(
       'sort',
-      showLatestNovels ? 'date' : filters?.sort?.value || 'rank-top',
+      showLatestNovels ? 'date' : filterStringValue(filters?.sort?.value, 'rank-top'),
     );
-    params.append('tagcon', filters?.tagcon?.value || 'and');
-    for (const tag of filters?.tags?.value || []) {
+    params.append('tagcon', filterStringValue(filters?.tagcon?.value, 'and'));
+    for (const tag of filterStringArrayValue(filters?.tags?.value)) {
       params.append('tags[]', tag);
     }
-    for (const tag of filters?.tags_excluded?.value || []) {
+    for (const tag of filterStringArrayValue(filters?.tags_excluded?.value)) {
       params.append('tags_excluded[]', tag);
     }
-    if (filters?.author?.value) {
-      params.append('author', filters.author.value);
+    if (filterStringValue(filters?.author?.value)) {
+      params.append('author', filterStringValue(filters?.author?.value));
     }
     params.append('page', pageNo.toString());
 

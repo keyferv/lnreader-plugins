@@ -5,6 +5,24 @@ import { dirname, join } from 'path';
 
 const folder = dirname(fileURLToPath(import.meta.url));
 
+// Serialized filter `"type"` literals have no TS enum equivalent in JSON,
+// so emit FilterTypes member references instead. Covers both the value
+// convention ("Checkbox") and the member-name convention ("CheckboxGroup").
+const filterTypeRef = {
+  Text: 'FilterTypes.TextInput',
+  Picker: 'FilterTypes.Picker',
+  Checkbox: 'FilterTypes.CheckboxGroup',
+  CheckboxGroup: 'FilterTypes.CheckboxGroup',
+  Switch: 'FilterTypes.Switch',
+  XCheckbox: 'FilterTypes.ExcludableCheckboxGroup',
+};
+
+const withFilterTypeRefs = json =>
+  json.replace(
+    /"type":"(Text|Picker|Checkbox|CheckboxGroup|Switch|XCheckbox)"/g,
+    (_, v) => `"type":${filterTypeRef[v]}`,
+  );
+
 export const generateAll = function () {
   return list.map(source => {
     const exist = existsSync(join(folder, 'filters', source.id + '.json'));
@@ -32,7 +50,7 @@ const generator = function generator(source) {
 
   const pluginScript = `
 ${NovelFireTemplate}
-const plugin = new NovelFirePlugin(${JSON.stringify(source)});
+const plugin = new NovelFirePlugin(${withFilterTypeRefs(JSON.stringify(source))});
 export default plugin;
     `.trim();
 

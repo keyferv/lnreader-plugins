@@ -1,7 +1,7 @@
 import { load as parseHTML, type CheerioAPI } from 'cheerio';
 import type { AnyNode } from 'domhandler';
 import { fetchApi } from '@libs/fetch';
-import { FilterTypes } from '@libs/filterInputs';
+import { Filters, FilterTypes } from '@libs/filterInputs';
 import { Plugin } from '@/types/plugin';
 
 function cleanText(input?: string | null) {
@@ -113,7 +113,7 @@ class NovelasLigerasNet implements Plugin.PluginBase {
         { label: 'Japón', value: '21' },
       ],
     },
-  };
+  } satisfies Filters;
 
   resolveUrl(path: string) {
     try {

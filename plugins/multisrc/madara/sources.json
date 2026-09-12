@@ -39,7 +39,9 @@
     "sourceName": "DaoNovel",
     "options": {
       "useNewChapterEndpoint": true,
-      "versionIncrements": 1
+      "versionIncrements": 1,
+      "down": true,
+      "downSince": 1777153113000
     }
   },
   {
@@ -116,7 +118,7 @@
   },
   {
     "id": "morenovel",
-    "sourceSite": "https://vanovel.com",
+    "sourceSite": "https://vanovel.com/",
     "sourceName": "Vanovel",
     "options": {
       "useNewChapterEndpoint": true,
@@ -142,7 +144,7 @@
       "useNewChapterEndpoint": true,
       "lang": "Arabic",
       "versionIncrements": 5,
-      "customJs": "chapterText.find('span[style*=\"opacity: 0; position: fixed;\"]').remove();"
+      "customJs": "chapterText.find('span[style*=\"opacity: 0; position: fixed;\"],[role=\"presentation\"]').remove();"
     }
   },
   {
@@ -150,7 +152,9 @@
     "sourceSite": "https://novel4up.com/",
     "sourceName": "Novel4Up",
     "options": {
-      "lang": "Arabic"
+      "lang": "Arabic",
+      "down": true,
+      "downSince": 1777153113000
     }
   },
   {
@@ -412,7 +416,9 @@
     "sourceName": "Belle Reservoir",
     "options": {
       "useNewChapterEndpoint": true,
-      "lang": "English"
+      "lang": "English",
+      "down": true,
+      "downSince": 1777153113000
     }
   },
   {
@@ -431,7 +437,9 @@
     "sourceName": "Coral Boutique",
     "options": {
       "useNewChapterEndpoint": true,
-      "lang": "English"
+      "lang": "English",
+      "down": true,
+      "downSince": 1777153113000
     }
   },
   {

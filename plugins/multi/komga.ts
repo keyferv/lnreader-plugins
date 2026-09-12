@@ -11,9 +11,9 @@ class KomgaPlugin implements Plugin.PluginBase {
   icon = 'src/multi/komga/icon.png';
   version = '1.0.1';
 
-  site = storage.get('url');
-  email = storage.get('email');
-  password = storage.get('password');
+  site: string = storage.get<string>('url') ?? '';
+  email: string = storage.get<string>('email') ?? '';
+  password: string = storage.get<string>('password') ?? '';
 
   async makeRequest(url: string): Promise<string> {
     return await fetchApi(url, {
@@ -197,11 +197,12 @@ class KomgaPlugin implements Plugin.PluginBase {
       const height = $(image).attr('height');
 
       if (href) {
-        const img = $('<img />').attr({
-          src: href.startsWith('http') ? href : `${baseUrl}${href}`,
-          width: width || undefined,
-          height: height || undefined,
-        });
+        const img = $('<img />').attr(
+          'src',
+          href.startsWith('http') ? href : `${baseUrl}${href}`,
+        );
+        if (width) img.attr('width', width);
+        if (height) img.attr('height', height);
         $(image).closest('svg').replaceWith(img);
       }
     });

@@ -17,6 +17,8 @@ type MadaraOptions = {
   versionIncrements?: number;
   customJs?: string;
   hasLocked?: boolean;
+  down?: boolean;
+  downSince?: number;
 };
 
 export type MadaraMetadata = {

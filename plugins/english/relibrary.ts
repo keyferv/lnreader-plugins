@@ -3,7 +3,6 @@ import { Plugin } from '@/types/plugin';
 import { Filters } from '@libs/filterInputs';
 import { load as loadCheerio } from 'cheerio';
 import { defaultCover } from '@libs/defaultCover';
-import { NovelItem } from '../../test_web/static/js';
 import { NovelStatus } from '@libs/novelStatus';
 
 type FuzzySearchOptions = {
@@ -183,7 +182,7 @@ class ReLibraryPlugin implements Plugin.PluginBase {
 
     const loadedCheerio = loadCheerio(body);
     loadedCheerio('.entry-content > ol > li').each((_i, el) => {
-      const novel: Partial<NovelItem> = {};
+      const novel: Partial<Plugin.NovelItem> = {};
       novel.name = loadedCheerio(el).find('h3 > a').text();
       novel.path = loadedCheerio(el)
         .find('table > tbody > tr > td > a')
@@ -350,7 +349,7 @@ class ReLibraryPlugin implements Plugin.PluginBase {
     });
 
     novel.chapters = chapters;
-    return novel as Plugin.NovelItem;
+    return novel as Plugin.SourceNovel;
   }
 
   async parseChapter(chapterPath: string): Promise<string> {
