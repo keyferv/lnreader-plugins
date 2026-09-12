@@ -57,7 +57,7 @@ function hotNovelPubLanguage(language) {
     Russian: 'ru',
     Spanish: 'es',
     Portuguese: 'pt',
-    Turkish: 'th',
+    Turkish: 'tr',
   };
   const code = codes[language];
   if (!code) {
@@ -103,7 +103,12 @@ if (!['http:', 'https:'].includes(url.protocol)) {
   throw new Error(`Unsupported Website URL protocol: "${url.protocol}"`);
 }
 
-const sourceSite = url.origin;
+const sourceSite =
+  // LightNovelWP builds browse/search URLs as `site + 'page/...'` and strips
+  // `site` from scraped hrefs, so its sourceSite must keep the trailing slash.
+  // Other themes concatenate leading-slash segments (`site + '/page/...'`),
+  // so a bare origin is correct for them.
+  theme === 'lightnovelwp' ? `${url.origin}/` : url.origin;
 const id = sourceId(name, url.hostname);
 const sourcesPath = path.join(
   process.cwd(),

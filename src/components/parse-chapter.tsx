@@ -294,10 +294,10 @@ const ParseChapterSection = React.memo(function ParseChapterSection() {
                   >
                     CSS:{' '}
                     {customCSSLoaded
-                      ? 'Γ£ô Applied'
+                      ? '✓ Applied'
                       : customCSSError
-                        ? 'Γ£ù Failed'
-                        : 'Γï» Loading'}
+                        ? '✗ Failed'
+                        : '⋯ Loading'}
                   </span>
                 )}
                 {plugin?.customJS && (
@@ -312,10 +312,10 @@ const ParseChapterSection = React.memo(function ParseChapterSection() {
                   >
                     JS:{' '}
                     {customJSLoaded
-                      ? 'Γ£ô Applied'
+                      ? '✓ Applied'
                       : customJSError
-                        ? 'Γ£ù Failed'
-                        : 'Γï» Loading'}
+                        ? '✗ Failed'
+                        : '⋯ Loading'}
                   </span>
                 )}
               </div>

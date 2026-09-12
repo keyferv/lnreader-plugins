@@ -42,11 +42,15 @@ jobs:
       - name: Determine Targets
         id: targets
         if: github.event_name == 'workflow_dispatch' || steps.changed-files.outputs.any_changed == 'true'
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PLUGIN_PATH_INPUT: ${{ inputs.plugin_path }}
+          CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "files=${{ inputs.plugin_path }}" >> "$GITHUB_OUTPUT"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            printf 'files=%s\n' "$PLUGIN_PATH_INPUT" >> "$GITHUB_OUTPUT"
           else
-            echo "files=${{ steps.changed-files.outputs.all_changed_files }}" >> "$GITHUB_OUTPUT"
+            printf 'files=%s\n' "$CHANGED_FILES" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Setup Node.js
@@ -66,9 +70,33 @@ jobs:
       - name: Run Live Check
         id: live-check
         if: steps.targets.outputs.files != ''
+        env:
+          TARGET_FILES: ${{ steps.targets.outputs.files }}
         run: |
+          set -f
           set +e
-          node scripts/live-check-plugin.js ${{ steps.targets.outputs.files }} > live-check-output.txt 2>&1
+          validated=()
+          # TARGET_FILES is space-separated (changed-files format / manual input).
+          # Allow-list each entry so only real plugin files reach node, and
+          # quote every expansion — never interpolate the list into a command.
+          for file in $TARGET_FILES; do
+            case "$file" in
+              plugins/*.ts)
+                if [ -f "$file" ]; then
+                  validated+=("$file")
+                else
+                  echo "Skipping missing file: $file"
+                fi
+                ;;
+              *) echo "Skipping unexpected target: $file" ;;
+            esac
+          done
+          if [ "${#validated[@]}" -eq 0 ]; then
+            echo "No valid plugin targets to check."
+            echo "exit_code=0" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          node scripts/live-check-plugin.js "${validated[@]}" > live-check-output.txt 2>&1
           echo "exit_code=$?" >> "$GITHUB_OUTPUT"
           cat live-check-output.txt
           cat live-check-output.txt >> "$GITHUB_STEP_SUMMARY"

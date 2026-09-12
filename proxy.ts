@@ -1,9 +1,8 @@
-import process from 'node:process';
 import { Buffer } from 'buffer';
 import { FetchMode, ServerSetting } from './src/types/types';
 import { Connect } from 'vite';
 import httpProxy from 'http-proxy';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { brotliDecompressSync, gunzipSync, zstdDecompressSync } from 'zlib';
 
 const proxy = httpProxy.createProxyServer({});
@@ -128,22 +127,16 @@ const proxyRequest: Connect.SimpleHandleFunction = (req, res) => {
   console.log('\x1b[36m', '----------------');
 
   if (settings.fetchMode === FetchMode.CURL) {
-    let curl = `curl -L '${_url.href}'`;
+    // Pass URL and headers as an argument array via execFile (no shell), so
+    // request-derived values can never be interpreted as shell commands.
+    const curlArgs = ['-L', _url.href];
     if (settings.useUserAgent)
-      curl += ` -H 'User-Agent: ${req.headers['user-agent']}'`;
-    if (settings.cookies) curl += ` -H 'Cookie: ${settings.cookies}'`;
-    if (req.headers.origin2) curl += ` -H 'Origin: ${req.headers.origin2}'`;
+      curlArgs.push('-H', `User-Agent: ${req.headers['user-agent']}`);
+    if (settings.cookies) curlArgs.push('-H', `Cookie: ${settings.cookies}`);
+    if (req.headers.origin2)
+      curlArgs.push('-H', `Origin: ${req.headers.origin2}`);
 
-    const isWindows = process.platform === 'win32';
-    const options = isWindows
-      ? {
-          shell:
-            process.env.BASH_LOCATION ||
-            process.env.ProgramFiles + '\\git\\usr\\bin\\bash.exe',
-        }
-      : {};
-
-    exec(curl, options, (error, stdout) => {
+    execFile('curl', curlArgs, (error, stdout) => {
       if (error) {
         res.statusCode = 500;
         res.write(`exec error: ${error}`);

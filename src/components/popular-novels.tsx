@@ -135,18 +135,25 @@ const PopularNovelsSection = React.memo(function PopularNovelsSection({
         </div>
 
         <div className="flex items-center gap-2 mb-6">
-          {['Latest', 'Popular'].map(option => (
-            <Badge
-              key={option}
-              variant={
-                isLatest === (option === 'Latest') ? 'default' : 'outline'
-              }
-              className="cursor-pointer"
-              onClick={() => handleIsLatestChange(option === 'Latest')}
-            >
-              {option}
-            </Badge>
-          ))}
+          {['Latest', 'Popular'].map(option => {
+            const isSelected = isLatest === (option === 'Latest');
+            return (
+              <Badge
+                key={option}
+                variant={isSelected ? 'default' : 'outline'}
+                className="cursor-pointer"
+                asChild
+              >
+                <button
+                  type="button"
+                  onClick={() => handleIsLatestChange(option === 'Latest')}
+                  aria-pressed={isSelected}
+                >
+                  {option}
+                </button>
+              </Badge>
+            );
+          })}
           {currentIndex > 0 && (
             <div className="ml-auto flex items-center gap-2">
               <span className="text-xs text-muted-foreground">Page</span>

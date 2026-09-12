@@ -36,4 +36,22 @@ jobs:
 
       - name: Check Code Formatting
         if: steps.changed-files.outputs.any_changed == 'true'
-        run: npx --yes prettier@3.2.5 --check ${{ steps.changed-files.outputs.all_changed_files }}
+        env:
+          CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+        run: |
+          set -f
+          existing=()
+          # changed-files can list deleted paths; prettier --check fails on
+          # those, so only pass files that still exist. Quote every expansion.
+          for file in $CHANGED_FILES; do
+            if [ -f "$file" ]; then
+              existing+=("$file")
+            else
+              echo "Skipping deleted file: $file"
+            fi
+          done
+          if [ "${#existing[@]}" -eq 0 ]; then
+            echo "No existing files to check."
+            exit 0
+          fi
+          npx --yes prettier@3.2.5 --check "${existing[@]}"

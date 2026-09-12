@@ -8,9 +8,22 @@ const scriptContent = loadedCheerio('script')
 if (scriptContent) {
   const gibMatch = scriptContent.match(/var gib = (\[.*?\])/);
   if (gibMatch) {
-    const gibArray = eval(gibMatch[1]);
+    // Never eval() remote chapter text: the gib list is plain data, so parse
+    // it as JSON and validate every entry before using it as a selector.
+    // (JSDoc typing: this snippet is injected verbatim into the TypeScript
+    // template, where the annotation keeps the generated code type-safe.)
+    /** @type {unknown[]} */
+    let gibArray = [];
+    try {
+      const parsed = JSON.parse(gibMatch[1]);
+      if (Array.isArray(parsed)) gibArray = parsed;
+    } catch {
+      gibArray = [];
+    }
     gibArray.forEach(cssClass => {
-      loadedCheerio(`.${cssClass}`).remove();
+      if (typeof cssClass === 'string' && /^[A-Za-z0-9_-]+$/.test(cssClass)) {
+        loadedCheerio(`.${cssClass}`).remove();
+      }
     });
   }
 }
