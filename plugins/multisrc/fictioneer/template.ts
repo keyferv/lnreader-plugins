@@ -1,397 +1,174 @@
+import { CheerioAPI, load as loadCheerio } from 'cheerio';
 import { fetchApi } from '@libs/fetch';
-import { Filters, FilterTypes } from '@libs/filterInputs';
 import { Plugin } from '@/types/plugin';
 import { NovelStatus } from '@libs/novelStatus';
-import { Parser } from 'htmlparser2';
-import dayjs from 'dayjs';
+import { Filters } from '@libs/filterInputs';
 
-export type IfreedomMetadata = {
+type FictioneerOptions = {
+  browsePage: string;
+  lang?: string;
+  versionIncrements?: number;
+  customJs?: { chapterTransform?: string };
+  down?: boolean;
+  downSince?: number;
+};
+
+export type FictioneerMetadata = {
   id: string;
   sourceSite: string;
   sourceName: string;
-  filters?: Filters;
+  options: FictioneerOptions;
 };
 
-class FictioneerPlugin implements Plugin.PluginBase {
+export class FictioneerPlugin implements Plugin.PluginBase {
   id: string;
   name: string;
   icon: string;
   site: string;
   version: string;
-  filters?: Filters;
+  options: FictioneerOptions;
+  filters: Filters | undefined = undefined;
 
-  constructor(metadata: IfreedomMetadata) {
+  constructor(metadata: FictioneerMetadata) {
     this.id = metadata.id;
     this.name = metadata.sourceName;
-    this.icon = `multisrc/ifreedom/${metadata.id.toLowerCase()}/icon.png`;
+    this.icon = `multisrc/fictioneer/${metadata.id.toLowerCase()}/icon.png`;
     this.site = metadata.sourceSite;
-    this.version = '1.1.0';
-    this.filters = metadata.filters;
+    const versionIncrements = metadata.options?.versionIncrements || 0;
+    this.version = `1.1.${0 + versionIncrements}`;
+    this.options = metadata.options;
   }
 
-  parseNovels(url: string) {
-    return fetchApi(url)
-      .then(res => res.text())
-      .then(html => {
-        const novels: Plugin.NovelItem[] = [];
-        let tempNovel = {} as Plugin.NovelItem;
-        let isInsideNovelCard = false;
-        const site = this.site;
+  private parseNovels(
+    loadedCheerio: CheerioAPI,
+    selector: string,
+  ): Plugin.NovelItem[] {
+    return loadedCheerio(selector)
+      .map((i, el) => {
+        const element = loadedCheerio(el);
+        const novelName = element.find('h3 > a').text();
+        const novelCover = element.find('a.cell-img:has(img)').attr('href');
+        const novelUrl = element.find('h3 > a').attr('href');
 
-        const parser = new Parser({
-          onopentag(name, attribs) {
-            const className = attribs['class'] || '';
-            if (
-              name === 'div' &&
-              (className.includes('one-book-home') ||
-                className.includes('item-book-slide'))
-            ) {
-              isInsideNovelCard = true;
-            }
+        if (!novelUrl) return;
 
-            if (isInsideNovelCard) {
-              if (name === 'img') {
-                tempNovel.cover = attribs['src'];
-                if (attribs['alt']) tempNovel.name = attribs['alt'];
-              }
-              if (name === 'a' && attribs['href']) {
-                tempNovel.path = attribs['href'].replace(site, '');
-                if (attribs['title']) tempNovel.name = attribs['title'];
-              }
-            }
-          },
-          onclosetag(name) {
-            if (name === 'div' && isInsideNovelCard) {
-              isInsideNovelCard = false;
-              if (tempNovel.path) novels.push(tempNovel);
-              tempNovel = {} as Plugin.NovelItem;
-            }
-          },
-        });
-        parser.write(html);
-        parser.end();
-        return novels;
-      });
+        return {
+          name: novelName,
+          cover: novelCover,
+          path: new URL(novelUrl, this.site).pathname.substring(1),
+        };
+      })
+      .toArray();
   }
 
   async popularNovels(
-    page: number,
-    {
-      filters,
-      showLatestNovels,
-    }: Plugin.PopularNovelsOptions<typeof this.filters>,
+    pageNo: number,
+    // {
+    //   showLatestNovels,
+    //   filters,
+    // }: Plugin.PopularNovelsOptions<typeof this.filters>,
   ): Promise<Plugin.NovelItem[]> {
-    let url = `${this.site}/vse-knigi/?sort=${showLatestNovels ? 'По дате обновления' : filters?.sort?.value || 'По рейтингу'}`;
+    const req = await fetchApi(
+      this.site +
+        '/' +
+        this.options.browsePage +
+        '/' +
+        (pageNo === 1 ? '' : 'page/' + pageNo + '/'),
+    );
+    const body = await req.text();
+    const loadedCheerio = loadCheerio(body);
 
-    Object.entries(filters || {}).forEach(([type, { value }]) => {
-      if (Array.isArray(value) && value.length) {
-        url += `&${type}[]=${value.join(`&${type}[]=`)}`;
-      }
-    });
-
-    url += `&bpage=${page}`;
-    return this.parseNovels(url);
+    return this.parseNovels(
+      loadedCheerio,
+      '#featured-list > li > div > div, #list-of-stories > li > div > div',
+    );
   }
 
   async parseNovel(novelPath: string): Promise<Plugin.SourceNovel> {
-    const html = await fetchApi(this.site + novelPath).then(res => res.text());
+    const req = await fetchApi(this.site + '/' + novelPath + '/');
+    const body = await req.text();
+    const loadedCheerio = loadCheerio(body);
+
     const novel: Plugin.SourceNovel = {
       path: novelPath,
-      name: '',
-      author: '',
-      summary: '',
-      status: NovelStatus.Unknown,
+      name: loadedCheerio('h1.story__identity-title').text(),
     };
-    const chapters: Plugin.ChapterItem[] = [];
-    const genres: string[] = [];
-    const site = this.site;
 
-    let isReadingName = false;
-    let isReadingSummary = false;
-    let isCoverContainer = false;
+    // novel.artist = '';
+    novel.author = loadedCheerio('div.story__identity-meta')
+      .text()
+      .split('|')[0]
+      .replace('Author: ', '')
+      .replace('by ', '')
+      .trim();
+    novel.cover = loadedCheerio('figure.story__thumbnail > a').attr('href');
+    novel.genres = loadedCheerio('div.tag-group > a, section.tag-group > a')
+      .map((i, el) => loadedCheerio(el).text())
+      .toArray()
+      .join(',');
 
-    let metaContext: 'author' | 'status' | 'genre' | null = null;
-    let isMetaRow = false;
-    let isMetaValue = false;
+    loadedCheerio('section.story__summary .related-stories-block').remove();
+    novel.summary = loadedCheerio('section.story__summary').text();
 
-    let isInsideChapterRow = false;
-    let isReadingChapterName = false;
-    let isReadingChapterDate = false;
-    let tempChapter = {} as Plugin.ChapterItem;
+    novel.chapters = loadedCheerio('li.chapter-group__list-item._publish')
+      .filter((i, el) => !el.attribs['class'].includes('_password'))
+      .filter(
+        (i, el) =>
+          !loadedCheerio(el)
+            .find('i')
+            .first()!
+            .attr('class')!
+            .includes('fa-lock'),
+      )
+      .map((i, el) => {
+        const chapterName = loadedCheerio(el).find('a').text();
+        const chapterUrl = loadedCheerio(el).find('a').attr('href');
 
-    const parser = new Parser({
-      onopentag(name, attribs) {
-        const className = attribs['class'] || '';
+        if (!chapterUrl) return;
+        return {
+          name: chapterName,
+          path: new URL(chapterUrl, this.site).pathname.substring(1),
+        };
+      })
+      .toArray();
 
-        if (name === 'h1') isReadingName = true;
+    const status = loadedCheerio('span.story__status').text().trim();
+    if (status === 'Ongoing') novel.status = NovelStatus.Ongoing;
+    if (status === 'Completed') novel.status = NovelStatus.Completed;
+    if (status === 'Cancelled') novel.status = NovelStatus.Cancelled;
+    if (status === 'Hiatus') novel.status = NovelStatus.OnHiatus;
 
-        if (name === 'div') {
-          if (
-            className.includes('block-book-slide-img') ||
-            className.includes('img-ranobe')
-          ) {
-            isCoverContainer = true;
-          }
-          if (
-            className === 'descr-ranobe' ||
-            (className === 'active' && attribs['data-name'] === 'Описание')
-          ) {
-            isReadingSummary = true;
-          }
-        }
-
-        if (
-          isReadingSummary &&
-          name === 'span' &&
-          className.includes('open-desc')
-        ) {
-          const onclick = attribs['onclick'];
-          if (onclick) {
-            const match = onclick.match(/innerHTML\s*=\s*'([\s\S]+?)'/);
-            if (match && match[1]) {
-              let fullText = match[1];
-              fullText = fullText
-                .replace(/&lt;br&gt;/gi, '\n')
-                .replace(/<br\s*\/?>/gi, '\n')
-                .replace(/&quot;/g, '"')
-                .replace(/&#039;/g, "'")
-                .replace(/&amp;/g, '&');
-
-              novel.summary = fullText;
-              isReadingSummary = false;
-            }
-          }
-        }
-
-        if (name === 'img' && isCoverContainer && !novel.cover) {
-          novel.cover = attribs['src'];
-        }
-
-        if (name === 'div') {
-          if (className.includes('data-ranobe')) {
-            isMetaRow = true;
-            metaContext = null;
-          }
-          if (className.includes('data-value')) {
-            isMetaValue = true;
-          }
-
-          if (className.includes('book-info-list')) {
-            isMetaRow = true;
-            metaContext = null;
-          }
-          if (className.includes('genreslist')) {
-            metaContext = 'genre';
-          }
-        }
-
-        if (isMetaRow) {
-          if (name === 'span') {
-            if (
-              className.includes('dashicons-book') &&
-              !className.includes('book-alt')
-            )
-              metaContext = 'genre';
-            else if (className.includes('admin-users')) metaContext = 'author';
-            else if (className.includes('megaphone')) metaContext = 'status';
-          }
-          if (name === 'svg') {
-            if (className.includes('icon-tabler-tag')) metaContext = 'genre';
-            else if (
-              className.includes('mood-edit') ||
-              className.includes('icon-tabler-user')
-            )
-              metaContext = 'author';
-            else if (
-              className.includes('chart-infographic') ||
-              className.includes('megaphone')
-            )
-              metaContext = 'status';
-          }
-        }
-
-        if (
-          name === 'div' &&
-          (className === 'li-ranobe' || className === 'chapterinfo')
-        ) {
-          isInsideChapterRow = true;
-        }
-        if (name === 'a' && isInsideChapterRow) {
-          tempChapter.path = attribs['href'].replace(site, '');
-          isReadingChapterName = true;
-        }
-        if (
-          (name === 'div' || name === 'span') &&
-          (className === 'li-col2-ranobe' || className === 'timechapter')
-        ) {
-          isReadingChapterDate = true;
-        }
-      },
-      ontext(data) {
-        const text = data.trim();
-        if (!text) return;
-
-        if (isReadingName) novel.name = text.replace(/®/g, '').trim();
-        if (isReadingSummary && text !== 'Прочесть полностью') {
-          novel.summary += text + '\n';
-        }
-
-        if (metaContext) {
-          const shouldRead = isMetaValue || (isMetaRow && !isMetaValue);
-          if (shouldRead) {
-            if (metaContext === 'author') {
-              if (
-                text !== 'Автор' &&
-                text !== 'Переводчик' &&
-                text !== 'Не указан' &&
-                !text.includes('Просмотров')
-              ) {
-                novel.author = text;
-              }
-            } else if (metaContext === 'status') {
-              if (!text.includes('Статус')) novel.status = parseStatus(text);
-            } else if (metaContext === 'genre') {
-              if (text !== ',' && text !== 'Жанры') genres.push(text);
-            }
-          }
-        }
-
-        if (isReadingChapterName) tempChapter.name = text;
-        if (isReadingChapterDate) tempChapter.releaseTime = parseDate(text);
-      },
-      onclosetag(name) {
-        if (name === 'h1') isReadingName = false;
-        if (name === 'div') {
-          if (isReadingSummary) isReadingSummary = false;
-          if (isCoverContainer) isCoverContainer = false;
-          if (isMetaValue) isMetaValue = false;
-        }
-
-        if (name === 'a') isReadingChapterName = false;
-        if ((name === 'div' || name === 'span') && isReadingChapterDate) {
-          isReadingChapterDate = false;
-          if (tempChapter.path) {
-            chapters.push(tempChapter);
-          }
-          tempChapter = {} as Plugin.ChapterItem;
-          isInsideChapterRow = false;
-        }
-      },
-    });
-
-    parser.write(html);
-    parser.end();
-
-    novel.genres = genres.join(',');
-    novel.chapters = chapters.reverse();
     return novel;
   }
 
   async parseChapter(chapterPath: string): Promise<string> {
-    const body = await fetchApi(this.site + chapterPath).then(res =>
-      res.text(),
-    );
+    const req = await fetchApi(this.site + '/' + chapterPath + '/');
+    const body = await req.text();
 
-    const startTag =
-      this.id === 'bookhamster'
-        ? '<div class="entry-content">'
-        : '<div class="chapter-content">';
-    const endTag =
-      this.id === 'bookhamster'
-        ? '<!-- .entry-content -->'
-        : '<div class="chapter-setting">';
+    const loadedCheerio = loadCheerio(body);
 
-    const chapterStart = body.indexOf(startTag);
-    if (chapterStart === -1) return '';
+    // chapterTransformJs HERE
 
-    const chapterEnd = body.indexOf(endTag, chapterStart);
-    let chapterText = body.slice(
-      chapterStart,
-      chapterEnd !== -1 ? chapterEnd : undefined,
-    );
-
-    chapterText = chapterText.replace(/<script[^>]*>[\s\S]*?<\/script>/gim, '');
-
-    if (chapterText.includes('<img')) {
-      chapterText = chapterText.replace(/srcset="([^"]+)"/g, (match, src) => {
-        if (!src) return match;
-        const bestLink = src
-          .split(' ')
-          .filter((s: string) => s.startsWith('http'))
-          .pop();
-        return bestLink ? `src="${bestLink}"` : match;
-      });
-    }
-
-    return chapterText;
+    return loadedCheerio('section#chapter-content > div').html() || '';
   }
 
   async searchNovels(
     searchTerm: string,
-    page = 1,
+    pageNo: number,
   ): Promise<Plugin.NovelItem[]> {
-    const url = `${this.site}/vse-knigi/?searchname=${encodeURIComponent(searchTerm)}&bpage=${page}`;
-    return this.parseNovels(url);
-  }
-}
+    const req = await fetchApi(
+      this.site +
+        `/${pageNo === 1 ? '' : 'page/' + pageNo + '/'}?s=${encodeURIComponent(searchTerm)}&post_type=fcn_story`,
+    );
+    const body = await req.text();
+    const loadedCheerio = loadCheerio(body);
 
-function parseStatus(statusString: string): string {
-  const s = statusString.toLowerCase().trim();
-
-  if (
-    s.includes('активен') ||
-    s.includes('продолжается') ||
-    s.includes('онгоинг')
-  ) {
-    return NovelStatus.Ongoing;
+    return this.parseNovels(
+      loadedCheerio,
+      '#search-result-list > li > div > div',
+    );
   }
 
-  if (s.includes('завершен') || s.includes('конец') || s.includes('закончен')) {
-    return NovelStatus.Completed;
-  }
-
-  if (s.includes('приостановлен') || s.includes('заморожен')) {
-    return NovelStatus.OnHiatus;
-  }
-
-  return NovelStatus.Unknown;
-}
-
-function parseDate(dateString = ''): string | null {
-  const months: Record<string, number> = {
-    января: 1,
-    февраля: 2,
-    марта: 3,
-    апреля: 4,
-    мая: 5,
-    июня: 6,
-    июля: 7,
-    августа: 8,
-    сентября: 9,
-    октября: 10,
-    ноября: 11,
-    декабря: 12,
-  };
-
-  // Checking the format "X ч. назад"
-  const relativeTimeRegex = /(d+)s*ч.?s*назад/;
-  const match = dateString.match(relativeTimeRegex);
-  if (match) {
-    const hoursAgo = parseInt(match[1], 10);
-    return dayjs().subtract(hoursAgo, 'hour').format('LL');
-  }
-
-  if (dateString.includes('.')) {
-    const [day, month, year] = dateString.split('.');
-    const fullYear = year?.length === 2 ? '20' + year : year;
-    return dayjs(fullYear + '-' + month + '-' + day).format('LL');
-  } else if (dateString.includes(' ')) {
-    const [day, month] = dateString.split(' ');
-    if (day && months[month]) {
-      const year = new Date().getFullYear();
-      return dayjs(year + '-' + months[month] + '-' + day).format('LL');
-    }
-  }
-
-  return dateString || null;
+  // resolveUrl = (path: string, isNovel?: boolean) =>
+  //   this.site + '/' + path + '/';
 }

@@ -1,7 +1,11 @@
 import { CheerioAPI, load as parseHTML } from 'cheerio';
 import { fetchApi } from '@libs/fetch';
 import { Plugin } from '@/types/plugin';
-import { Filters, FilterTypes } from '@libs/filterInputs';
+import {
+  Filters,
+  FilterTypes,
+  filterStringArrayValue,
+} from '@libs/filterInputs';
 import { defaultCover } from '@libs/defaultCover';
 
 class ArchiveOfOurOwn implements Plugin.PluginBase {
@@ -61,13 +65,15 @@ class ArchiveOfOurOwn implements Plugin.PluginBase {
         link += `&work_search%5Bcomplete%5D=${filters.completion.value}`;
       if (filters.crossover.value !== '')
         link += `&work_search%5Bcrossover%5D=${filters.crossover.value}`;
-      if (filters.categories.value.length > 0) {
-        filters.categories.value.forEach((category: string) => {
+      const categories = filterStringArrayValue(filters.categories.value);
+      if (categories.length > 0) {
+        categories.forEach((category: string) => {
           link += `&work_search%5Bcategory_ids%5D%5B%5D=${category}`;
         });
       }
-      if (filters.warningsFilter.value.length > 0) {
-        filters.warningsFilter.value.forEach((warning: string) => {
+      const warnings = filterStringArrayValue(filters.warningsFilter.value);
+      if (warnings.length > 0) {
+        warnings.forEach((warning: string) => {
           link += `&work_search%5Barchive_warning_ids%5D%5B%5D=${warning}`;
         });
       }

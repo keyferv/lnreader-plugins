@@ -46,11 +46,21 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReadNovelFullPlugin = void 0;
 var htmlparser2_1 = require("htmlparser2");
 var fetch_1 = require("@libs/fetch");
 var novelStatus_1 = require("@libs/novelStatus");
+var cheerio_1 = require("cheerio");
 var ReadNovelFullPlugin = /** @class */ (function () {
     function ReadNovelFullPlugin(metadata) {
         var _a;
@@ -61,7 +71,7 @@ var ReadNovelFullPlugin = /** @class */ (function () {
         this.icon = "multisrc/readnovelfull/".concat(metadata.id.toLowerCase(), "/icon.png");
         this.site = metadata.sourceSite;
         var versionIncrements = ((_a = metadata.options) === null || _a === void 0 ? void 0 : _a.versionIncrements) || 0;
-        this.version = "2.1.".concat(2 + versionIncrements);
+        this.version = "2.2.".concat(1 + versionIncrements);
         this.options = metadata.options;
         this.filters = metadata.filters;
     }
@@ -85,11 +95,10 @@ var ReadNovelFullPlugin = /** @class */ (function () {
         };
         var parser = new htmlparser2_1.Parser({
             onopentag: function (name, attribs) {
-                var _a, _b;
+                var _a;
                 var state = currentState();
                 if (((_a = attribs.class) === null || _a === void 0 ? void 0 : _a.includes('archive')) ||
-                    attribs.class === 'col-content' ||
-                    ((_b = attribs.class) === null || _b === void 0 ? void 0 : _b.includes('list-novel'))) {
+                    attribs.class === 'col-content') {
                     pushState(ParsingState.NovelList);
                     depth = 0;
                 }
@@ -97,13 +106,14 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                     state !== ParsingState.NovelName)
                     return;
                 switch (name) {
-                    case 'img': {
-                        var cover = attribs['data-src'] || attribs.src;
-                        if (cover) {
-                            tempNovel.cover = new URL(cover, _this.site).href;
+                    case 'img':
+                        {
+                            var cover = attribs['data-src'] || attribs.src;
+                            if (cover) {
+                                tempNovel.cover = new URL(cover, _this.site).href;
+                            }
                         }
                         break;
-                    }
                     case 'h3':
                         if (state === ParsingState.NovelList) {
                             pushState(ParsingState.NovelName);
@@ -145,21 +155,162 @@ var ReadNovelFullPlugin = /** @class */ (function () {
         parser.end();
         return novels;
     };
+    // ===========================================================================
+    //                              HELPERS (chapter-list pagination)
+    // ===========================================================================
+    ReadNovelFullPlugin.prototype.parseChapterListFragment = function (html, startIndex) {
+        var chapters = [];
+        var tempChapter = {};
+        var i = startIndex;
+        var inChapter = false;
+        var parser = new htmlparser2_1.Parser({
+            onopentag: function (name, attribs) {
+                if (name === 'a' && attribs.href) {
+                    i++;
+                    inChapter = true;
+                    tempChapter.name = attribs.title || "Chapter ".concat(i);
+                    tempChapter.releaseTime = null;
+                    tempChapter.chapterNumber = i;
+                    tempChapter.path = attribs.href.startsWith('/')
+                        ? attribs.href.substring(1)
+                        : attribs.href;
+                }
+            },
+            onclosetag: function (name) {
+                if (name === 'a' && inChapter) {
+                    if (tempChapter.name && tempChapter.path) {
+                        chapters.push(__assign({}, tempChapter));
+                    }
+                    tempChapter = {};
+                    inChapter = false;
+                }
+            },
+        });
+        parser.write(html);
+        parser.end();
+        return chapters;
+    };
+    ReadNovelFullPlugin.prototype.fetchAllChaptersViaJsonAjax = function (novelPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var pageSize, rateLimitState, first, allChapters, fetchedPages, page, result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        pageSize = 40;
+                        rateLimitState = { backoffUntil: 0 };
+                        return [4 /*yield*/, this.fetchChapterPageWithRetry(novelPath, 1, pageSize, rateLimitState)];
+                    case 1:
+                        first = _a.sent();
+                        if (!first) {
+                            return [2 /*return*/, []];
+                        }
+                        allChapters = __spreadArray([], first.chapters, true);
+                        fetchedPages = 1;
+                        if (!(first.totalPages > 1)) return [3 /*break*/, 5];
+                        page = 2;
+                        _a.label = 2;
+                    case 2:
+                        if (!(page <= first.totalPages)) return [3 /*break*/, 5];
+                        return [4 /*yield*/, this.fetchChapterPageWithRetry(novelPath, page, pageSize, rateLimitState)];
+                    case 3:
+                        result = _a.sent();
+                        if (result) {
+                            allChapters.push.apply(allChapters, result.chapters);
+                            fetchedPages++;
+                        }
+                        _a.label = 4;
+                    case 4:
+                        page++;
+                        return [3 /*break*/, 2];
+                    case 5: return [2 /*return*/, allChapters];
+                }
+            });
+        });
+    };
+    ReadNovelFullPlugin.prototype.fetchChapterPageWithRetry = function (novelPath, page, pageSize, rateLimitState) {
+        return __awaiter(this, void 0, void 0, function () {
+            var url, maxAttempts, attempt, waitMs, result, json, chapters, retryAfterHeader, retryAfterMs, cooldownUntil, err_1;
+            var _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        url = "".concat(this.site).concat(novelPath, "?ajax=chapters&page=").concat(page, "&pageSize=").concat(pageSize);
+                        maxAttempts = 3;
+                        attempt = 0;
+                        _c.label = 1;
+                    case 1:
+                        if (!(attempt < maxAttempts)) return [3 /*break*/, 14];
+                        waitMs = rateLimitState.backoffUntil - Date.now();
+                        if (!(waitMs > 0)) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.sleep(waitMs)];
+                    case 2:
+                        _c.sent();
+                        _c.label = 3;
+                    case 3:
+                        _c.trys.push([3, 11, , 13]);
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(url)];
+                    case 4:
+                        result = _c.sent();
+                        if (!result.ok) return [3 /*break*/, 7];
+                        return [4 /*yield*/, result.json()];
+                    case 5:
+                        json = _c.sent();
+                        chapters = this.parseChapterListFragment(json.html || '', (page - 1) * pageSize);
+                        return [4 /*yield*/, this.sleep(150)];
+                    case 6:
+                        _c.sent(); // pacing delay — confirmed safe (zero 429s) across multiple runs/novels
+                        return [2 /*return*/, { totalPages: json.totalPage || 1, chapters: chapters }];
+                    case 7:
+                        if (!(result.status === 429)) return [3 /*break*/, 8];
+                        retryAfterHeader = (_b = (_a = result.headers) === null || _a === void 0 ? void 0 : _a.get) === null || _b === void 0 ? void 0 : _b.call(_a, 'Retry-After');
+                        retryAfterMs = retryAfterHeader
+                            ? Number(retryAfterHeader) * 1000
+                            : 3000 * (attempt + 1);
+                        cooldownUntil = Date.now() + retryAfterMs;
+                        // Only extend the cooldown, never shorten it
+                        if (cooldownUntil > rateLimitState.backoffUntil) {
+                            rateLimitState.backoffUntil = cooldownUntil;
+                        }
+                        return [3 /*break*/, 10];
+                    case 8: return [4 /*yield*/, this.sleep(800 * (attempt + 1))];
+                    case 9:
+                        _c.sent();
+                        _c.label = 10;
+                    case 10: return [3 /*break*/, 13];
+                    case 11:
+                        err_1 = _c.sent();
+                        return [4 /*yield*/, this.sleep(800 * (attempt + 1))];
+                    case 12:
+                        _c.sent();
+                        return [3 /*break*/, 13];
+                    case 13:
+                        attempt++;
+                        return [3 /*break*/, 1];
+                    case 14: return [2 /*return*/, null];
+                }
+            });
+        });
+    };
+    // ============================================================================================
     ReadNovelFullPlugin.prototype.popularNovels = function (pageNo_1, _a) {
         return __awaiter(this, arguments, void 0, function (pageNo, _b) {
-            var filtersValues, _c, _d, pageParam, novelListing, _e, typeParam, latestPage, _f, genreParam, _g, genreKey, langParam, urlLangCode, _h, noPages, _j, pageAsPath, url, params, basePage, result, html;
+            var _c, _d, pageParam, novelListing, _e, typeParam, latestPage, _f, genreParam, _g, genreKey, langParam, urlLangCode, _h, noPages, _j, pageAsPath, genreValues, typeValue, url, params, basePage, result, html;
+            var _k, _l;
             var filters = _b.filters, showLatestNovels = _b.showLatestNovels;
-            return __generator(this, function (_k) {
-                switch (_k.label) {
+            return __generator(this, function (_m) {
+                switch (_m.label) {
                     case 0:
-                        filtersValues = filters;
                         _c = this.options, _d = _c.pageParam, pageParam = _d === void 0 ? 'page' : _d, novelListing = _c.novelListing, _e = _c.typeParam, typeParam = _e === void 0 ? 'type' : _e, latestPage = _c.latestPage, _f = _c.genreParam, genreParam = _f === void 0 ? 'category_novel' : _f, _g = _c.genreKey, genreKey = _g === void 0 ? 'id' : _g, langParam = _c.langParam, urlLangCode = _c.urlLangCode, _h = _c.noPages, noPages = _h === void 0 ? [] : _h, _j = _c.pageAsPath, pageAsPath = _j === void 0 ? false : _j;
+                        genreValues = Array.isArray((_k = filters === null || filters === void 0 ? void 0 : filters.genres) === null || _k === void 0 ? void 0 : _k.value)
+                            ? filters.genres.value
+                            : [];
+                        typeValue = typeof ((_l = filters === null || filters === void 0 ? void 0 : filters.type) === null || _l === void 0 ? void 0 : _l.value) === 'string' ? filters.type.value : '';
                         // Skip Pagination for FWN & LR
                         if (pageNo !== 1 &&
                             !showLatestNovels &&
-                            !filtersValues.genres.value.length &&
+                            !genreValues.length &&
                             noPages.length > 0 &&
-                            noPages.includes(filtersValues.type.value)) {
+                            noPages.includes(typeValue)) {
                             return [2 /*return*/, []];
                         }
                         url = '';
@@ -168,12 +319,12 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                             if (showLatestNovels) {
                                 params.append(typeParam, latestPage);
                             }
-                            else if (filtersValues.genres.value.length) {
+                            else if (genreValues.length) {
                                 params.append(typeParam, genreParam);
-                                params.append(genreKey, filtersValues.genres.value);
+                                params.append(genreKey, genreValues.join(','));
                             }
                             else {
-                                params.append(typeParam, filtersValues.type.value);
+                                params.append(typeParam, typeValue);
                             }
                             // Add language parameter if specified
                             if (langParam && urlLangCode) {
@@ -185,9 +336,9 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                         else {
                             basePage = showLatestNovels
                                 ? latestPage
-                                : filtersValues.genres.value.length
-                                    ? filtersValues.genres.value
-                                    : filtersValues.type.value;
+                                : genreValues.length
+                                    ? genreValues.join(',')
+                                    : typeValue;
                             if (pageAsPath) {
                                 if (pageNo > 1) {
                                     url = "".concat(this.site).concat(basePage, "/").concat(pageNo.toString());
@@ -202,13 +353,13 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                         }
                         return [4 /*yield*/, (0, fetch_1.fetchApi)(url)];
                     case 1:
-                        result = _k.sent();
+                        result = _m.sent();
                         if (!result.ok) {
                             throw new Error("Could not reach site (".concat(result.status, ": ").concat(result.statusText, ") try to open in webview."));
                         }
                         return [4 /*yield*/, result.text()];
                     case 2:
-                        html = _k.sent();
+                        html = _m.sent();
                         return [2 /*return*/, this.parseNovels(html)];
                 }
             });
@@ -216,19 +367,19 @@ var ReadNovelFullPlugin = /** @class */ (function () {
     };
     ReadNovelFullPlugin.prototype.parseNovel = function (novelPath) {
         return __awaiter(this, void 0, void 0, function () {
-            var url, result, body, novel, summaryParts, statusParts, authorParts, genreArray, infoParts, chapters, novelId, tempChapter, i, depth, stateStack, currentState, pushState, popState, parser, chapterListing, ajaxParam, params, chaptersUrl, ajaxResult, ajaxBody, ajaxChapters_1, tempAjaxChapter_1, ajaxParser;
-            var _a;
+            var url, result, body, novel, summaryParts, statusParts, authorParts, genreArray, infoParts, chapters, novelId, totalChapter, novelTitle, tempChapter, i, depth, stateStack, currentState, pushState, popState, parser, _a, chapterListing, ajaxParam, params, chaptersUrl, fetchOptions, ajaxResult, ajaxBody, ajaxHtml, json, ajaxChapters_1, tempAjaxChapter_1, ajaxParser;
+            var _b;
             var _this = this;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
                         url = this.site + novelPath;
                         return [4 /*yield*/, (0, fetch_1.fetchApi)(url)];
                     case 1:
-                        result = _b.sent();
+                        result = _c.sent();
                         return [4 /*yield*/, result.text()];
                     case 2:
-                        body = _b.sent();
+                        body = _c.sent();
                         novel = {
                             path: novelPath,
                             chapters: [],
@@ -240,6 +391,8 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                         infoParts = [];
                         chapters = [];
                         novelId = null;
+                        totalChapter = null;
+                        novelTitle = null;
                         tempChapter = {};
                         i = 0;
                         stateStack = [ParsingState.Idle];
@@ -250,7 +403,7 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                         };
                         parser = new htmlparser2_1.Parser({
                             onopentag: function (name, attribs) {
-                                var _a, _b, _c;
+                                var _a, _b, _c, _d, _e;
                                 var state = currentState();
                                 switch (name) {
                                     case 'div':
@@ -261,6 +414,7 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                                                 return;
                                             case 'inner':
                                             case 'desc-text':
+                                            case 'desc-text desc-text-collapsed':
                                                 if (state === ParsingState.Cover)
                                                     popState();
                                                 pushState(ParsingState.Summary);
@@ -272,6 +426,10 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                                         }
                                         if (!_this.options.noAjax && attribs.id === 'rating') {
                                             novelId = attribs['data-novel-id'];
+                                        }
+                                        if (attribs.id === 'indexListPage') {
+                                            novelId = attribs['data-novel-id'];
+                                            totalChapter = Number(attribs['data-total-chapters']);
                                         }
                                         if (state === ParsingState.Info)
                                             depth++;
@@ -306,6 +464,9 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                                             if (newState)
                                                 pushState(newState);
                                         }
+                                        if ((_c = attribs.class) === null || _c === void 0 ? void 0 : _c.includes('disqus')) {
+                                            novelTitle = attribs['data-disqus-identifier'];
+                                        }
                                         break;
                                     case 'br':
                                         if (state === ParsingState.Summary) {
@@ -313,7 +474,7 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                                         }
                                         break;
                                     case 'ul':
-                                        if ((_c = attribs.class) === null || _c === void 0 ? void 0 : _c.includes('info-meta')) {
+                                        if ((_d = attribs.class) === null || _d === void 0 ? void 0 : _d.includes('info-meta')) {
                                             pushState(ParsingState.Info);
                                         }
                                         if (_this.options.noAjax && attribs.id === 'idData') {
@@ -321,6 +482,9 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                                         }
                                         break;
                                     case 'a':
+                                        if ((_e = attribs.class) === null || _e === void 0 ? void 0 : _e.includes('set-case')) {
+                                            novelId = attribs['data-articleid'];
+                                        }
                                         if (state === ParsingState.ChapterList) {
                                             i++;
                                             var href = attribs.href;
@@ -332,6 +496,9 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                                                 (href === null || href === void 0 ? void 0 : href.substring(1)) ||
                                                     novelPath.replace('.html', "/chapter-".concat(i, ".html"));
                                         }
+                                        break;
+                                    case 'script':
+                                        pushState(ParsingState.Hidden);
                                         break;
                                 }
                             },
@@ -358,6 +525,13 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                                     case ParsingState.Status:
                                         statusParts.push(text);
                                         break;
+                                    case ParsingState.Hidden:
+                                        if (text.includes('window.chapterPagination')) {
+                                            totalChapter = Number(text.match(/totalChapters:\s*(\d+)/)[1]);
+                                        }
+                                        else if (text.includes('sourceid')) {
+                                            novelId = text.match(/sourceid=(\d+)/)[1];
+                                        }
                                 }
                             },
                             onclosetag: function (name) {
@@ -407,6 +581,10 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                                                 break;
                                         }
                                         break;
+                                    case 'script':
+                                        if (state === ParsingState.Hidden)
+                                            popState();
+                                        break;
                                     default:
                                         return;
                                 }
@@ -433,18 +611,19 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                                             case 'genre':
                                                 novel.genres = detail;
                                                 break;
-                                            case 'status': {
-                                                var map = {
-                                                    ongoing: novelStatus_1.NovelStatus.Ongoing,
-                                                    hiatus: novelStatus_1.NovelStatus.OnHiatus,
-                                                    dropped: novelStatus_1.NovelStatus.Cancelled,
-                                                    cancelled: novelStatus_1.NovelStatus.Cancelled,
-                                                    completed: novelStatus_1.NovelStatus.Completed,
-                                                };
-                                                novel.status =
-                                                    (_a = map[detail.toLowerCase()]) !== null && _a !== void 0 ? _a : novelStatus_1.NovelStatus.Unknown;
+                                            case 'status':
+                                                {
+                                                    var map = {
+                                                        ongoing: novelStatus_1.NovelStatus.Ongoing,
+                                                        hiatus: novelStatus_1.NovelStatus.OnHiatus,
+                                                        dropped: novelStatus_1.NovelStatus.Cancelled,
+                                                        cancelled: novelStatus_1.NovelStatus.Cancelled,
+                                                        completed: novelStatus_1.NovelStatus.Completed,
+                                                    };
+                                                    novel.status =
+                                                        (_a = map[detail.toLowerCase()]) !== null && _a !== void 0 ? _a : novelStatus_1.NovelStatus.Unknown;
+                                                }
                                                 break;
-                                            }
                                             default:
                                                 return;
                                         }
@@ -467,25 +646,59 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                         });
                         parser.write(body);
                         parser.end();
-                        if (!(this.options.noAjax && chapters.length > 0)) return [3 /*break*/, 3];
-                        novel.chapters = chapters;
-                        return [3 /*break*/, 7];
+                        if (!this.options.chapterListPaginated) return [3 /*break*/, 4];
+                        _a = novel;
+                        return [4 /*yield*/, this.fetchAllChaptersViaJsonAjax(novelPath)];
                     case 3:
-                        if (!(novelId !== null)) return [3 /*break*/, 7];
+                        _a.chapters = _c.sent();
+                        return [3 /*break*/, 9];
+                    case 4:
+                        if (!(this.options.noAjax && chapters.length > 0 && !totalChapter)) return [3 /*break*/, 5];
+                        novel.chapters = chapters;
+                        return [3 /*break*/, 9];
+                    case 5:
+                        if (!(novelId !== null)) return [3 /*break*/, 9];
                         chapterListing = this.options.chapterListing || 'ajax/chapter-archive';
                         ajaxParam = this.options.chapterParam || 'novelId';
-                        params = new URLSearchParams((_a = {}, _a[ajaxParam] = novelId, _a));
-                        chaptersUrl = "".concat(this.site).concat(chapterListing, "?").concat(params.toString());
-                        return [4 /*yield*/, (0, fetch_1.fetchApi)(chaptersUrl)];
-                    case 4:
-                        ajaxResult = _b.sent();
-                        if (!!ajaxResult.ok) return [3 /*break*/, 5];
+                        params = new URLSearchParams((_b = {}, _b[ajaxParam] = novelId, _b));
+                        chaptersUrl = void 0;
+                        fetchOptions = void 0;
+                        if (totalChapter) {
+                            chaptersUrl = "".concat(this.site).concat(chapterListing);
+                            params.set('acode', novelTitle || novelPath.split('/').pop());
+                            params.set('cid', String(Math.floor(Math.random() * totalChapter)));
+                            fetchOptions = {
+                                method: 'POST',
+                                body: params.toString(),
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                },
+                            };
+                        }
+                        else {
+                            chaptersUrl = "".concat(this.site).concat(chapterListing, "?").concat(params.toString());
+                        }
+                        return [4 /*yield*/, (0, fetch_1.fetchApi)(chaptersUrl, fetchOptions)];
+                    case 6:
+                        ajaxResult = _c.sent();
+                        if (!!ajaxResult.ok) return [3 /*break*/, 7];
                         console.error("Failed to fetch chapters: ".concat(ajaxResult.status));
                         novel.chapters = [];
-                        return [3 /*break*/, 7];
-                    case 5: return [4 /*yield*/, ajaxResult.text()];
-                    case 6:
-                        ajaxBody = _b.sent();
+                        return [3 /*break*/, 9];
+                    case 7: return [4 /*yield*/, ajaxResult.text()];
+                    case 8:
+                        ajaxBody = _c.sent();
+                        ajaxHtml = ajaxBody;
+                        try {
+                            json = JSON.parse(ajaxBody);
+                            if (typeof json.html === 'string') {
+                                ajaxHtml = json.html;
+                            }
+                        }
+                        catch (_d) {
+                            // eslint
+                        }
                         ajaxChapters_1 = [];
                         tempAjaxChapter_1 = {};
                         ajaxParser = new htmlparser2_1.Parser({
@@ -503,8 +716,10 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                                     pushState(ParsingState.Chapter);
                                 }
                                 if (chapterHref !== undefined) {
-                                    var href = new URL(chapterHref, _this.site);
-                                    tempAjaxChapter_1.path = href.pathname.substring(1);
+                                    var path = chapterHref.startsWith('/')
+                                        ? chapterHref.slice(1)
+                                        : chapterHref.replace(_this.site + '/', '');
+                                    tempAjaxChapter_1.path = path;
                                     tempAjaxChapter_1.name = initialName;
                                 }
                             },
@@ -529,26 +744,38 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                                 }
                             },
                         });
-                        ajaxParser.write(ajaxBody);
+                        ajaxParser.write(ajaxHtml);
                         ajaxParser.end();
                         novel.chapters = ajaxChapters_1;
-                        _b.label = 7;
-                    case 7: return [2 /*return*/, novel];
+                        _c.label = 9;
+                    case 9: return [2 /*return*/, novel];
                 }
             });
         });
     };
     ReadNovelFullPlugin.prototype.parseChapter = function (chapterPath) {
         return __awaiter(this, void 0, void 0, function () {
-            var response, html, depth, depthHide, chapterHtml, skipClosingTag, currentTagToSkip, stateStack, currentState, pushState, popState, escapeRegex, escapeMap, escapeHtml, parser;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var response, html, $, depth, depthHide, chapterHtml, skipClosingTag, currentTagToSkip, stateStack, currentState, pushState, popState, escapeMap, escapeHtml, parser;
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(this.site + chapterPath)];
                     case 1:
-                        response = _a.sent();
+                        response = _b.sent();
                         return [4 /*yield*/, response.text()];
                     case 2:
-                        html = _a.sent();
+                        html = _b.sent();
+                        if ((_a = this.options) === null || _a === void 0 ? void 0 : _a.customJs) {
+                            try {
+                                $ = (0, cheerio_1.load)(html);
+                                // CustomJS HERE
+                                html = $.html();
+                            }
+                            catch (error) {
+                                console.error('Error executing customJs:', error);
+                                throw error;
+                            }
+                        }
                         chapterHtml = [];
                         skipClosingTag = false;
                         currentTagToSkip = '';
@@ -558,17 +785,17 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                         popState = function () {
                             return stateStack.length > 1 ? stateStack.pop() : currentState();
                         };
-                        escapeRegex = /[&<>"'\u00A0]/g;
                         escapeMap = {
                             '&': '&amp;',
                             '<': '&lt;',
                             '>': '&gt;',
                             '"': '&quot;',
                             "'": '&#39;',
-                            ' ': '&nbsp;',
+                            ' ': '&nbsp;',
+                            '\u200C': '', // this is probably a breaking change, report if paragraphs look weird
                         };
                         escapeHtml = function (text) {
-                            return text.replace(escapeRegex, function (char) { return escapeMap[char]; });
+                            return text.replace(/[&<>"'\xA0\u200C]/g, function (char) { return escapeMap[char]; });
                         };
                         parser = new htmlparser2_1.Parser({
                             onopentag: function (name, attribs) {
@@ -585,7 +812,7 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                                         }
                                         break;
                                     case ParsingState.Chapter:
-                                        if (name === 'sub') {
+                                        if (name === 'sub' || name === 'iframe') {
                                             pushState(ParsingState.Hidden);
                                         }
                                         else if (name === 'div') {
@@ -635,13 +862,14 @@ var ReadNovelFullPlugin = /** @class */ (function () {
                             },
                             ontext: function (text) {
                                 if (currentState() === ParsingState.Chapter) {
-                                    chapterHtml.push(escapeHtml(text));
+                                    var data = escapeHtml(text);
+                                    chapterHtml.push(data.trim().replace(/\s\s+/, ' '));
                                 }
                             },
                             onclosetag: function (name) {
                                 var state = currentState();
                                 if (state === ParsingState.Hidden) {
-                                    if (name === 'sub') {
+                                    if (name === 'sub' || name === 'iframe') {
                                         popState();
                                     }
                                     else if (name === 'div') {

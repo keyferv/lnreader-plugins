@@ -80,7 +80,7 @@ class Linovelib implements Plugin.PluginBase {
   async parseChapter(chapterPath: string): Promise<string> {
     // move major logic to LDS
     const lastFetchChapterTime =
-      storage.get('lastFetchChapterTime_' + chapterPath) || 0;
+      storage.get<number>('lastFetchChapterTime_' + chapterPath) ?? 0;
     if (Date.now() - lastFetchChapterTime < 10000) {
       return storage.get('chapterContent_' + chapterPath) || '';
     }
@@ -98,7 +98,8 @@ class Linovelib implements Plugin.PluginBase {
     pageNo: number,
   ): Promise<Plugin.NovelItem[]> {
     // move major logic to LDS
-    const lastSearchTime = storage.get('lastSearchTime_' + this.id) || 0;
+    const lastSearchTime =
+      storage.get<number>('lastSearchTime_' + this.id) ?? 0;
     if (Date.now() - lastSearchTime < 5000) {
       return [];
     }

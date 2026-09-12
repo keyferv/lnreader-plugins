@@ -12,6 +12,20 @@ var url_1 = require("url");
 var path_1 = require("path");
 var folder = (0, path_1.dirname)((0, url_1.fileURLToPath)(import.meta.url));
 var key = 'fpoiKLUues81werht039';
+// Serialized filter `"type"` literals have no TS enum equivalent in JSON,
+// so emit FilterTypes member references instead. Covers both the value
+// convention ("Checkbox") and the member-name convention ("CheckboxGroup").
+var filterTypeRef = {
+    Text: 'FilterTypes.TextInput',
+    Picker: 'FilterTypes.Picker',
+    Checkbox: 'FilterTypes.CheckboxGroup',
+    CheckboxGroup: 'FilterTypes.CheckboxGroup',
+    Switch: 'FilterTypes.Switch',
+    XCheckbox: 'FilterTypes.ExcludableCheckboxGroup',
+};
+var withFilterTypeRefs = function (json) {
+    return json.replace(/"type":"(Text|Picker|Checkbox|CheckboxGroup|Switch|XCheckbox)"/g, function (_, v) { return "\"type\":".concat(filterTypeRef[v]); });
+};
 var generateAll = function () {
     return sources_json_1.default.map(function (source) {
         source.key = key;
@@ -30,7 +44,7 @@ var generator = function generator(source) {
     var rulateTemplate = (0, fs_1.readFileSync)((0, path_1.join)(folder, 'template.ts'), {
         encoding: 'utf-8',
     });
-    var pluginScript = "\n  ".concat(rulateTemplate, "\nconst plugin = new RulatePlugin(").concat(JSON.stringify(source), ");\nexport default plugin;\n    ").trim();
+    var pluginScript = "\n  ".concat(rulateTemplate, "\nconst plugin = new RulatePlugin(").concat(withFilterTypeRefs(JSON.stringify(source)), ");\nexport default plugin;\n    ").trim();
     return {
         lang: 'russian',
         filename: source.sourceName,

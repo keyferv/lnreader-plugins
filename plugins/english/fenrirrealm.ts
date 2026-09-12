@@ -38,7 +38,7 @@ class FenrirRealmPlugin implements Plugin.PluginBase {
   name = 'Fenrir Realm';
   icon = 'src/en/fenrirrealm/icon.png';
   site = 'https://fenrirealm.com';
-  version = '1.0.12';
+  version = '1.0.13';
   imageRequestInit?: Plugin.ImageRequestInit | undefined = undefined;
 
   hideLocked = storage.get('hideLocked');
@@ -144,10 +144,44 @@ class FenrirRealmPlugin implements Plugin.PluginBase {
   }
 
   async parseChapter(chapterPath: string): Promise<string> {
-    const page = await fetchApi(this.site + '/series/' + chapterPath, {}).then(
+    const cleanPath = chapterPath.split('~~')[0];
+    const page = await fetchApi(this.site + '/series/' + cleanPath, {}).then(
       r => r.text(),
     );
-    const chapter = loadCheerio(page)('[id^="reader-area-"]');
+    const $ = loadCheerio(page);
+
+    // Port of upstream b270efe/e90f066: strip anti-scraping & watermark nodes
+    // before extracting (aria-hidden scrambles, reader attributions, inline styles,
+    // copy references / bookmarks). Scoped to local HTML flow, no API rewrite.
+    $('[aria-hidden="true"]').remove();
+    $('.reader-attribution').remove();
+    $('[data-fr-attr]').remove();
+    $('style').remove();
+    $('p, div, span, small').each((_, el) => {
+      const text = $(el).text().trim();
+      if (text.startsWith('Copy reference:') || text.startsWith('Bookmark:')) {
+        $(el).remove();
+      }
+    });
+
+    // Port of upstream e90f066: broader paragraph selectors with empty filter.
+    const chapterText = $(
+      '.reader-area p, div.content-area p, [id^="reader-area"] p',
+    )
+      .map((_, el) => {
+        const html = $(el).html()?.trim();
+        return html ? `<p>${html}</p>` : '';
+      })
+      .get()
+      .filter(Boolean)
+      .join('\n');
+
+    if (chapterText) {
+      return chapterText;
+    }
+
+    // Local fallback preserved: container html with comments stripped.
+    const chapter = $('[id^="reader-area-"]');
     chapter
       .contents()
       .filter((_, node: Node) => {
@@ -183,7 +217,7 @@ class FenrirRealmPlugin implements Plugin.PluginBase {
   }
 
   resolveUrl = (path: string, isNovel?: boolean) =>
-    this.site + '/series/' + path;
+    this.site + '/series/' + path.split('~~')[0];
 
   filters = {
     status: {

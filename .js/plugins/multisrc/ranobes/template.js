@@ -251,7 +251,7 @@ var RanobesPlugin = /** @class */ (function () {
                         isChapterDate = false;
                         genreArray = [];
                         chapters = [];
-                        tempchapter = {};
+                        tempchapter = { name: '', path: '' };
                         maxChapters = 0;
                         fixDate = this.parseDate;
                         parser = new htmlparser2_1.Parser({
@@ -362,7 +362,7 @@ var RanobesPlugin = /** @class */ (function () {
                                     isChapter = false;
                                     if (tempchapter.name) {
                                         chapters.push(__assign(__assign({}, tempchapter), { page: '1' }));
-                                        tempchapter = {};
+                                        tempchapter = { name: '', path: '' };
                                     }
                                 }
                                 if (name === 'span') {
@@ -406,7 +406,7 @@ var RanobesPlugin = /** @class */ (function () {
                         isChapterInfo = false;
                         isChapterDate = false;
                         chapters = [];
-                        tempchapter = {};
+                        tempchapter = { name: '', path: '' };
                         fixDate = this.parseDate;
                         dataJson = { pages_count: '', chapters: [] };
                         parser = new htmlparser2_1.Parser({
@@ -437,7 +437,7 @@ var RanobesPlugin = /** @class */ (function () {
                             onclosetag: function (name) {
                                 if (name === 'a' && tempchapter.name) {
                                     chapters.push(tempchapter);
-                                    tempchapter = {};
+                                    tempchapter = { name: '', path: '' };
                                 }
                                 if (name === 'div') {
                                     isChapter = false;

@@ -137,7 +137,10 @@ class Sunovels implements Plugin.PagePlugin {
         name: item.chapterName,
         releaseTime: new Date(item.releaseTime).toISOString(),
         path: item.chapterUrl,
-        chapterNumber: item.chapterNumber,
+        chapterNumber:
+          typeof item.chapterNumber === 'number'
+            ? item.chapterNumber
+            : parseInt(item.chapterNumber, 10) || undefined,
       });
     });
     return chapter;
@@ -169,7 +172,7 @@ class Sunovels implements Plugin.PagePlugin {
       const dateAttr = loadedCheerio(el)
         .find('time.chapter-update')
         .attr('datetime');
-      const date = new Date(dateAttr);
+      const date = new Date(dateAttr ?? '');
       const releaseTime = date.toISOString();
       const chapternumber = loadedCheerio(el)
         .find('strong.chapter-title')

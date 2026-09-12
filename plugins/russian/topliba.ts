@@ -21,7 +21,7 @@ class TopLiba implements Plugin.PluginBase {
   ): Promise<Plugin.NovelItem[]> {
     const data = new URLSearchParams({
       order_field: showLatestNovels ? 'date' : filters?.sort?.value || 'rating',
-      p: page,
+      p: String(page),
     });
 
     if (searchTerm) data.append('q', searchTerm);
@@ -30,7 +30,7 @@ class TopLiba implements Plugin.PluginBase {
     );
     const novels: Plugin.NovelItem[] = [];
 
-    this._token = body.match(/<meta name="_token" content="(.*?)"/)?.[1];
+    this._token = body.match(/<meta name="_token" content="(.*?)"/)?.[1] ?? '';
 
     const elements = body.match(/<img class="cover" data-original=".*>/g) || [];
     elements.forEach(element => {
@@ -122,9 +122,8 @@ class TopLiba implements Plugin.PluginBase {
       const chaptersHTML = await fetchApi(this.resolveUrl(bookID)).then(res =>
         res.text(),
       );
-      this._token = chaptersHTML.match(
-        /<meta name="_token" content="(.*?)"/,
-      )?.[1];
+      this._token =
+        chaptersHTML.match(/<meta name="_token" content="(.*?)"/)?.[1] ?? '';
     }
 
     const chapterText = await fetchApi(this.resolveUrl(bookID) + '/chapter', {

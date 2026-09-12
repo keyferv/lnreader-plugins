@@ -185,7 +185,10 @@ class RanobesPlugin implements Plugin.PluginBase {
   ): Promise<Plugin.SourceNovel & { totalPages: number }> {
     const baseUrl = this.site;
     const html = await this.safeFecth(baseUrl + novelPath);
-    const novel: Plugin.SourceNovel & { totalPages: number } = {
+    const novel: Plugin.SourceNovel & {
+      totalPages: number;
+      latestChapter?: Plugin.ChapterItem;
+    } = {
       path: novelPath,
       name: '',
       summary: '',
@@ -205,7 +208,7 @@ class RanobesPlugin implements Plugin.PluginBase {
     let isChapterDate = false;
     const genreArray: string[] = [];
     const chapters: Plugin.ChapterItem[] = [];
-    let tempchapter: Plugin.ChapterItem = {};
+    let tempchapter: Plugin.ChapterItem = { name: '', path: '' };
     let maxChapters = 0;
     const fixDate = this.parseDate;
     const parser = new Parser({
@@ -322,7 +325,7 @@ class RanobesPlugin implements Plugin.PluginBase {
           isChapter = false;
           if (tempchapter.name) {
             chapters.push({ ...tempchapter, page: '1' });
-            tempchapter = {};
+            tempchapter = { name: '', path: '' };
           }
         }
         if (name === 'span') {
@@ -360,7 +363,7 @@ class RanobesPlugin implements Plugin.PluginBase {
     let isChapterDate = false;
 
     let chapters: Plugin.ChapterItem[] = [];
-    let tempchapter: Plugin.ChapterItem = {};
+    let tempchapter: Plugin.ChapterItem = { name: '', path: '' };
     const fixDate = this.parseDate;
 
     let dataJson: {
@@ -395,7 +398,7 @@ class RanobesPlugin implements Plugin.PluginBase {
       onclosetag(name) {
         if (name === 'a' && tempchapter.name) {
           chapters.push(tempchapter);
-          tempchapter = {};
+          tempchapter = { name: '', path: '' };
         }
         if (name === 'div') {
           isChapter = false;

@@ -39,7 +39,9 @@
     "sourceName": "DaoNovel",
     "options": {
       "useNewChapterEndpoint": true,
-      "versionIncrements": 1
+      "versionIncrements": 1,
+      "down": true,
+      "downSince": 1777153113000
     }
   },
   {
@@ -116,7 +118,7 @@
   },
   {
     "id": "morenovel",
-    "sourceSite": "https://vanovel.com",
+    "sourceSite": "https://vanovel.com/",
     "sourceName": "Vanovel",
     "options": {
       "useNewChapterEndpoint": true,
@@ -142,7 +144,7 @@
       "useNewChapterEndpoint": true,
       "lang": "Arabic",
       "versionIncrements": 5,
-      "customJs": "chapterText.find('span[style*=\"opacity: 0; position: fixed;\"]').remove();"
+      "customJs": "chapterText.find('span[style*=\"opacity: 0; position: fixed;\"],[role=\"presentation\"]').remove();"
     }
   },
   {
@@ -150,7 +152,9 @@
     "sourceSite": "https://novel4up.com/",
     "sourceName": "Novel4Up",
     "options": {
-      "lang": "Arabic"
+      "lang": "Arabic",
+      "down": true,
+      "downSince": 1777153113000
     }
   },
   {
@@ -412,7 +416,9 @@
     "sourceName": "Belle Reservoir",
     "options": {
       "useNewChapterEndpoint": true,
-      "lang": "English"
+      "lang": "English",
+      "down": true,
+      "downSince": 1777153113000
     }
   },
   {
@@ -431,7 +437,9 @@
     "sourceName": "Coral Boutique",
     "options": {
       "useNewChapterEndpoint": true,
-      "lang": "English"
+      "lang": "English",
+      "down": true,
+      "downSince": 1777153113000
     }
   },
   {
@@ -633,20 +641,55 @@
     }
   },
   {
-    "id": "markazriwayat",
-    "sourceSite": "https://markazriwayat.com/",
-    "sourceName": "Markazriwayat",
-    "options": {
-      "lang": "Arabic",
-      "useNewChapterEndpoint": true
-    }
-  },
-  {
     "id": "lullobox",
     "sourceSite": "https://lullobox.com/",
     "sourceName": "LulloBox",
     "options": {
       "lang": "English",
+      "useNewChapterEndpoint": true
+    }
+  },
+  {
+    "id": "boxnovel",
+    "sourceSite": "https://novelnice.com/",
+    "sourceName": "BoxNovel",
+    "options": {
+      "lang": "English",
+      "useNewChapterEndpoint": true,
+      "versionIncrements": 2
+    }
+  },
+  {
+    "id": "novelnice",
+    "sourceSite": "https://novelnice.com/",
+    "sourceName": "Novel Nice",
+    "options": {
+      "lang": "English",
+      "useNewChapterEndpoint": true
+    }
+  },
+  {
+    "id": "novelshort",
+    "sourceSite": "https://novel-short.com/",
+    "sourceName": "Novel Short",
+    "options": {
+      "lang": "English",
+      "useNewChapterEndpoint": true
+    }
+  },
+  {
+    "id": "hangulplanet",
+    "sourceSite": "https://hangulplanet.com/",
+    "sourceName": "HangulPlanet",
+    "options": {
+      "useNewChapterEndpoint": true
+    }
+  },
+  {
+    "id": "lovelyblossoms",
+    "sourceSite": "https://lovelyblossoms.com/",
+    "sourceName": "Lovelyblossoms",
+    "options": {
       "useNewChapterEndpoint": true
     }
   }

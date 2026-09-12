@@ -1,7 +1,11 @@
 import { CheerioAPI, load as parseHTML } from 'cheerio';
 import { fetchApi } from '@libs/fetch';
 import { Plugin } from '@/types/plugin';
-import { Filters, FilterTypes } from '@libs/filterInputs';
+import {
+  Filters,
+  FilterTypes,
+  filterStringArrayValue,
+} from '@libs/filterInputs';
 import { defaultCover } from '@libs/defaultCover';
 
 class RewayatClub implements Plugin.PagePlugin {
@@ -53,8 +57,9 @@ class RewayatClub implements Plugin.PagePlugin {
       if (filters.sortOptions.value !== '') {
         link += `&ordering=${filters.sortOptions.value}`;
       }
-      if (filters.genre.value.length > 0) {
-        filters.genre.value.forEach((genre: string) => {
+      const genres = filterStringArrayValue(filters.genre.value);
+      if (genres.length > 0) {
+        genres.forEach((genre: string) => {
           link += `&genre=${genre}`;
         });
       }

@@ -7,9 +7,18 @@ class WTRLAB implements Plugin.PluginBase {
   id = 'WTRLAB';
   name = 'WTR-LAB';
   site = 'https://wtr-lab.com/';
-  version = '1.0.1';
+  version = '1.0.2';
   icon = 'src/en/wtrlab/icon.png';
   sourceLang = 'en/';
+  baggage = '';
+  trace = '';
+
+  get headers(): Record<string, string> {
+    return {
+      baggage: this.baggage,
+      'sentry-trace': this.trace,
+    };
+  }
 
   async popularNovels(
     page: number,
@@ -38,7 +47,7 @@ class WTRLAB implements Plugin.PluginBase {
       // Parse novels from JSON
       const novels: Plugin.NovelItem[] = recentNovel.data.map(
         (datum: Datum) => ({
-          name: datum.serie.data.title || '',
+          name: datum.serie.data.title || datum.serie.slug || '',
           cover: datum.serie.data.image,
           path:
             this.sourceLang +
@@ -70,9 +79,29 @@ class WTRLAB implements Plugin.PluginBase {
     }
   }
 
+  async fetchTokens() {
+    const body = await fetchApi(this.site + this.sourceLang).then(res =>
+      res.text(),
+    );
+    const $ = parseHTML(body);
+
+    this.baggage = $('meta[name="baggage"]').attr('content') ?? '';
+    this.trace = $('meta[name="sentry-trace"]').attr('content') ?? '';
+  }
+
   async parseNovel(novelPath: string): Promise<Plugin.SourceNovel> {
     const body = await fetchApi(this.site + novelPath).then(res => res.text());
     const loadedCheerio = parseHTML(body);
+
+    const baggage = loadedCheerio('meta[name="baggage"]').attr('content');
+    const trace = loadedCheerio('meta[name="sentry-trace"]').attr('content');
+
+    if (baggage && trace) {
+      this.baggage = baggage;
+      this.trace = trace;
+    } else if (!this.baggage || !this.trace) {
+      await this.fetchTokens();
+    }
 
     const novel: Plugin.SourceNovel = {
       path: novelPath,
@@ -101,8 +130,35 @@ class WTRLAB implements Plugin.PluginBase {
     const chapterJson = loadedCheerio('#__NEXT_DATA__').html() + '';
     const jsonData: NovelJson = JSON.parse(chapterJson);
 
-    const chapters: Plugin.ChapterItem[] =
-      jsonData.props.pageProps.serie.chapters.map(
+    let rawId: number | null =
+      jsonData.props.pageProps.serie.serie_data.raw_id ?? null;
+    let slug: string | null =
+      jsonData.props.pageProps.serie.serie_data.slug ?? null;
+
+    const urlMatch = novelPath.match(/(?:serie|novel)-?(\d+)\/([^/]+)/);
+    if (urlMatch) {
+      rawId = parseInt(urlMatch[1]);
+      slug = urlMatch[2];
+    }
+
+    let chapters: Plugin.ChapterItem[] = [];
+
+    if (rawId && slug) {
+      try {
+        chapters = await this.fetchAllChapters(rawId, slug);
+      } catch (error) {
+        console.error('Failed to fetch chapters via API:', error);
+        chapters = [];
+      }
+    } else {
+      console.warn('Could not extract rawId or slug from page', {
+        rawId,
+        slug,
+      });
+    }
+
+    if (chapters.length === 0) {
+      chapters = jsonData.props.pageProps.serie.chapters.map(
         (jsonChapter, chapterIndex) => ({
           name: jsonChapter.title,
           path:
@@ -119,10 +175,73 @@ class WTRLAB implements Plugin.PluginBase {
           chapterNumber: chapterIndex + 1,
         }),
       );
+    }
 
     novel.chapters = chapters;
 
     return novel;
+  }
+
+  async fetchAllChapters(
+    rawId: number,
+    slug: string,
+  ): Promise<Plugin.ChapterItem[]> {
+    const allChapters: Plugin.ChapterItem[] = [];
+    const batchSize = 500;
+    let start = 1;
+    let hasMore = true;
+
+    while (hasMore) {
+      const end = start + batchSize - 1;
+
+      try {
+        const response = await fetchApi(
+          `${this.site}api/chapters/${rawId}?start=${start}&end=${end}`,
+          {
+            headers: {
+              ...this.headers,
+            },
+          },
+        );
+
+        const data = await response.json();
+        const chapters = data.chapters ?? data.data?.chapters ?? [];
+
+        if (!Array.isArray(chapters) || chapters.length === 0) {
+          hasMore = false;
+          break;
+        }
+
+        const batchChapters: Plugin.ChapterItem[] = chapters.map(
+          (apiChapter: ApiChapter) => ({
+            name:
+              apiChapter.title ||
+              apiChapter.name ||
+              `Chapter ${apiChapter.order}`,
+            path: `${this.sourceLang}serie-${rawId}/${slug}/chapter-${apiChapter.order}`,
+            releaseTime: apiChapter.updated_at?.substring(0, 10),
+            chapterNumber: apiChapter.order,
+          }),
+        );
+
+        allChapters.push(...batchChapters);
+
+        if (chapters.length < batchSize) {
+          hasMore = false;
+          break;
+        }
+
+        start += batchSize;
+      } catch (error) {
+        console.error(`Failed to fetch chapters ${start}-${end}:`, error);
+        hasMore = false;
+        break;
+      }
+    }
+
+    return allChapters.sort(
+      (a, b) => (a.chapterNumber || 0) - (b.chapterNumber || 0),
+    );
   }
 
   async parseChapter(chapterPath: string): Promise<string> {
@@ -241,6 +360,14 @@ type Chapter = {
   title: string;
   name: string;
   created_at: string;
+  updated_at: string;
+};
+type ApiChapter = {
+  serie_id: number;
+  id: number;
+  order: number;
+  title: string;
+  name: string;
   updated_at: string;
 };
 type ChapterData = {

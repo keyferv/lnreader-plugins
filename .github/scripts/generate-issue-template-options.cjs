@@ -1,4 +1,5 @@
 /* eslint-disable no-undef, @typescript-eslint/no-var-requires */
+
 const version = require('../../package.json').version;
 const dist = `plugins/v${version}`;
 const fs = require('fs');
@@ -68,4 +69,3 @@ main().catch(err => {
   console.error('Fatal error:', err);
   process.exit(1);
 });
-

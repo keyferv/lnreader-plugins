@@ -58,9 +58,9 @@ class Oasis implements Plugin.PluginBase {
     };
     novel.cover = loadedCheerio('img[loading="lazy"]').attr('src');
 
-    loadedCheerio('.entry-content > p').each(() => {
-      if (loadedCheerio(this).text().includes('Autor')) {
-        const details = loadedCheerio(this)
+    loadedCheerio('.entry-content > p').each((_, el) => {
+      if (loadedCheerio(el).text().includes('Autor')) {
+        const details = loadedCheerio(el)
           .html()
           ?.match(/<\/strong>(.|\n)*?<br>/g)
           ?.map(detail => detail.replace(/<strong>|<\/strong>|<br>|:\s/g, ''));
