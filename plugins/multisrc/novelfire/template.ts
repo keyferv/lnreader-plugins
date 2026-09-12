@@ -2,7 +2,12 @@ import { CheerioAPI, load } from 'cheerio';
 import { fetchApi } from '@libs/fetch';
 import { Plugin } from '@/types/plugin';
 import { NovelStatus } from '@libs/novelStatus';
-import { Filters, FilterTypes, filterStringArrayValue, filterStringValue } from '@libs/filterInputs';
+import {
+  Filters,
+  FilterTypes,
+  filterStringArrayValue,
+  filterStringValue,
+} from '@libs/filterInputs';
 import { defaultCover } from '@/types/constants';
 import { storage } from '@libs/storage';
 
@@ -138,17 +143,28 @@ export class NovelFirePlugin implements Plugin.PagePlugin {
     for (const language of filterStringArrayValue(filters?.language?.value)) {
       params.append('country_id[]', language);
     }
-    params.append('ctgcon', filterStringValue(filters?.genre_operator?.value, 'and'));
+    params.append(
+      'ctgcon',
+      filterStringValue(filters?.genre_operator?.value, 'and'),
+    );
     for (const genre of filterStringArrayValue(filters?.genres?.value)) {
       params.append('categories[]', genre);
     }
-    params.append('totalchapter', filterStringValue(filters?.chapters?.value, '0'));
-    params.append('ratcon', filterStringValue(filters?.rating_operator?.value, 'min'));
+    params.append(
+      'totalchapter',
+      filterStringValue(filters?.chapters?.value, '0'),
+    );
+    params.append(
+      'ratcon',
+      filterStringValue(filters?.rating_operator?.value, 'min'),
+    );
     params.append('rating', filterStringValue(filters?.rating?.value, '0'));
     params.append('status', filterStringValue(filters?.status?.value, '-1'));
     params.append(
       'sort',
-      showLatestNovels ? 'date' : filterStringValue(filters?.sort?.value, 'rank-top'),
+      showLatestNovels
+        ? 'date'
+        : filterStringValue(filters?.sort?.value, 'rank-top'),
     );
     params.append('tagcon', filterStringValue(filters?.tagcon?.value, 'and'));
     for (const tag of filterStringArrayValue(filters?.tags?.value)) {

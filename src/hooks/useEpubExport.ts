@@ -1,61 +1,152 @@
 import { useState } from 'react';
-import { Plugin } from '@/types/plugin';
-import { generateEpub } from '@/lib/epub';
-import { useAppStore } from '@/store';
 import { toast } from 'sonner';
+import { Plugin } from '@/types/plugin';
+import { createEpub, downloadBlob } from '@/lib/epub';
 
-export const useEpubExport = (
-  sourceNovel: Plugin.SourceNovel | undefined,
-  chapters: Plugin.ChapterItem[],
-) => {
+type UseEpubExportOptions = {
+  plugin: Plugin.PluginBase | null;
+  sourceNovel: (Plugin.SourceNovel & { totalPages?: number }) | undefined;
+  chapters: Plugin.ChapterItem[];
+  novelPath: string;
+};
+
+export function useEpubExport({
+  plugin,
+  sourceNovel,
+  chapters,
+  novelPath,
+}: UseEpubExportOptions) {
   const [isExporting, setIsExporting] = useState(false);
-  const [exportProgress, setExportProgress] = useState(0);
-  const plugin = useAppStore(state => state.plugin);
 
   const exportEpub = async () => {
-    if (!sourceNovel || !plugin || chapters.length === 0) return;
+    if (!plugin || !sourceNovel || chapters.length === 0) {
+      toast.error('No novel or chapters available to export');
+      return;
+    }
 
     setIsExporting(true);
-    setExportProgress(0);
-    const chapterContents: { title: string; content: string }[] = [];
+    const toastId = toast.loading('Starting EPUB export...', {
+      description: `Preparing to export ${chapters.length} chapters`,
+    });
 
     try {
-      for (let i = 0; i < chapters.length; i++) {
-        const chapter = chapters[i];
-        try {
-          // Add delay to prevent rate limiting
-          if (i > 0) await new Promise(resolve => setTimeout(resolve, 500));
+      const allChapters: Plugin.ChapterItem[] = [];
 
+      if (sourceNovel.totalPages && sourceNovel.totalPages > 1) {
+        toast.loading('Fetching all chapters...', {
+          id: toastId,
+          description: `Found ${sourceNovel.totalPages} pages`,
+        });
+
+        for (let page = 1; page <= sourceNovel.totalPages; page++) {
+          try {
+            const pageResult = await (plugin as Plugin.PagePlugin).parsePage(
+              novelPath,
+              page.toString(),
+            );
+            allChapters.push(...pageResult.chapters);
+
+            toast.loading('Fetching chapters...', {
+              id: toastId,
+              description: `Page ${page}/${sourceNovel.totalPages} - ${allChapters.length} chapters collected`,
+            });
+          } catch (error) {
+            console.error(`Error fetching page ${page}:`, error);
+          }
+        }
+      } else {
+        allChapters.push(...chapters);
+      }
+
+      if (allChapters.length === 0) {
+        toast.error('No chapters found to export', { id: toastId });
+        setIsExporting(false);
+        return;
+      }
+
+      toast.loading('Fetching chapter content...', {
+        id: toastId,
+        description: `0/${allChapters.length} chapters processed`,
+      });
+
+      type Chapter = {
+        title: string;
+        content: string;
+        path: string;
+      };
+      const chapterContents: Chapter[] = [];
+
+      for (let i = 0; i < allChapters.length; i++) {
+        const chapter = allChapters[i];
+        try {
           const content = await plugin.parseChapter(chapter.path);
           chapterContents.push({
             title: chapter.name,
-            content: content,
+            content: content || '<p>No content available</p>',
+            path: chapter.path,
           });
-        } catch (e) {
-          console.error(`Failed to parse chapter ${chapter.name}`, e);
+
+          const progress = Math.round(((i + 1) / allChapters.length) * 100);
+          toast.loading('Fetching chapter content...', {
+            id: toastId,
+            description: `${i + 1}/${allChapters.length} chapters processed (${progress}%)`,
+          });
+        } catch (error) {
+          console.error(`Error fetching chapter ${i + 1}:`, error);
           chapterContents.push({
             title: chapter.name,
-            content: `<p>Failed to load content: ${e instanceof Error ? e.message : 'Unknown error'}</p>`,
+            content: `<p>Error: Failed to fetch chapter content</p>`,
+            path: chapter.path,
           });
-        } finally {
-          setExportProgress(((i + 1) / chapters.length) * 100);
         }
       }
 
-      await generateEpub(sourceNovel, chapterContents);
-      toast.success('EPUB exported successfully!');
+      toast.loading('Generating EPUB file...', {
+        id: toastId,
+        description: 'Creating EPUB structure',
+      });
+
+      let coverUrl = sourceNovel.cover;
+      if (coverUrl && plugin.resolveUrl) {
+        coverUrl = plugin.resolveUrl(coverUrl, true);
+      } else if (
+        coverUrl &&
+        !coverUrl.startsWith('http://') &&
+        !coverUrl.startsWith('https://')
+      ) {
+        coverUrl = coverUrl.startsWith('/') ? coverUrl : '/' + coverUrl;
+      }
+
+      const epubBlob = await createEpub(chapterContents, {
+        title: sourceNovel.name,
+        author: sourceNovel.author,
+        description: sourceNovel.summary,
+        cover: coverUrl,
+        language: 'en',
+      });
+
+      const filename = `${sourceNovel.name.replace(/[^a-z0-9]/gi, '_')}.epub`;
+      downloadBlob(epubBlob, filename);
+
+      toast.success('EPUB exported successfully!', {
+        id: toastId,
+        description: `Downloaded ${allChapters.length} chapters as ${filename}`,
+      });
     } catch (error) {
-      console.error('Failed to export EPUB:', error);
-      toast.error('Failed to export EPUB');
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to export EPUB';
+      toast.error('Export failed', {
+        id: toastId,
+        description: errorMessage,
+      });
+      console.error('Error exporting EPUB:', error);
     } finally {
       setIsExporting(false);
-      setExportProgress(0);
     }
   };
 
   return {
-    isExporting,
-    exportProgress,
     exportEpub,
+    isExporting,
   };
-};
+}

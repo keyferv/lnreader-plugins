@@ -176,7 +176,7 @@ class MVLEMPYRPlugin implements Plugin.PluginBase {
         const value = match.children[1];
         if (!value || !('children' in value)) return '';
         const valueText = value.children[0];
-        return valueText && 'data' in valueText ? (valueText.data ?? '') : '';
+        return valueText && 'data' in valueText ? valueText.data ?? '' : '';
       })(),
       genres: loadedCheerio('.genre-tags')
         .map((i, el) => loadedCheerio(el).text())

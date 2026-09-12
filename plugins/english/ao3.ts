@@ -1,7 +1,11 @@
 import { CheerioAPI, load as parseHTML } from 'cheerio';
 import { fetchApi } from '@libs/fetch';
 import { Plugin } from '@/types/plugin';
-import { Filters, FilterTypes, filterStringArrayValue } from '@libs/filterInputs';
+import {
+  Filters,
+  FilterTypes,
+  filterStringArrayValue,
+} from '@libs/filterInputs';
 import { defaultCover } from '@libs/defaultCover';
 
 class ArchiveOfOurOwn implements Plugin.PluginBase {

@@ -1,75 +1,110 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 
-import { BookOpen, Clock, Search, Settings, Zap } from 'lucide-react';
+import { BookOpen, Search, Settings, Zap } from 'lucide-react';
 import PluginHeader from '../components/plugin-header';
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 
-import plugins from '@plugins/index';
+import plugins from '@/provider/plugin-registry';
 import { useAppStore } from '@/store';
-import NovelsList from '@/components/novels-list';
+import PopularNovelsSection from '@/components/popular-novels';
 import SearchNovelsSection from '@/components/search-novels';
 import ParseNovelSection from '@/components/parse-novel';
 import SettingsSection from '@/components/settings';
 import ParseChapterSection from '@/components/parse-chapter';
 
-function Home() {
+function PluginSidebar() {
   const { plugin, selectPlugin } = useAppStore(state => state);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const [activeTab, setActiveTab] = useState('recent');
-
   const filteredPlugins = useMemo(
     () =>
-      plugins.filter(plugin =>
-        plugin.name.toLowerCase().includes(searchQuery.toLowerCase()),
+      plugins.filter(p =>
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()),
       ),
     [searchQuery],
   );
 
   return (
+    <aside className="w-64 border-r border-border bg-background flex flex-col">
+      <div className="p-6 flex-shrink-0 space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Plugins
+          </h2>
+          <span className="text-xs text-muted-foreground">
+            {filteredPlugins.length} / {plugins.length}
+          </span>
+        </div>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Search plugin..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="pl-10 h-9"
+          />
+        </div>
+      </div>
+      <div className="flex-1 overflow-y-auto px-6 pb-6">
+        <div className="space-y-2">
+          {plugins.map(p => {
+            // Never crash the sidebar over a missing icon asset; a plugin
+            // without an icon (or with an unreachable static file) still
+            // renders as a name-only entry.
+            const isVisible = p.name
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase());
+            return (
+              <button
+                key={p.id}
+                onClick={() => selectPlugin(p)}
+                className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center gap-3 ${
+                  p.id === plugin?.id
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-foreground hover:bg-muted'
+                } ${isVisible ? '' : 'hidden'}`}
+              >
+                {p.icon ? (
+                  <img
+                    src={`/static/${p.icon}`}
+                    alt=""
+                    aria-hidden="true"
+                    className="w-6 h-6 rounded-sm shrink-0 object-contain"
+                    onError={e => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                ) : null}
+                <span className="truncate">{p.name}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+function Home() {
+  const { plugin } = useAppStore(state => state);
+
+  const [activeTab, setActiveTab] = useState('popular');
+
+  const handleNavigateToParseNovel = useCallback(() => {
+    setActiveTab('parse-novel');
+  }, []);
+
+  const handleNavigateToParseChapter = useCallback(() => {
+    setActiveTab('parse-chapter');
+  }, []);
+
+  return (
     <div className="min-h-screen bg-background">
       <PluginHeader selectedPlugin={plugin} />
       <div className="flex h-[calc(100vh-64px)]">
-        <aside className="w-64 border-r bg-background flex flex-col">
-          <div className="p-6 flex-shrink-0 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Plugins
-              </h2>
-              <span className="text-xs text-muted-foreground">
-                {filteredPlugins.length}
-              </span>
-            </div>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search plugin..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="pl-10 h-9"
-              />
-            </div>
-          </div>
-          <div className="flex-1 overflow-y-auto px-6 pb-6">
-            <div className="space-y-2">
-              {filteredPlugins.map(filteredPlugin => (
-                <button
-                  key={filteredPlugin.id}
-                  onClick={() => selectPlugin(filteredPlugin)}
-                  className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                    filteredPlugin.id === plugin?.id
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-foreground hover:bg-muted'
-                  }`}
-                >
-                  {filteredPlugin.name}
-                </button>
-              ))}
-            </div>
-          </div>
-        </aside>
+        <PluginSidebar />
 
         {/* Main Content */}
         <main className="flex-1 overflow-auto">
@@ -89,11 +124,7 @@ function Home() {
               onValueChange={setActiveTab}
               className="w-full"
             >
-              <TabsList className="grid w-full grid-cols-6 mb-8">
-                <TabsTrigger value="recent" className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  <span className="hidden sm:inline">Recent</span>
-                </TabsTrigger>
+              <TabsList className="grid w-full grid-cols-5 mb-8">
                 <TabsTrigger
                   value="popular"
                   className="flex items-center gap-2"
@@ -128,29 +159,21 @@ function Home() {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="recent" className="space-y-6">
-                <NovelsList
-                  mode="latest"
-                  onNavigateToParseNovel={() => setActiveTab('parse-novel')}
-                />
-              </TabsContent>
-
               <TabsContent value="popular" className="space-y-6">
-                <NovelsList
-                  mode="popular"
-                  onNavigateToParseNovel={() => setActiveTab('parse-novel')}
+                <PopularNovelsSection
+                  onNavigateToParseNovel={handleNavigateToParseNovel}
                 />
               </TabsContent>
 
               <TabsContent value="search" className="space-y-6">
                 <SearchNovelsSection
-                  onNavigateToParseNovel={() => setActiveTab('parse-novel')}
+                  onNavigateToParseNovel={handleNavigateToParseNovel}
                 />
               </TabsContent>
 
               <TabsContent value="parse-novel" className="space-y-6">
                 <ParseNovelSection
-                  onNavigateToParseChapter={() => setActiveTab('parse-chapter')}
+                  onNavigateToParseChapter={handleNavigateToParseChapter}
                 />
               </TabsContent>
 

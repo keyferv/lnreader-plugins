@@ -128,3 +128,25 @@ export type FilterValueWithType<T extends FilterTypes> = {
  * Any possible filter value
  */
 export type AnyFilterValue = ValueOfFilter<FilterTypes>;
+
+/**
+ * Narrow a filter value to string (Picker/Text filters).
+ * Returns the fallback for Checkbox/Switch/XCheckbox values.
+ */
+export function filterStringValue(
+  value: AnyFilterValue | undefined,
+  fallback = '',
+): string {
+  return typeof value === 'string' ? value : fallback;
+}
+
+/**
+ * Narrow a filter value to string[] (Checkbox filters).
+ * Returns [] for Picker/Text/Switch/XCheckbox values.
+ */
+export function filterStringArrayValue(
+  value: AnyFilterValue | undefined,
+): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === 'string');
+}
