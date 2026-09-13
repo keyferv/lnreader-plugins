@@ -56,8 +56,17 @@ var cheerio_1 = require("cheerio");
 var fetch_1 = require("@libs/fetch");
 var novelStatus_1 = require("@libs/novelStatus");
 var filterInputs_1 = require("@libs/filterInputs");
-var constants_1 = require("@/types/constants");
+var defaultCover_1 = require("@libs/defaultCover");
 var storage_1 = require("@libs/storage");
+var filterStringValue = function (value, fallback) {
+    if (fallback === void 0) { fallback = ''; }
+    return typeof value === 'string' ? value : fallback;
+};
+var filterStringArrayValue = function (value) {
+    return Array.isArray(value)
+        ? value.filter(function (item) { return typeof item === 'string'; })
+        : [];
+};
 var NovelFirePlugin = /** @class */ (function () {
     function NovelFirePlugin(metadata) {
         var _a, _b, _c;
@@ -167,13 +176,13 @@ var NovelFirePlugin = /** @class */ (function () {
             }
             var imgElement = $el.find('.novel-cover img, img').first();
             var rawSrc = (_f = (_e = imgElement.attr('data-src')) !== null && _e !== void 0 ? _e : imgElement.attr('data-original')) !== null && _f !== void 0 ? _f : imgElement.attr('src');
-            var novelCover = constants_1.defaultCover;
+            var novelCover = defaultCover_1.defaultCover;
             if (rawSrc) {
                 try {
                     novelCover = new URL(rawSrc, this.site).href;
                 }
                 catch (_j) {
-                    novelCover = constants_1.defaultCover;
+                    novelCover = defaultCover_1.defaultCover;
                 }
             }
             novels.push({
@@ -198,33 +207,33 @@ var NovelFirePlugin = /** @class */ (function () {
                         }
                         url = this.site + 'search-adv';
                         params = new URLSearchParams();
-                        for (_i = 0, _c = (0, filterInputs_1.filterStringArrayValue)((_k = filters === null || filters === void 0 ? void 0 : filters.language) === null || _k === void 0 ? void 0 : _k.value); _i < _c.length; _i++) {
+                        for (_i = 0, _c = filterStringArrayValue((_k = filters === null || filters === void 0 ? void 0 : filters.language) === null || _k === void 0 ? void 0 : _k.value); _i < _c.length; _i++) {
                             language = _c[_i];
                             params.append('country_id[]', language);
                         }
-                        params.append('ctgcon', (0, filterInputs_1.filterStringValue)((_l = filters === null || filters === void 0 ? void 0 : filters.genre_operator) === null || _l === void 0 ? void 0 : _l.value, 'and'));
-                        for (_d = 0, _e = (0, filterInputs_1.filterStringArrayValue)((_m = filters === null || filters === void 0 ? void 0 : filters.genres) === null || _m === void 0 ? void 0 : _m.value); _d < _e.length; _d++) {
+                        params.append('ctgcon', filterStringValue((_l = filters === null || filters === void 0 ? void 0 : filters.genre_operator) === null || _l === void 0 ? void 0 : _l.value, 'and'));
+                        for (_d = 0, _e = filterStringArrayValue((_m = filters === null || filters === void 0 ? void 0 : filters.genres) === null || _m === void 0 ? void 0 : _m.value); _d < _e.length; _d++) {
                             genre = _e[_d];
                             params.append('categories[]', genre);
                         }
-                        params.append('totalchapter', (0, filterInputs_1.filterStringValue)((_o = filters === null || filters === void 0 ? void 0 : filters.chapters) === null || _o === void 0 ? void 0 : _o.value, '0'));
-                        params.append('ratcon', (0, filterInputs_1.filterStringValue)((_p = filters === null || filters === void 0 ? void 0 : filters.rating_operator) === null || _p === void 0 ? void 0 : _p.value, 'min'));
-                        params.append('rating', (0, filterInputs_1.filterStringValue)((_q = filters === null || filters === void 0 ? void 0 : filters.rating) === null || _q === void 0 ? void 0 : _q.value, '0'));
-                        params.append('status', (0, filterInputs_1.filterStringValue)((_r = filters === null || filters === void 0 ? void 0 : filters.status) === null || _r === void 0 ? void 0 : _r.value, '-1'));
+                        params.append('totalchapter', filterStringValue((_o = filters === null || filters === void 0 ? void 0 : filters.chapters) === null || _o === void 0 ? void 0 : _o.value, '0'));
+                        params.append('ratcon', filterStringValue((_p = filters === null || filters === void 0 ? void 0 : filters.rating_operator) === null || _p === void 0 ? void 0 : _p.value, 'min'));
+                        params.append('rating', filterStringValue((_q = filters === null || filters === void 0 ? void 0 : filters.rating) === null || _q === void 0 ? void 0 : _q.value, '0'));
+                        params.append('status', filterStringValue((_r = filters === null || filters === void 0 ? void 0 : filters.status) === null || _r === void 0 ? void 0 : _r.value, '-1'));
                         params.append('sort', showLatestNovels
                             ? 'date'
-                            : (0, filterInputs_1.filterStringValue)((_s = filters === null || filters === void 0 ? void 0 : filters.sort) === null || _s === void 0 ? void 0 : _s.value, 'rank-top'));
-                        params.append('tagcon', (0, filterInputs_1.filterStringValue)((_t = filters === null || filters === void 0 ? void 0 : filters.tagcon) === null || _t === void 0 ? void 0 : _t.value, 'and'));
-                        for (_f = 0, _g = (0, filterInputs_1.filterStringArrayValue)((_u = filters === null || filters === void 0 ? void 0 : filters.tags) === null || _u === void 0 ? void 0 : _u.value); _f < _g.length; _f++) {
+                            : filterStringValue((_s = filters === null || filters === void 0 ? void 0 : filters.sort) === null || _s === void 0 ? void 0 : _s.value, 'rank-top'));
+                        params.append('tagcon', filterStringValue((_t = filters === null || filters === void 0 ? void 0 : filters.tagcon) === null || _t === void 0 ? void 0 : _t.value, 'and'));
+                        for (_f = 0, _g = filterStringArrayValue((_u = filters === null || filters === void 0 ? void 0 : filters.tags) === null || _u === void 0 ? void 0 : _u.value); _f < _g.length; _f++) {
                             tag = _g[_f];
                             params.append('tags[]', tag);
                         }
-                        for (_h = 0, _j = (0, filterInputs_1.filterStringArrayValue)((_v = filters === null || filters === void 0 ? void 0 : filters.tags_excluded) === null || _v === void 0 ? void 0 : _v.value); _h < _j.length; _h++) {
+                        for (_h = 0, _j = filterStringArrayValue((_v = filters === null || filters === void 0 ? void 0 : filters.tags_excluded) === null || _v === void 0 ? void 0 : _v.value); _h < _j.length; _h++) {
                             tag = _j[_h];
                             params.append('tags_excluded[]', tag);
                         }
-                        if ((0, filterInputs_1.filterStringValue)((_w = filters === null || filters === void 0 ? void 0 : filters.author) === null || _w === void 0 ? void 0 : _w.value)) {
-                            params.append('author', (0, filterInputs_1.filterStringValue)((_x = filters === null || filters === void 0 ? void 0 : filters.author) === null || _x === void 0 ? void 0 : _x.value));
+                        if (filterStringValue((_w = filters === null || filters === void 0 ? void 0 : filters.author) === null || _w === void 0 ? void 0 : _w.value)) {
+                            params.append('author', filterStringValue((_x = filters === null || filters === void 0 ? void 0 : filters.author) === null || _x === void 0 ? void 0 : _x.value));
                         }
                         params.append('page', pageNo.toString());
                         return [4 /*yield*/, this.getCheerio("".concat(url, "?").concat(params.toString()), false)];
@@ -403,7 +412,7 @@ var NovelFirePlugin = /** @class */ (function () {
                             novel.cover = new URL(coverUrl, baseUrl).href;
                         }
                         else {
-                            novel.cover = constants_1.defaultCover;
+                            novel.cover = defaultCover_1.defaultCover;
                         }
                         novel.genres = $('.categories .property-item')
                             .map(function (_, el) { return $(el).text(); })
@@ -594,5 +603,5 @@ var NovelFireAjaxNotFound = /** @class */ (function (_super) {
     }
     return NovelFireAjaxNotFound;
 }(Error));
-var plugin = new NovelFirePlugin({ "id": "novelfire", "sourceSite": "https://novelfire.net/", "sourceName": "Novel Fire", "options": { "lang": "English", "minorVer": 4, "versionIncrement": 5 }, "filters": { "language": { "label": "Language", "value": [], "options": [{ "label": "Chinese Novel", "value": "1" }, { "label": "Japanese Novel", "value": "3" }, { "label": "English Novel", "value": "4" }], "type": filterInputs_1.FilterTypes.CheckboxGroup }, "genre_operator": { "label": "Genres (And/Or/Exclude)", "value": "and", "options": [{ "label": "AND", "value": "and" }, { "label": "OR", "value": "or" }, { "label": "EXCLUDE", "value": "exclude" }], "type": filterInputs_1.FilterTypes.Picker }, "genres": { "label": "Genres", "value": [], "options": [{ "label": "Action", "value": "3" }, { "label": "Adult", "value": "28" }, { "label": "Adventure", "value": "4" }, { "label": "Anime", "value": "46" }, { "label": "Arts", "value": "47" }, { "label": "Comedy", "value": "5" }, { "label": "Drama", "value": "24" }, { "label": "Eastern", "value": "44" }, { "label": "Ecchi", "value": "26" }, { "label": "Fan-fiction", "value": "48" }, { "label": "Fantasy", "value": "6" }, { "label": "Game", "value": "19" }, { "label": "Gender Bender", "value": "25" }, { "label": "Harem", "value": "7" }, { "label": "Historical", "value": "12" }, { "label": "Horror", "value": "37" }, { "label": "Isekai", "value": "49" }, { "label": "Josei", "value": "2" }, { "label": "Lgbt+", "value": "45" }, { "label": "Magic", "value": "50" }, { "label": "Magical realism", "value": "51" }, { "label": "Manhua", "value": "52" }, { "label": "Martial Arts", "value": "15" }, { "label": "Mature", "value": "8" }, { "label": "Mecha", "value": "34" }, { "label": "Military", "value": "53" }, { "label": "Modern life", "value": "54" }, { "label": "Movies", "value": "55" }, { "label": "Mystery", "value": "16" }, { "label": "Other", "value": "64" }, { "label": "Psychological", "value": "9" }, { "label": "Realistic fiction", "value": "56" }, { "label": "Reincarnation", "value": "43" }, { "label": "Romance", "value": "1" }, { "label": "School Life", "value": "21" }, { "label": "Sci-fi", "value": "20" }, { "label": "Seinen", "value": "10" }, { "label": "Shoujo", "value": "38" }, { "label": "Shoujo ai", "value": "57" }, { "label": "Shounen", "value": "17" }, { "label": "Shounen Ai", "value": "39" }, { "label": "Slice of Life", "value": "13" }, { "label": "Smut", "value": "29" }, { "label": "Sports", "value": "42" }, { "label": "Supernatural", "value": "18" }, { "label": "System", "value": "58" }, { "label": "Tragedy", "value": "32" }, { "label": "Urban", "value": "63" }, { "label": "Urban life", "value": "59" }, { "label": "Video games", "value": "60" }, { "label": "War", "value": "61" }, { "label": "Wuxia", "value": "31" }, { "label": "Xianxia", "value": "23" }, { "label": "Xuanhuan", "value": "22" }, { "label": "Yaoi", "value": "14" }, { "label": "Yuri", "value": "62" }], "type": filterInputs_1.FilterTypes.CheckboxGroup }, "chapters": { "label": "Chapters", "value": "0", "options": [{ "label": "All", "value": "0" }, { "label": "<50", "value": "1,49" }, { "label": "50-100", "value": "50,100" }, { "label": "100-200", "value": "100,200" }, { "label": "200-500", "value": "200,500" }, { "label": "500-1000", "value": "500,1000" }, { "label": ">1000", "value": "1001,1000000" }], "type": filterInputs_1.FilterTypes.Picker }, "rating_operator": { "label": "Rating (Min/Max)", "value": "min", "options": [{ "label": "min", "value": "min" }, { "label": "max", "value": "max" }], "type": filterInputs_1.FilterTypes.Picker }, "rating": { "label": "Rating", "value": "0", "options": [{ "label": "none", "value": "0" }, { "label": "1", "value": "1" }, { "label": "2", "value": "2" }, { "label": "3", "value": "3" }, { "label": "4", "value": "4" }, { "label": "5", "value": "5" }], "type": filterInputs_1.FilterTypes.Picker }, "status": { "label": "Translation Status", "value": "-1", "options": [{ "label": "All", "value": "-1" }, { "label": "Completed", "value": "1" }, { "label": "Ongoing", "value": "0" }], "type": filterInputs_1.FilterTypes.Picker }, "sort": { "label": "Sort Results By", "value": "date", "options": [{ "label": "Last Updated (Newest)", "value": "date" }, { "label": "Rank (Top)", "value": "rank-top" }, { "label": "Rating Score (Top)", "value": "rating-score-top" }, { "label": "Review Count (Most)", "value": "review" }, { "label": "Comment Count (Most)", "value": "comment" }, { "label": "Bookmark Count (Most)", "value": "bookmark" }, { "label": "Today Views (Most)", "value": "today-view" }, { "label": "Monthly Views (Most)", "value": "monthly-view" }, { "label": "Total Views (Most)", "value": "total-view" }, { "label": "Chapter Count (Most)", "value": "chapter-count-most" }, { "label": "Title (A>Z)", "value": "abc" }, { "label": "Title (Z>A)", "value": "cba" }], "type": filterInputs_1.FilterTypes.Picker }, "tagcon": { "label": "Tags (And/Or)", "value": "and", "options": [{ "label": "AND", "value": "and" }, { "label": "OR", "value": "or" }], "type": filterInputs_1.FilterTypes.Picker }, "author": { "label": "Author", "value": "", "type": filterInputs_1.FilterTypes.TextInput } } });
+var plugin = new NovelFirePlugin({ "id": "novelfire", "sourceSite": "https://novelfire.net/", "sourceName": "Novel Fire", "options": { "lang": "English", "minorVer": 4, "versionIncrement": 6 }, "filters": { "language": { "label": "Language", "value": [], "options": [{ "label": "Chinese Novel", "value": "1" }, { "label": "Japanese Novel", "value": "3" }, { "label": "English Novel", "value": "4" }], "type": filterInputs_1.FilterTypes.CheckboxGroup }, "genre_operator": { "label": "Genres (And/Or/Exclude)", "value": "and", "options": [{ "label": "AND", "value": "and" }, { "label": "OR", "value": "or" }, { "label": "EXCLUDE", "value": "exclude" }], "type": filterInputs_1.FilterTypes.Picker }, "genres": { "label": "Genres", "value": [], "options": [{ "label": "Action", "value": "3" }, { "label": "Adult", "value": "28" }, { "label": "Adventure", "value": "4" }, { "label": "Anime", "value": "46" }, { "label": "Arts", "value": "47" }, { "label": "Comedy", "value": "5" }, { "label": "Drama", "value": "24" }, { "label": "Eastern", "value": "44" }, { "label": "Ecchi", "value": "26" }, { "label": "Fan-fiction", "value": "48" }, { "label": "Fantasy", "value": "6" }, { "label": "Game", "value": "19" }, { "label": "Gender Bender", "value": "25" }, { "label": "Harem", "value": "7" }, { "label": "Historical", "value": "12" }, { "label": "Horror", "value": "37" }, { "label": "Isekai", "value": "49" }, { "label": "Josei", "value": "2" }, { "label": "Lgbt+", "value": "45" }, { "label": "Magic", "value": "50" }, { "label": "Magical realism", "value": "51" }, { "label": "Manhua", "value": "52" }, { "label": "Martial Arts", "value": "15" }, { "label": "Mature", "value": "8" }, { "label": "Mecha", "value": "34" }, { "label": "Military", "value": "53" }, { "label": "Modern life", "value": "54" }, { "label": "Movies", "value": "55" }, { "label": "Mystery", "value": "16" }, { "label": "Other", "value": "64" }, { "label": "Psychological", "value": "9" }, { "label": "Realistic fiction", "value": "56" }, { "label": "Reincarnation", "value": "43" }, { "label": "Romance", "value": "1" }, { "label": "School Life", "value": "21" }, { "label": "Sci-fi", "value": "20" }, { "label": "Seinen", "value": "10" }, { "label": "Shoujo", "value": "38" }, { "label": "Shoujo ai", "value": "57" }, { "label": "Shounen", "value": "17" }, { "label": "Shounen Ai", "value": "39" }, { "label": "Slice of Life", "value": "13" }, { "label": "Smut", "value": "29" }, { "label": "Sports", "value": "42" }, { "label": "Supernatural", "value": "18" }, { "label": "System", "value": "58" }, { "label": "Tragedy", "value": "32" }, { "label": "Urban", "value": "63" }, { "label": "Urban life", "value": "59" }, { "label": "Video games", "value": "60" }, { "label": "War", "value": "61" }, { "label": "Wuxia", "value": "31" }, { "label": "Xianxia", "value": "23" }, { "label": "Xuanhuan", "value": "22" }, { "label": "Yaoi", "value": "14" }, { "label": "Yuri", "value": "62" }], "type": filterInputs_1.FilterTypes.CheckboxGroup }, "chapters": { "label": "Chapters", "value": "0", "options": [{ "label": "All", "value": "0" }, { "label": "<50", "value": "1,49" }, { "label": "50-100", "value": "50,100" }, { "label": "100-200", "value": "100,200" }, { "label": "200-500", "value": "200,500" }, { "label": "500-1000", "value": "500,1000" }, { "label": ">1000", "value": "1001,1000000" }], "type": filterInputs_1.FilterTypes.Picker }, "rating_operator": { "label": "Rating (Min/Max)", "value": "min", "options": [{ "label": "min", "value": "min" }, { "label": "max", "value": "max" }], "type": filterInputs_1.FilterTypes.Picker }, "rating": { "label": "Rating", "value": "0", "options": [{ "label": "none", "value": "0" }, { "label": "1", "value": "1" }, { "label": "2", "value": "2" }, { "label": "3", "value": "3" }, { "label": "4", "value": "4" }, { "label": "5", "value": "5" }], "type": filterInputs_1.FilterTypes.Picker }, "status": { "label": "Translation Status", "value": "-1", "options": [{ "label": "All", "value": "-1" }, { "label": "Completed", "value": "1" }, { "label": "Ongoing", "value": "0" }], "type": filterInputs_1.FilterTypes.Picker }, "sort": { "label": "Sort Results By", "value": "date", "options": [{ "label": "Last Updated (Newest)", "value": "date" }, { "label": "Rank (Top)", "value": "rank-top" }, { "label": "Rating Score (Top)", "value": "rating-score-top" }, { "label": "Review Count (Most)", "value": "review" }, { "label": "Comment Count (Most)", "value": "comment" }, { "label": "Bookmark Count (Most)", "value": "bookmark" }, { "label": "Today Views (Most)", "value": "today-view" }, { "label": "Monthly Views (Most)", "value": "monthly-view" }, { "label": "Total Views (Most)", "value": "total-view" }, { "label": "Chapter Count (Most)", "value": "chapter-count-most" }, { "label": "Title (A>Z)", "value": "abc" }, { "label": "Title (Z>A)", "value": "cba" }], "type": filterInputs_1.FilterTypes.Picker }, "tagcon": { "label": "Tags (And/Or)", "value": "and", "options": [{ "label": "AND", "value": "and" }, { "label": "OR", "value": "or" }], "type": filterInputs_1.FilterTypes.Picker }, "author": { "label": "Author", "value": "", "type": filterInputs_1.FilterTypes.TextInput } } });
 exports.default = plugin;
