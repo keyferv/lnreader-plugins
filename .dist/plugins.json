@@ -1049,7 +1049,7 @@
 		"name": "Novel Fire",
 		"site": "https://novelfire.net/",
 		"lang": "English",
-		"version": "1.4.7",
+		"version": "1.4.8",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/english/NovelFire[novelfire].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/multisrc/novelfire/novelfire/icon.png"
 	},
