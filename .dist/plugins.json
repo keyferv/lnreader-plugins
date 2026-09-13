@@ -1058,7 +1058,7 @@
 		"name": "Novel Fire",
 		"site": "https://novelfire.net/",
 		"lang": "English",
-		"version": "1.4.4",
+		"version": "1.4.5",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/english/NovelFire[novelfire].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/multisrc/novelfire/novelfire/icon.png"
 	},
@@ -1139,7 +1139,7 @@
 		"name": "Novel Phoenix",
 		"site": "https://novelphoenix.com/",
 		"lang": "English",
-		"version": "1.0.2",
+		"version": "1.0.3",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/english/NovelPhoenix[novelfire].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/multisrc/novelfire/novelphoenix/icon.png"
 	},
