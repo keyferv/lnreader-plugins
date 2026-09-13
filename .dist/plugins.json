@@ -1027,15 +1027,6 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/en/novelarrow/icon.png"
 	},
 	{
-		"id": "novelbin",
-		"name": "Novel Bin",
-		"site": "https://novelbin.com/",
-		"lang": "English",
-		"version": "2.2.2",
-		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/english/NovelBin[readnovelfull].js",
-		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/multisrc/readnovelfull/novelbin/icon.png"
-	},
-	{
 		"id": "novelbuddy",
 		"name": "NovelBuddy",
 		"site": "https://novelbuddy.me/",
@@ -2202,7 +2193,7 @@
 		"name": "DevilNovels",
 		"site": "https://devilnovels.com/",
 		"lang": "Español",
-		"version": "1.0.6",
+		"version": "1.1.0",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/spanish/devilnovels.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/es/devilnovels/icon.png"
 	},
@@ -2265,7 +2256,7 @@
 		"name": "Novelas Ligeras (net)",
 		"site": "https://novelasligeras.net/",
 		"lang": "Español",
-		"version": "1.0.1",
+		"version": "1.1.0",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/spanish/novelasligerasnet.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/es/novelasligerasnet/icon.png"
 	},
@@ -2290,9 +2281,9 @@
 	{
 		"id": "panchotranslations",
 		"name": "Pancho Translations",
-		"site": "https://panchonovels.online/",
+		"site": "https://panchovelas.online/",
 		"lang": "Español",
-		"version": "1.1.8",
+		"version": "2.0.0",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/spanish/panchotranslations.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/multisrc/madara/panchotranslations/icon.png"
 	},
@@ -2337,7 +2328,7 @@
 		"name": "TuNovelaLigera",
 		"site": "https://tunovelaligera.com",
 		"lang": "Español",
-		"version": "1.2.1",
+		"version": "1.3.0",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/spanish/tunovelaligera.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/es/tunovelaligera/icon.png"
 	},
@@ -2556,5 +2547,14 @@
 		"version": "1.0.1",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/multi/komga.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/multi/komga/icon.png"
+	},
+	{
+		"id": "novelarchive",
+		"name": "Novel Archive",
+		"site": "https://novelarchive.cc/",
+		"lang": "English",
+		"version": "1.0.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/english/novelarchive.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/en/novelarchive/icon.png"
 	}
 ]
