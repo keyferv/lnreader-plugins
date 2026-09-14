@@ -55,14 +55,26 @@ exports.NovelFirePlugin = void 0;
 var cheerio_1 = require("cheerio");
 var fetch_1 = require("@libs/fetch");
 var novelStatus_1 = require("@libs/novelStatus");
-var filterInputs_1 = require("@libs/filterInputs");
-var constants_1 = require("@/types/constants");
+var defaultCover_1 = require("@libs/defaultCover");
 var storage_1 = require("@libs/storage");
+var filterStringValue = function (value, fallback) {
+    if (fallback === void 0) { fallback = ''; }
+    return typeof value === 'string' ? value : fallback;
+};
+var filterStringArrayValue = function (value) {
+    return Array.isArray(value)
+        ? value.filter(function (item) { return typeof item === 'string'; })
+        : [];
+};
 var NovelFirePlugin = /** @class */ (function () {
     function NovelFirePlugin(metadata) {
         var _a, _b, _c;
         this.webStorageUtilized = true;
-        this.novelList = new Set();
+        // Per-listing dedup state: each listing owns its pagination, so page 2+ of
+        // one listing must never be filtered against items seen in another listing.
+        this.popularNovelList = new Set();
+        this.latestNovelList = new Set();
+        this.searchNovelList = new Set();
         this.draw = 0;
         this.pluginSettings = {
             pageLength: {
@@ -91,19 +103,22 @@ var NovelFirePlugin = /** @class */ (function () {
     }
     NovelFirePlugin.prototype.getCheerio = function (url, search) {
         return __awaiter(this, void 0, void 0, function () {
-            var r, $, _a;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var r, html, $;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0: return [4 /*yield*/, (0, fetch_1.fetchApi)(url)];
                     case 1:
-                        r = _b.sent();
+                        r = _a.sent();
                         if (!r.ok && search != true)
                             throw new Error('Could not reach site (' + r.status + ') try to open in webview.');
-                        _a = cheerio_1.load;
                         return [4 /*yield*/, r.text()];
                     case 2:
-                        $ = _a.apply(void 0, [_b.sent()]);
-                        if ($('title').text().includes('Cloudflare')) {
+                        html = _a.sent();
+                        $ = (0, cheerio_1.load)(html);
+                        if ($('title').text().includes('Cloudflare') ||
+                            html.includes('Just a moment') ||
+                            html.includes('cf-challenge') ||
+                            html.includes('cf_clearance')) {
                             throw new Error('Cloudflare is blocking requests. Try again later.');
                         }
                         return [2 /*return*/, $];
@@ -111,33 +126,88 @@ var NovelFirePlugin = /** @class */ (function () {
             });
         });
     };
-    NovelFirePlugin.prototype.parseNovels = function (loadedCheerio, selector, isFirstPage) {
-        var _a, _b, _c;
+    // True when the caller applied at least one advanced filter that differs
+    // from the plugin's own filter defaults. Default (untouched) filters keep
+    // the default listing route contract; only real user filtering falls back
+    // to the search-adv endpoint.
+    NovelFirePlugin.prototype.hasActiveFilters = function (values, defaults) {
+        var _a, _b;
+        if (!values || !defaults)
+            return false;
+        for (var _i = 0, _c = Object.keys(values); _i < _c.length; _i++) {
+            var key = _c[_i];
+            if (!(key in defaults))
+                return true;
+            var current = (_a = values[key]) === null || _a === void 0 ? void 0 : _a.value;
+            var fallback = (_b = defaults[key]) === null || _b === void 0 ? void 0 : _b.value;
+            if (JSON.stringify(current !== null && current !== void 0 ? current : null) !== JSON.stringify(fallback !== null && fallback !== void 0 ? fallback : null))
+                return true;
+        }
+        return false;
+    };
+    NovelFirePlugin.prototype.parseNovels = function (loadedCheerio, selector, isFirstPage, seen) {
+        var _a, _b, _c, _d, _e, _f;
         if (selector === void 0) { selector = '.novel-item'; }
         if (isFirstPage === void 0) { isFirstPage = false; }
+        if (seen === void 0) { seen = this.popularNovelList; }
         var novels = [];
         var elements = loadedCheerio(selector).toArray();
-        for (var _i = 0, elements_1 = elements; _i < elements_1.length; _i++) {
-            var el = elements_1[_i];
+        if (elements.length === 0) {
+            var fallbackSelectors = [
+                '.novel-list .novel-item',
+                '.list-novel .novel-item',
+                '.archive-list .novel-item',
+                'article.novel-item',
+                '.novel-item',
+            ];
+            for (var _i = 0, fallbackSelectors_1 = fallbackSelectors; _i < fallbackSelectors_1.length; _i++) {
+                var fallback = fallbackSelectors_1[_i];
+                elements = loadedCheerio(fallback).toArray();
+                if (elements.length > 0)
+                    break;
+            }
+        }
+        for (var _g = 0, elements_1 = elements; _g < elements_1.length; _g++) {
+            var el = elements_1[_g];
             var $el = loadedCheerio(el);
-            var novelName = (_a = $el.find('a').attr('title')) !== null && _a !== void 0 ? _a : $el.find('h4').text().trim();
-            var novelPath = (_b = $el.children('a').attr('href')) !== null && _b !== void 0 ? _b : $el.find('h4 a').attr('href');
-            if (!novelPath)
+            var titleAttr = (_a = $el.find('a[title]').first().attr('title')) === null || _a === void 0 ? void 0 : _a.trim();
+            var headingText = $el.find('h4, h3, .novel-title').first().text().trim();
+            var imgAlt = (_b = $el.find('img[alt]').first().attr('alt')) === null || _b === void 0 ? void 0 : _b.trim();
+            var linkText = $el.find('a').first().text().trim();
+            var novelName = titleAttr || headingText || imgAlt || linkText;
+            if (!novelName)
                 continue;
-            var path = new URL(novelPath, this.site).pathname.substring(1);
+            var novelPath = (_d = (_c = $el.children('a').attr('href')) !== null && _c !== void 0 ? _c : $el.find('h4 a, h3 a').attr('href')) !== null && _d !== void 0 ? _d : $el.find('a[href]').attr('href');
+            if (!novelPath || novelPath.startsWith('#'))
+                continue;
+            var path = void 0;
+            try {
+                path = new URL(novelPath, this.site).pathname.substring(1);
+            }
+            catch (_h) {
+                continue;
+            }
+            if (!path)
+                continue;
             if (!isFirstPage) {
-                if (this.novelList.has(path))
+                if (seen.has(path))
                     continue;
-                this.novelList.add(path);
+                seen.add(path);
             }
             else {
-                this.novelList.add(path);
+                seen.add(path);
             }
-            var imgElement = $el.find('.novel-cover > img');
-            var rawSrc = (_c = imgElement.attr('data-src')) !== null && _c !== void 0 ? _c : imgElement.attr('src');
-            var novelCover = rawSrc
-                ? new URL(rawSrc, this.site).href
-                : constants_1.defaultCover;
+            var imgElement = $el.find('.novel-cover img, img').first();
+            var rawSrc = (_f = (_e = imgElement.attr('data-src')) !== null && _e !== void 0 ? _e : imgElement.attr('data-original')) !== null && _f !== void 0 ? _f : imgElement.attr('src');
+            var novelCover = defaultCover_1.defaultCover;
+            if (rawSrc) {
+                try {
+                    novelCover = new URL(rawSrc, this.site).href;
+                }
+                catch (_j) {
+                    novelCover = defaultCover_1.defaultCover;
+                }
+            }
             novels.push({
                 name: novelName,
                 cover: novelCover,
@@ -148,51 +218,81 @@ var NovelFirePlugin = /** @class */ (function () {
     };
     NovelFirePlugin.prototype.popularNovels = function (pageNo_1, _a) {
         return __awaiter(this, arguments, void 0, function (pageNo, _b) {
-            var url, params, _i, _c, language, _d, _e, genre, _f, _g, tag, _h, _j, tag, loadedCheerio;
-            var _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x;
+            var popularPath, latestPath, url_1, loadedCheerio_1, url_2, loadedCheerio_2, url, params, _i, _c, language, _d, _e, genre, _f, _g, tag, _h, _j, tag, loadedCheerio;
+            var _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z;
             var showLatestNovels = _b.showLatestNovels, filters = _b.filters;
-            return __generator(this, function (_y) {
-                switch (_y.label) {
+            return __generator(this, function (_0) {
+                switch (_0.label) {
                     case 0:
+                        popularPath = (_k = this.options) === null || _k === void 0 ? void 0 : _k.popularPath;
+                        latestPath = (_l = this.options) === null || _l === void 0 ? void 0 : _l.latestPath;
+                        if (!(showLatestNovels && latestPath)) return [3 /*break*/, 2];
                         if (pageNo === 1) {
-                            this.novelList.clear();
+                            this.latestNovelList.clear();
+                            this.draw = 0;
+                        }
+                        url_1 = pageNo === 1
+                            ? this.site + latestPath
+                            : "".concat(this.site).concat(latestPath, "?page=").concat(pageNo);
+                        return [4 /*yield*/, this.getCheerio(url_1, false)];
+                    case 1:
+                        loadedCheerio_1 = _0.sent();
+                        return [2 /*return*/, this.parseNovels(loadedCheerio_1, '.novel-item', pageNo === 1, this.latestNovelList)];
+                    case 2:
+                        if (!(!showLatestNovels &&
+                            popularPath &&
+                            !this.hasActiveFilters(filters, this.filters))) return [3 /*break*/, 4];
+                        if (pageNo === 1) {
+                            this.popularNovelList.clear();
+                            this.draw = 0;
+                        }
+                        url_2 = pageNo === 1
+                            ? this.site + popularPath
+                            : "".concat(this.site).concat(popularPath, "?page=").concat(pageNo);
+                        return [4 /*yield*/, this.getCheerio(url_2, false)];
+                    case 3:
+                        loadedCheerio_2 = _0.sent();
+                        return [2 /*return*/, this.parseNovels(loadedCheerio_2, '.novel-item', pageNo === 1, this.popularNovelList)];
+                    case 4:
+                        if (pageNo === 1) {
+                            this.popularNovelList.clear();
                             this.draw = 0;
                         }
                         url = this.site + 'search-adv';
                         params = new URLSearchParams();
-                        for (_i = 0, _c = (0, filterInputs_1.filterStringArrayValue)((_k = filters === null || filters === void 0 ? void 0 : filters.language) === null || _k === void 0 ? void 0 : _k.value); _i < _c.length; _i++) {
+                        for (_i = 0, _c = filterStringArrayValue((_m = filters === null || filters === void 0 ? void 0 : filters.language) === null || _m === void 0 ? void 0 : _m.value); _i < _c.length; _i++) {
                             language = _c[_i];
                             params.append('country_id[]', language);
                         }
-                        params.append('ctgcon', (0, filterInputs_1.filterStringValue)((_l = filters === null || filters === void 0 ? void 0 : filters.genre_operator) === null || _l === void 0 ? void 0 : _l.value, 'and'));
-                        for (_d = 0, _e = (0, filterInputs_1.filterStringArrayValue)((_m = filters === null || filters === void 0 ? void 0 : filters.genres) === null || _m === void 0 ? void 0 : _m.value); _d < _e.length; _d++) {
+                        params.append('ctgcon', filterStringValue((_o = filters === null || filters === void 0 ? void 0 : filters.genre_operator) === null || _o === void 0 ? void 0 : _o.value, 'and'));
+                        for (_d = 0, _e = filterStringArrayValue((_p = filters === null || filters === void 0 ? void 0 : filters.genres) === null || _p === void 0 ? void 0 : _p.value); _d < _e.length; _d++) {
                             genre = _e[_d];
                             params.append('categories[]', genre);
                         }
-                        params.append('totalchapter', (0, filterInputs_1.filterStringValue)((_o = filters === null || filters === void 0 ? void 0 : filters.chapters) === null || _o === void 0 ? void 0 : _o.value, '0'));
-                        params.append('ratcon', (0, filterInputs_1.filterStringValue)((_p = filters === null || filters === void 0 ? void 0 : filters.rating_operator) === null || _p === void 0 ? void 0 : _p.value, 'min'));
-                        params.append('rating', (0, filterInputs_1.filterStringValue)((_q = filters === null || filters === void 0 ? void 0 : filters.rating) === null || _q === void 0 ? void 0 : _q.value, '0'));
-                        params.append('status', (0, filterInputs_1.filterStringValue)((_r = filters === null || filters === void 0 ? void 0 : filters.status) === null || _r === void 0 ? void 0 : _r.value, '-1'));
+                        params.append('totalchapter', filterStringValue((_q = filters === null || filters === void 0 ? void 0 : filters.chapters) === null || _q === void 0 ? void 0 : _q.value, '0'));
+                        params.append('ratcon', filterStringValue((_r = filters === null || filters === void 0 ? void 0 : filters.rating_operator) === null || _r === void 0 ? void 0 : _r.value, 'min'));
+                        params.append('rating', filterStringValue((_s = filters === null || filters === void 0 ? void 0 : filters.rating) === null || _s === void 0 ? void 0 : _s.value, '0'));
+                        params.append('status', filterStringValue((_t = filters === null || filters === void 0 ? void 0 : filters.status) === null || _t === void 0 ? void 0 : _t.value, '-1'));
                         params.append('sort', showLatestNovels
                             ? 'date'
-                            : (0, filterInputs_1.filterStringValue)((_s = filters === null || filters === void 0 ? void 0 : filters.sort) === null || _s === void 0 ? void 0 : _s.value, 'rank-top'));
-                        params.append('tagcon', (0, filterInputs_1.filterStringValue)((_t = filters === null || filters === void 0 ? void 0 : filters.tagcon) === null || _t === void 0 ? void 0 : _t.value, 'and'));
-                        for (_f = 0, _g = (0, filterInputs_1.filterStringArrayValue)((_u = filters === null || filters === void 0 ? void 0 : filters.tags) === null || _u === void 0 ? void 0 : _u.value); _f < _g.length; _f++) {
+                            : filterStringValue((_u = filters === null || filters === void 0 ? void 0 : filters.sort) === null || _u === void 0 ? void 0 : _u.value, 'rank-top'));
+                        params.append('tagcon', filterStringValue((_v = filters === null || filters === void 0 ? void 0 : filters.tagcon) === null || _v === void 0 ? void 0 : _v.value, 'and'));
+                        for (_f = 0, _g = filterStringArrayValue((_w = filters === null || filters === void 0 ? void 0 : filters.tags) === null || _w === void 0 ? void 0 : _w.value); _f < _g.length; _f++) {
                             tag = _g[_f];
                             params.append('tags[]', tag);
                         }
-                        for (_h = 0, _j = (0, filterInputs_1.filterStringArrayValue)((_v = filters === null || filters === void 0 ? void 0 : filters.tags_excluded) === null || _v === void 0 ? void 0 : _v.value); _h < _j.length; _h++) {
+                        for (_h = 0, _j = filterStringArrayValue((_x = filters === null || filters === void 0 ? void 0 : filters.tags_excluded) === null || _x === void 0 ? void 0 : _x.value); _h < _j.length; _h++) {
                             tag = _j[_h];
                             params.append('tags_excluded[]', tag);
                         }
-                        if ((0, filterInputs_1.filterStringValue)((_w = filters === null || filters === void 0 ? void 0 : filters.author) === null || _w === void 0 ? void 0 : _w.value)) {
-                            params.append('author', (0, filterInputs_1.filterStringValue)((_x = filters === null || filters === void 0 ? void 0 : filters.author) === null || _x === void 0 ? void 0 : _x.value));
+                        if (filterStringValue((_y = filters === null || filters === void 0 ? void 0 : filters.author) === null || _y === void 0 ? void 0 : _y.value)) {
+                            params.append('author', filterStringValue((_z = filters === null || filters === void 0 ? void 0 : filters.author) === null || _z === void 0 ? void 0 : _z.value));
                         }
                         params.append('page', pageNo.toString());
                         return [4 /*yield*/, this.getCheerio("".concat(url, "?").concat(params.toString()), false)];
-                    case 1:
-                        loadedCheerio = _y.sent();
-                        return [2 /*return*/, this.parseNovels(loadedCheerio, '.novel-item', pageNo === 1)];
+                    case 5:
+                        loadedCheerio = _0.sent();
+                        return [2 /*return*/, this.parseNovels(loadedCheerio, '.novel-item', pageNo === 1, this.popularNovelList)];
                 }
             });
         });
@@ -365,7 +465,7 @@ var NovelFirePlugin = /** @class */ (function () {
                             novel.cover = new URL(coverUrl, baseUrl).href;
                         }
                         else {
-                            novel.cover = constants_1.defaultCover;
+                            novel.cover = defaultCover_1.defaultCover;
                         }
                         novel.genres = $('.categories .property-item')
                             .map(function (_, el) { return $(el).text(); })
@@ -423,7 +523,7 @@ var NovelFirePlugin = /** @class */ (function () {
     };
     NovelFirePlugin.prototype.parsePage = function (novelPath, page) {
         return __awaiter(this, void 0, void 0, function () {
-            var post_id, chapters, e_1, length, url, result, body, loadedCheerio_1, chapters;
+            var post_id, chapters, e_1, length, url, result, body, loadedCheerio_3, chapters;
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -450,11 +550,11 @@ var NovelFirePlugin = /** @class */ (function () {
                         return [4 /*yield*/, result.text()];
                     case 6:
                         body = _a.sent();
-                        loadedCheerio_1 = (0, cheerio_1.load)(body);
-                        chapters = loadedCheerio_1('.chapter-list li')
+                        loadedCheerio_3 = (0, cheerio_1.load)(body);
+                        chapters = loadedCheerio_3('.chapter-list li')
                             .map(function (_, ele) {
-                            var chapterName = loadedCheerio_1(ele).find('a').attr('title') || 'No Title Found';
-                            var chapterPath = loadedCheerio_1(ele).find('a').attr('href');
+                            var chapterName = loadedCheerio_3(ele).find('a').attr('title') || 'No Title Found';
+                            var chapterPath = loadedCheerio_3(ele).find('a').attr('href');
                             if (!chapterPath)
                                 return null;
                             return {
@@ -513,7 +613,7 @@ var NovelFirePlugin = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         if (page === 1) {
-                            this.novelList.clear();
+                            this.searchNovelList.clear();
                             this.draw = 0;
                         }
                         params = new URLSearchParams();
@@ -527,7 +627,7 @@ var NovelFirePlugin = /** @class */ (function () {
                     case 2:
                         body = _a.sent();
                         loadedCheerio = (0, cheerio_1.load)(body);
-                        return [2 /*return*/, this.parseNovels(loadedCheerio, '.novel-list.chapters .novel-item', page === 1)];
+                        return [2 /*return*/, this.parseNovels(loadedCheerio, '.novel-list.chapters .novel-item', page === 1, this.searchNovelList)];
                 }
             });
         });

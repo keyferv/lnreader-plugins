@@ -162,6 +162,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/cn/69shu/icon.png"
 	},
 	{
+		"id": "69xinshu",
+		"name": "69书吧",
+		"site": "https://69shu.biz",
+		"lang": "中文, 汉语, 漢語",
+		"version": "0.1.2",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/chinese/69xinshu.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/cn/69xinshu/icon.png"
+	},
+	{
 		"id": "ixdzs8",
 		"name": "爱下电子书",
 		"site": "https://ixdzs8.com/",
@@ -295,6 +304,15 @@
 		"version": "1.0.8",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/english/BelleReservoir[madara].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/multisrc/madara/bellereservoir/icon.png"
+	},
+	{
+		"id": "BLN",
+		"name": "BestLightNovel",
+		"site": "https://bestlightnovel.com/",
+		"lang": "English",
+		"version": "1.0.1",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/english/bestlightnovel.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/en/bestlightnovel/icon.png"
 	},
 	{
 		"id": "blumeverse",
@@ -475,6 +493,15 @@
 		"version": "1.0.8",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/english/DuskBlossoms[madara].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/multisrc/madara/duskblossoms/icon.png"
+	},
+	{
+		"id": "earlynovel",
+		"name": "Early Novel",
+		"site": "https://earlynovel.net/",
+		"lang": "English",
+		"version": "1.0.1",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/english/earlynovel.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/en/earlynovel/icon.png"
 	},
 	{
 		"id": "ellotl",
@@ -766,6 +793,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/multisrc/readnovelfull/lightnovelplus/icon.png"
 	},
 	{
+		"id": "lightnovelpub",
+		"name": "LightNovelPub",
+		"site": "https://www.lightnovelpub.com/",
+		"lang": "English",
+		"version": "2.2.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/english/lightnovelpub.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/en/lightnovelpub/icon.png"
+	},
+	{
 		"id": "lightnovelpubvip",
 		"name": "LightNovelPub Vip",
 		"site": "https://lightnovelpub.vip/",
@@ -1018,6 +1054,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/en/novel7s/icon.png"
 	},
 	{
+		"id": "novelarchive",
+		"name": "Novel Archive",
+		"site": "https://novelarchive.cc/",
+		"lang": "English",
+		"version": "1.0.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/english/novelarchive.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/en/novelarchive/icon.png"
+	},
+	{
 		"id": "novelarrow",
 		"name": "Novel Arrow",
 		"site": "https://novelarrow.com/",
@@ -1175,7 +1220,7 @@
 		"name": "Novel Updates",
 		"site": "https://www.novelupdates.com/",
 		"lang": "English",
-		"version": "0.11.0",
+		"version": "0.11.1",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/english/novelupdates.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/en/novelupdates/icon.png",
 		"customCSS": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/en/novelupdates/customCSS.css"
@@ -1314,6 +1359,15 @@
 		"version": "1.1.13",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/english/RequiemTranslations[lightnovelwp].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/multisrc/lightnovelwp/requiemtls/icon.png"
+	},
+	{
+		"id": "rln.app",
+		"name": "ReadLiteNovel",
+		"site": "https://rln.app",
+		"lang": "English",
+		"version": "1.0.1",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/english/readlitenovel.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/en/readlitenovel/icon.png"
 	},
 	{
 		"id": "royalroad",
@@ -1703,6 +1757,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/fr/novhell/icon.png"
 	},
 	{
+		"id": "phenixscans",
+		"name": "PhenixScans",
+		"site": "https://phenixscans.fr",
+		"lang": "Français",
+		"version": "1.0.1",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/french/phenixscans.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/fr/phenixscans/icon.png"
+	},
+	{
 		"id": "rezerowebnovelfr",
 		"name": "Re:Zero Web Novel FR",
 		"site": "https://rezerowebnovelfr.wordpress.com",
@@ -2045,6 +2108,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/ru/ficbook/icon.png"
 	},
 	{
+		"id": "freedlit.space",
+		"name": "LitSpace",
+		"site": "https://freedlit.space",
+		"lang": "Русский",
+		"version": "1.1.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/russian/LitSpace.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/ru/freedlit/icon.png"
+	},
+	{
 		"id": "ifreedom",
 		"name": "Свободный Мир Ранобэ",
 		"site": "https://ifreedom.su",
@@ -2088,6 +2160,15 @@
 		"version": "1.0.0",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/russian/NovelCool(RU)[novelcool].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/multisrc/novelcool/novelcool/icon.png"
+	},
+	{
+		"id": "novelovh",
+		"name": "НовелОВХ",
+		"site": "https://novel.ovh",
+		"lang": "Русский",
+		"version": "1.0.3",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/russian/novelOvh.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/ru/novelovh/icon.png"
 	},
 	{
 		"id": "ranobes-ru",
@@ -2142,6 +2223,15 @@
 		"version": "1.0.0",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/russian/Rulate[rulate].js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/multisrc/rulate/rulate-api/icon.png"
+	},
+	{
+		"id": "RV",
+		"name": "Ruvers",
+		"site": "https://ruvers.ru/",
+		"lang": "Русский",
+		"version": "1.0.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/russian/ruvers.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/ru/ruvers/icon.png"
 	},
 	{
 		"id": "TL",
@@ -2238,7 +2328,7 @@
 		"name": "NOVA",
 		"site": "https://novelasligeras.net",
 		"lang": "Español",
-		"version": "1.1.1",
+		"version": "1.1.2",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/spanish/NOVA.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/es/nova/icon.png"
 	},
@@ -2504,6 +2594,15 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/uk/smakolykytl/icon.png"
 	},
 	{
+		"id": "uaranobeclub",
+		"name": "UA Ranobe Club",
+		"site": "https://uaranobe.club/",
+		"lang": "Українська",
+		"version": "1.1.4",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/ukrainian/uaranobeclub.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/uk/uaranobeclub/icon.png"
+	},
+	{
 		"id": "lightnovel.vn",
 		"name": "Light Novel VN",
 		"site": "https://lightnovel.vn",
@@ -2531,6 +2630,34 @@
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/vi/nettruyen/icon.png"
 	},
 	{
+		"id": "truyenchu",
+		"name": "Truyện Chữ",
+		"site": "https://truyenchu.vn",
+		"lang": "Tiếng Việt",
+		"version": "1.0.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/vietnamese/truyenchu.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/vi/truyenchu/icon.png"
+	},
+	{
+		"id": "truyenconect",
+		"name": "Truyen Conect",
+		"site": "https://truyenconect.com",
+		"lang": "Tiếng Việt",
+		"version": "1.0.0",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/vietnamese/Truyenconect.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/vi/truyenconect/icon.png",
+		"customJS": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/vi/truyenconect/test.js"
+	},
+	{
+		"id": "truyenfull",
+		"name": "Truyện Full",
+		"site": "https://truyenfull.io",
+		"lang": "Tiếng Việt",
+		"version": "1.0.2",
+		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/vietnamese/truyenfull.js",
+		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/vi/truyenfull/icon.png"
+	},
+	{
 		"id": "truyenss.com",
 		"name": "TruyenSS",
 		"site": "https://truyenss.com",
@@ -2547,14 +2674,5 @@
 		"version": "1.0.1",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/multi/komga.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/multi/komga/icon.png"
-	},
-	{
-		"id": "novelarchive",
-		"name": "Novel Archive",
-		"site": "https://novelarchive.cc/",
-		"lang": "English",
-		"version": "1.0.0",
-		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/english/novelarchive.js",
-		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/en/novelarchive/icon.png"
 	}
 ]
