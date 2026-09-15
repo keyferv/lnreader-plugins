@@ -977,7 +977,7 @@
 		"name": "MVLEMPYR",
 		"site": "https://www.mvlempyr.io/",
 		"lang": "English",
-		"version": "1.0.13",
+		"version": "1.0.14",
 		"url": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/.js/src/plugins/english/mvlempyr.js",
 		"iconUrl": "https://raw.githubusercontent.com/keyferv/lnreader-plugins/plugins/v3.0.0/public/static/src/en/mvlempyr/icon.png"
 	},
